@@ -11,18 +11,38 @@ export async function POST(request: Request) {
 
         if (!username || !password) {
             return NextResponse.json(
-                { success: false, message: "Введите логин и пароль." },
+                {
+                    success: false,
+                    message: "Введите логин и пароль.",
+                },
                 { status: 400 }
             );
         }
 
+        if (!process.env.DATABASE_URL) {
+            console.error("DATABASE_URL не указан.");
+
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "Ошибка подключения к базе данных.",
+                },
+                { status: 500 }
+            );
+        }
+
         const connection = await mysql.createConnection(
-            process.env.DATABASE_URL as string
+            process.env.DATABASE_URL
         );
 
         const [rows] = await connection.execute(
             `
-            SELECT id, username, password, avatar, role
+            SELECT
+                id,
+                username,
+                password,
+                avatar,
+                role
             FROM users
             WHERE username = ?
             LIMIT 1
@@ -42,7 +62,10 @@ export async function POST(request: Request) {
 
         if (users.length === 0) {
             return NextResponse.json(
-                { success: false, message: "Неверный логин или пароль." },
+                {
+                    success: false,
+                    message: "Неверный логин или пароль.",
+                },
                 { status: 401 }
             );
         }
@@ -56,12 +79,15 @@ export async function POST(request: Request) {
 
         if (!passwordCorrect) {
             return NextResponse.json(
-                { success: false, message: "Неверный логин или пароль." },
+                {
+                    success: false,
+                    message: "Неверный логин или пароль.",
+                },
                 { status: 401 }
             );
         }
 
-        return NextResponse.json({
+        const response = NextResponse.json({
             success: true,
             message: "Вход выполнен успешно.",
             user: {
@@ -71,6 +97,30 @@ export async function POST(request: Request) {
                 role: user.role,
             },
         });
+
+        /*
+         * Сохраняем авторизацию в HttpOnly cookie.
+         *
+         * В cookie не кладём пароль.
+         */
+        response.cookies.set(
+            "mazepov_user",
+            JSON.stringify({
+                id: user.id,
+                username: user.username,
+                avatar: user.avatar,
+                role: user.role,
+            }),
+            {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                path: "/",
+                maxAge: 60 * 60 * 24 * 30,
+            }
+        );
+
+        return response;
     } catch (error) {
         console.error("LOGIN ERROR:", error);
 
