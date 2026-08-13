@@ -6,7 +6,9 @@ export async function POST() {
         message: "Вы вышли из аккаунта.",
     });
 
-    response.cookies.set("mazepov_user", "", {
+    response.cookies.set({
+        name: "auth_token",
+        value: "",
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",

@@ -1,6 +1,35 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import mysql from "mysql2/promise";
+import crypto from "crypto";
+
+function createAuthToken(user: {
+    id: number;
+    username: string;
+    role: string;
+}) {
+    const payload = JSON.stringify({
+        id: user.id,
+        username: user.username,
+        role: user.role,
+        createdAt: Date.now(),
+    });
+
+    const payloadBase64 = Buffer.from(payload).toString("base64url");
+
+    const secret = process.env.AUTH_SECRET;
+
+    if (!secret) {
+        throw new Error("AUTH_SECRET не задан в .env");
+    }
+
+    const signature = crypto
+        .createHmac("sha256", secret)
+        .update(payloadBase64)
+        .digest("base64url");
+
+    return `${payloadBase64}.${signature}`;
+}
 
 export async function POST(request: Request) {
     try {
@@ -15,19 +44,21 @@ export async function POST(request: Request) {
                     success: false,
                     message: "Введите логин и пароль.",
                 },
-                { status: 400 }
+                {
+                    status: 400,
+                }
             );
         }
 
         if (!process.env.DATABASE_URL) {
-            console.error("DATABASE_URL не указан.");
-
             return NextResponse.json(
                 {
                     success: false,
-                    message: "Ошибка подключения к базе данных.",
+                    message: "DATABASE_URL не настроен.",
                 },
-                { status: 500 }
+                {
+                    status: 500,
+                }
             );
         }
 
@@ -66,7 +97,9 @@ export async function POST(request: Request) {
                     success: false,
                     message: "Неверный логин или пароль.",
                 },
-                { status: 401 }
+                {
+                    status: 401,
+                }
             );
         }
 
@@ -83,9 +116,19 @@ export async function POST(request: Request) {
                     success: false,
                     message: "Неверный логин или пароль.",
                 },
-                { status: 401 }
+                {
+                    status: 401,
+                }
             );
         }
+
+        const role = String(user.role || "USER").toUpperCase();
+
+        const authToken = createAuthToken({
+            id: user.id,
+            username: user.username,
+            role,
+        });
 
         const response = NextResponse.json({
             success: true,
@@ -94,31 +137,19 @@ export async function POST(request: Request) {
                 id: user.id,
                 username: user.username,
                 avatar: user.avatar,
-                role: user.role,
+                role,
             },
         });
 
-        /*
-         * Сохраняем авторизацию в HttpOnly cookie.
-         *
-         * В cookie не кладём пароль.
-         */
-        response.cookies.set(
-            "mazepov_user",
-            JSON.stringify({
-                id: user.id,
-                username: user.username,
-                avatar: user.avatar,
-                role: user.role,
-            }),
-            {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "lax",
-                path: "/",
-                maxAge: 60 * 60 * 24 * 30,
-            }
-        );
+        response.cookies.set({
+            name: "auth_token",
+            value: authToken,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            path: "/",
+            maxAge: 60 * 60 * 24 * 30,
+        });
 
         return response;
     } catch (error) {
@@ -129,7 +160,9 @@ export async function POST(request: Request) {
                 success: false,
                 message: "Ошибка сервера. Попробуйте позже.",
             },
-            { status: 500 }
+            {
+                status: 500,
+            }
         );
     }
 }
