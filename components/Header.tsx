@@ -53,7 +53,11 @@ export default function Header() {
                     setUser(null);
                 }
             } catch (error) {
-                console.error("Ошибка загрузки пользователя:", error);
+                console.error(
+                    "Ошибка загрузки пользователя:",
+                    error
+                );
+
                 setUser(null);
             }
         };
@@ -79,7 +83,10 @@ export default function Header() {
             }
         };
 
-        document.addEventListener("mousedown", handleClickOutside);
+        document.addEventListener(
+            "mousedown",
+            handleClickOutside
+        );
 
         return () => {
             document.removeEventListener(
@@ -132,6 +139,22 @@ export default function Header() {
                 ? "/seller"
                 : "";
 
+    const getRoleBadgeClass = () => {
+        switch (role) {
+            case "FOUNDER":
+                return "bg-purple-500/15 text-purple-300 border-purple-500/15";
+
+            case "ADMIN":
+                return "bg-red-500/15 text-red-300 border-red-500/15";
+
+            case "SELLER":
+                return "bg-emerald-500/15 text-emerald-300 border-emerald-500/15";
+
+            default:
+                return "bg-white/[0.07] text-slate-300 border-white/[0.06]";
+        }
+    };
+
     return (
         <header className="fixed left-1/2 top-5 z-50 w-[calc(100%-24px)] max-w-7xl -translate-x-1/2 sm:w-[calc(100%-32px)]">
             <div className="flex h-[70px] items-center justify-between rounded-[20px] border border-white/[0.07] bg-[#0D1117]/90 px-4 shadow-[0_15px_50px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:px-5 md:px-7">
@@ -163,7 +186,8 @@ export default function Header() {
                 {/* Навигация */}
                 <nav className="hidden items-center gap-1 md:flex">
                     {navigation.map((item) => {
-                        const active = pathname === item.href;
+                        const active =
+                            pathname === item.href;
 
                         return (
                             <Link
@@ -181,7 +205,7 @@ export default function Header() {
                     })}
                 </nav>
 
-                {/* Авторизация */}
+                {/* Пользователь */}
                 <div
                     ref={menuRef}
                     className="relative"
@@ -199,7 +223,9 @@ export default function Header() {
                             <button
                                 type="button"
                                 onClick={() =>
-                                    setMenuOpen((value) => !value)
+                                    setMenuOpen(
+                                        (value) => !value
+                                    )
                                 }
                                 className={`flex items-center gap-2.5 rounded-xl px-2.5 py-2 transition-all duration-200 ${
                                     menuOpen
@@ -222,20 +248,22 @@ export default function Header() {
                                     </div>
                                 )}
 
-                                {/* Ник */}
-                                <div className="hidden max-w-[140px] text-left sm:block">
+                                {/* Ник + бейдж роли */}
+                                <div className="hidden max-w-[160px] text-left sm:block">
                                     <div className="truncate text-xs font-semibold text-white">
                                         {user.username}
                                     </div>
 
-                                    <div className="truncate text-[9px] font-medium text-blue-100">
+                                    <span
+                                        className={`mt-0.5 inline-flex max-w-full items-center truncate rounded-md border px-1.5 py-0.5 text-[9px] font-semibold leading-none ${getRoleBadgeClass()}`}
+                                    >
                                         {roleName}
-                                    </div>
+                                    </span>
                                 </div>
 
                                 {/* Стрелка */}
                                 <svg
-                                    className={`h-3.5 w-3.5 text-blue-100 transition-transform duration-200 ${
+                                    className={`h-3.5 w-3.5 shrink-0 text-blue-100 transition-transform duration-200 ${
                                         menuOpen
                                             ? "rotate-180"
                                             : ""
@@ -253,16 +281,37 @@ export default function Header() {
 
                             {/* Выпадающее меню */}
                             {menuOpen && (
-                                <div className="absolute right-0 top-[calc(100%+10px)] w-[230px] overflow-hidden rounded-[17px] border border-white/[0.08] bg-[#0D1117] p-1.5 shadow-[0_20px_60px_rgba(0,0,0,0.55)]">
+                                <div className="absolute right-0 top-[calc(100%+10px)] w-[235px] overflow-hidden rounded-[17px] border border-white/[0.08] bg-[#0D1117] p-1.5 shadow-[0_20px_60px_rgba(0,0,0,0.55)]">
 
-                                    {/* Информация */}
+                                    {/* Пользователь */}
                                     <div className="mb-1 rounded-[13px] bg-white/[0.025] px-3 py-2.5">
-                                        <div className="truncate text-sm font-semibold text-white">
-                                            {user.username}
-                                        </div>
+                                        <div className="flex items-center gap-3">
 
-                                        <div className="mt-0.5 text-[10px] text-slate-500">
-                                            {roleName}
+                                            {user.avatar ? (
+                                                <div className="h-9 w-9 shrink-0 overflow-hidden rounded-lg bg-black">
+                                                    <img
+                                                        src={user.avatar}
+                                                        alt={user.username}
+                                                        className="h-full w-full object-cover"
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-black text-xs font-bold text-white">
+                                                    {firstLetter}
+                                                </div>
+                                            )}
+
+                                            <div className="min-w-0">
+                                                <div className="truncate text-sm font-semibold text-white">
+                                                    {user.username}
+                                                </div>
+
+                                                <span
+                                                    className={`mt-1 inline-flex items-center rounded-md border px-1.5 py-0.5 text-[9px] font-semibold ${getRoleBadgeClass()}`}
+                                                >
+                                                    {roleName}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -274,7 +323,7 @@ export default function Header() {
                                         }
                                         className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-slate-300 transition hover:bg-white/[0.05] hover:text-white"
                                     >
-                                        <span className="text-sm">
+                                        <span>
                                             👤
                                         </span>
 
@@ -291,7 +340,7 @@ export default function Header() {
                                         }
                                         className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-slate-300 transition hover:bg-white/[0.05] hover:text-white"
                                     >
-                                        <span className="text-sm">
+                                        <span>
                                             ⚙
                                         </span>
 
@@ -300,7 +349,7 @@ export default function Header() {
                                         </span>
                                     </Link>
 
-                                    {/* Панель */}
+                                    {/* Специальная панель */}
                                     {hasSpecialPanel && (
                                         <Link
                                             href={panelHref}
@@ -309,10 +358,12 @@ export default function Header() {
                                             }
                                             className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-slate-300 transition hover:bg-white/[0.05] hover:text-white"
                                         >
-                                            <span className="text-sm">
-                                                {role === "FOUNDER"
+                                            <span>
+                                                {role ===
+                                                "FOUNDER"
                                                     ? "👑"
-                                                    : role === "ADMIN"
+                                                    : role ===
+                                                        "ADMIN"
                                                       ? "🛡️"
                                                       : "💼"}
                                             </span>
@@ -331,7 +382,7 @@ export default function Header() {
                                         onClick={handleLogout}
                                         className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-red-400 transition hover:bg-red-500/[0.06] hover:text-red-300"
                                     >
-                                        <span className="text-sm">
+                                        <span>
                                             ↪
                                         </span>
 
