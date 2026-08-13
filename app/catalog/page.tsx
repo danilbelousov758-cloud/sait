@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import Header from "@/components/Header";
 
 type CatalogItem = {
@@ -75,9 +74,7 @@ const expandableCategories: CatalogItem[] = [
             { name: "Эффект при попадании" },
             {
                 name: "Эффект при убийстве и ноке",
-                children: [
-                    { name: "ld_bum" },
-                ],
+                children: [{ name: "ld_bum" }],
             },
         ],
     },
@@ -130,9 +127,7 @@ export default function CatalogPage() {
         "Скины",
     ]);
 
-    const [selectedCategory, setSelectedCategory] =
-        useState("Скины");
-
+    const [selectedCategory, setSelectedCategory] = useState("Скины");
     const [search, setSearch] = useState("");
 
     const toggleCategory = (name: string) => {
@@ -151,16 +146,12 @@ export default function CatalogPage() {
 
     const filteredExpandableCategories =
         expandableCategories.filter((category) =>
-            category.name
-                .toLowerCase()
-                .includes(search.toLowerCase())
+            category.name.toLowerCase().includes(search.toLowerCase())
         );
 
     const filteredSimpleCategories =
         simpleCategories.filter((category) =>
-            category
-                .toLowerCase()
-                .includes(search.toLowerCase())
+            category.toLowerCase().includes(search.toLowerCase())
         );
 
     return (
@@ -168,8 +159,6 @@ export default function CatalogPage() {
             <Header />
 
             <main className="min-h-screen bg-[#080B10] px-4 pb-20 pt-[125px] text-slate-100 sm:px-6">
-
-                {/* Фоновое свечение */}
                 <div className="pointer-events-none fixed inset-0 overflow-hidden">
                     <div className="absolute left-1/2 top-[-260px] h-[520px] w-[720px] -translate-x-1/2 rounded-full bg-blue-600/[0.055] blur-[150px]" />
 
@@ -177,8 +166,6 @@ export default function CatalogPage() {
                 </div>
 
                 <div className="relative mx-auto w-full max-w-7xl">
-
-                    {/* Заголовок */}
                     <div className="mb-7">
                         <h1 className="text-3xl font-bold tracking-tight text-white">
                             Каталог
@@ -189,10 +176,8 @@ export default function CatalogPage() {
                         </p>
                     </div>
 
-                    {/* Поиск */}
                     <div className="mb-5">
                         <div className="relative max-w-xl">
-
                             <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-slate-600">
                                 ⌕
                             </span>
@@ -210,11 +195,7 @@ export default function CatalogPage() {
                     </div>
 
                     <div className="grid gap-5 lg:grid-cols-[260px_minmax(0,1fr)]">
-
-                        {/* ================= МЕНЮ ================= */}
                         <aside className="h-fit rounded-[20px] border border-white/[0.07] bg-[#0D1117] p-2 shadow-[0_20px_60px_rgba(0,0,0,0.2)]">
-
-                            {/* Раскрываемые */}
                             {filteredExpandableCategories.length > 0 && (
                                 <>
                                     <div className="px-3 pb-2 pt-2 text-[9px] font-bold uppercase tracking-[0.18em] text-slate-700">
@@ -234,9 +215,7 @@ export default function CatalogPage() {
                                                     category.name;
 
                                                 return (
-                                                    <div
-                                                        key={category.name}
-                                                    >
+                                                    <div key={category.name}>
                                                         <button
                                                             type="button"
                                                             onClick={() =>
@@ -295,12 +274,10 @@ export default function CatalogPage() {
                                 </>
                             )}
 
-                            {/* Разделитель */}
                             {filteredSimpleCategories.length > 0 && (
                                 <div className="my-3 h-px bg-white/[0.05]" />
                             )}
 
-                            {/* Обычные категории */}
                             {filteredSimpleCategories.length > 0 && (
                                 <>
                                     <div className="px-3 pb-2 pt-1 text-[9px] font-bold uppercase tracking-[0.18em] text-slate-700">
@@ -346,13 +323,9 @@ export default function CatalogPage() {
                                 )}
                         </aside>
 
-                        {/* ================= КОНТЕНТ ================= */}
                         <section className="min-w-0">
-
                             <div className="rounded-[20px] border border-white/[0.07] bg-[#0D1117] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-7">
-
                                 <div className="flex flex-col gap-2 border-b border-white/[0.06] pb-6 sm:flex-row sm:items-end sm:justify-between">
-
                                     <div>
                                         <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-blue-500">
                                             Каталог
@@ -372,11 +345,8 @@ export default function CatalogPage() {
                                     </div>
                                 </div>
 
-                                {/* Пока пустой каталог */}
                                 <div className="flex min-h-[380px] items-center justify-center">
-
                                     <div className="max-w-sm text-center">
-
                                         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-white/[0.07] bg-[#11161D] text-2xl">
                                             ◈
                                         </div>
@@ -390,7 +360,6 @@ export default function CatalogPage() {
                                             изображения, описание и информация
                                             о файлах.
                                         </p>
-
                                     </div>
                                 </div>
                             </div>
@@ -401,10 +370,6 @@ export default function CatalogPage() {
         </>
     );
 }
-
-/* =========================================================
-   Вложенное дерево категорий
-========================================================= */
 
 type CatalogTreeProps = {
     items: CatalogItem[];
@@ -424,14 +389,9 @@ function CatalogTree({
     return (
         <div className="space-y-1">
             {items.map((item) => {
-                const hasChildren =
-                    Boolean(item.children?.length);
-
-                const isOpen =
-                    openCategories.includes(item.name);
-
-                const isSelected =
-                    selectedCategory === item.name;
+                const hasChildren = Boolean(item.children?.length);
+                const isOpen = openCategories.includes(item.name);
+                const isSelected = selectedCategory === item.name;
 
                 const handleClick = () => {
                     setSelectedCategory(item.name);
@@ -440,8 +400,7 @@ function CatalogTree({
                         setOpenCategories((current) =>
                             current.includes(item.name)
                                 ? current.filter(
-                                      (name) =>
-                                          name !== item.name
+                                      (name) => name !== item.name
                                   )
                                 : [...current, item.name]
                         );
@@ -450,7 +409,6 @@ function CatalogTree({
 
                 return (
                     <div key={item.name}>
-
                         <button
                             type="button"
                             onClick={handleClick}
@@ -465,9 +423,7 @@ function CatalogTree({
                             {hasChildren && (
                                 <span
                                     className={`text-[10px] transition-transform duration-200 ${
-                                        isOpen
-                                            ? "rotate-90"
-                                            : ""
+                                        isOpen ? "rotate-90" : ""
                                     }`}
                                 >
                                     ›
@@ -479,18 +435,10 @@ function CatalogTree({
                             <div className="ml-2 mt-1 border-l border-white/[0.05] pl-2">
                                 <CatalogTree
                                     items={item.children!}
-                                    selectedCategory={
-                                        selectedCategory
-                                    }
-                                    setSelectedCategory={
-                                        setSelectedCategory
-                                    }
-                                    openCategories={
-                                        openCategories
-                                    }
-                                    setOpenCategories={
-                                        setOpenCategories
-                                    }
+                                    selectedCategory={selectedCategory}
+                                    setSelectedCategory={setSelectedCategory}
+                                    openCategories={openCategories}
+                                    setOpenCategories={setOpenCategories}
                                 />
                             </div>
                         )}
