@@ -19,10 +19,10 @@ const roleNames: Record<string, string> = {
 };
 
 const roleStyles: Record<string, string> = {
-    USER: "border-white/[0.10] bg-white/[0.06] text-white",
-    SELLER: "border-blue-500/[0.20] bg-blue-500/[0.10] text-blue-400",
-    ADMIN: "border-red-500/[0.20] bg-red-500/[0.10] text-red-400",
-    FOUNDER: "border-purple-500/[0.20] bg-purple-500/[0.10] text-purple-400",
+    USER: "border-white/[0.08] bg-white/[0.04] text-slate-300",
+    SELLER: "border-blue-500/20 bg-blue-500/[0.08] text-blue-400",
+    ADMIN: "border-red-500/20 bg-red-500/[0.08] text-red-400",
+    FOUNDER: "border-purple-500/20 bg-purple-500/[0.08] text-purple-400",
 };
 
 export default function ProfilePage() {
@@ -174,8 +174,7 @@ export default function ProfilePage() {
         roleNames[roleKey] || "Пользователь";
 
     const roleStyle =
-        roleStyles[roleKey] ||
-        roleStyles.USER;
+        roleStyles[roleKey] || roleStyles.USER;
 
     if (!loaded) {
         return (
@@ -190,7 +189,6 @@ export default function ProfilePage() {
 
                 <main className="flex min-h-screen items-center justify-center bg-[#080B10] px-5 pt-24 text-white">
                     <div className="text-center">
-
                         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-white/[0.07] bg-[#11161D] text-2xl">
                             🔒
                         </div>
@@ -221,6 +219,7 @@ export default function ProfilePage() {
 
             <main className="min-h-screen bg-[#080B10] px-4 pb-20 pt-[125px] text-slate-100 sm:px-6">
 
+                {/* Фоновое свечение */}
                 <div className="pointer-events-none fixed inset-0 overflow-hidden">
                     <div className="absolute left-1/2 top-[-250px] h-[500px] w-[700px] -translate-x-1/2 rounded-full bg-blue-600/[0.055] blur-[150px]" />
 
@@ -229,6 +228,7 @@ export default function ProfilePage() {
 
                 <div className="relative mx-auto w-full max-w-6xl">
 
+                    {/* Заголовок */}
                     <div className="mb-7">
                         <h1 className="text-3xl font-bold tracking-tight text-white">
                             Профиль
@@ -241,12 +241,11 @@ export default function ProfilePage() {
 
                     <div className="grid gap-5 lg:grid-cols-[230px_minmax(0,1fr)]">
 
-                        {/* ЛЕВОЕ МЕНЮ */}
+                        {/* Левое меню */}
                         <aside className="h-fit rounded-[20px] border border-white/[0.07] bg-[#0D1117] p-2 shadow-[0_20px_60px_rgba(0,0,0,0.2)]">
 
                             {/* Пользователь */}
                             <div className="mb-2 rounded-[15px] bg-white/[0.025] p-3">
-
                                 <div className="flex items-center gap-3">
 
                                     {avatarPreview ? (
@@ -263,19 +262,17 @@ export default function ProfilePage() {
                                         </div>
                                     )}
 
-                                    <div className="min-w-0 flex-1">
-
+                                    <div className="min-w-0">
                                         <div className="truncate text-sm font-semibold text-white">
                                             {user.username}
                                         </div>
 
                                         {/* Бейдж роли */}
                                         <div
-                                            className={`mt-1 inline-flex items-center rounded-md border px-2 py-[3px] text-[9px] font-semibold leading-none ${roleStyle}`}
+                                            className={`mt-1 inline-flex rounded-md border px-1.5 py-0.5 text-[9px] font-semibold ${roleStyle}`}
                                         >
                                             {roleName}
                                         </div>
-
                                     </div>
                                 </div>
                             </div>
@@ -327,9 +324,10 @@ export default function ProfilePage() {
                                 <span>🛡️</span>
                                 <span>Приватность</span>
                             </button>
+
                         </aside>
 
-                        {/* ОСНОВНОЙ КОНТЕНТ */}
+                        {/* Основной контент */}
                         <section className="min-w-0">
 
                             {/* ПРОФИЛЬ */}
@@ -340,7 +338,6 @@ export default function ProfilePage() {
                                     <div className="rounded-[20px] border border-white/[0.07] bg-[#0D1117] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-6">
 
                                         <div className="mb-6">
-
                                             <h2 className="text-lg font-bold text-white">
                                                 Основная информация
                                             </h2>
@@ -348,7 +345,6 @@ export default function ProfilePage() {
                                             <p className="mt-1 text-xs text-slate-600">
                                                 Информация вашего аккаунта.
                                             </p>
-
                                         </div>
 
                                         <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
@@ -384,24 +380,20 @@ export default function ProfilePage() {
                                                     onChange={handleAvatarChange}
                                                     className="hidden"
                                                 />
-
                                             </div>
 
                                             <div>
-
                                                 <div className="flex flex-wrap items-center gap-3">
-
                                                     <div className="text-xl font-bold text-white">
                                                         {user.username}
                                                     </div>
 
-                                                    {/* Бейдж роли в самом профиле */}
+                                                    {/* Бейдж роли */}
                                                     <div
-                                                        className={`inline-flex items-center rounded-lg border px-2.5 py-1 text-[10px] font-semibold ${roleStyle}`}
+                                                        className={`rounded-lg border px-2.5 py-1 text-[10px] font-semibold ${roleStyle}`}
                                                     >
                                                         {roleName}
                                                     </div>
-
                                                 </div>
 
                                                 <label
@@ -414,18 +406,14 @@ export default function ProfilePage() {
                                                 <div className="mt-2 text-[10px] text-slate-700">
                                                     PNG, JPG или WEBP · до 5 МБ
                                                 </div>
-
                                             </div>
-
                                         </div>
-
                                     </div>
 
                                     {/* Данные аккаунта */}
                                     <div className="rounded-[20px] border border-white/[0.07] bg-[#0D1117] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-6">
 
                                         <div className="mb-6">
-
                                             <h2 className="text-lg font-bold text-white">
                                                 Данные аккаунта
                                             </h2>
@@ -433,13 +421,12 @@ export default function ProfilePage() {
                                             <p className="mt-1 text-xs text-slate-600">
                                                 Основная информация об аккаунте.
                                             </p>
-
                                         </div>
 
                                         <div className="grid gap-4 sm:grid-cols-2">
 
+                                            {/* Логин */}
                                             <div>
-
                                                 <div className="mb-2 text-xs font-medium text-slate-500">
                                                     Логин
                                                 </div>
@@ -447,31 +434,25 @@ export default function ProfilePage() {
                                                 <div className="flex h-12 items-center rounded-xl border border-white/[0.06] bg-[#11161D] px-4 text-sm text-slate-300">
                                                     {user.username}
                                                 </div>
-
                                             </div>
 
+                                            {/* Роль */}
                                             <div>
-
                                                 <div className="mb-2 text-xs font-medium text-slate-500">
                                                     Роль
                                                 </div>
 
                                                 <div className="flex h-12 items-center rounded-xl border border-white/[0.06] bg-[#11161D] px-4">
-
                                                     <span
-                                                        className={`inline-flex items-center rounded-lg border px-2.5 py-1 text-[10px] font-semibold ${roleStyle}`}
+                                                        className={`rounded-lg border px-2.5 py-1 text-[10px] font-semibold ${roleStyle}`}
                                                     >
                                                         {roleName}
                                                     </span>
-
                                                 </div>
-
                                             </div>
 
                                         </div>
-
                                     </div>
-
                                 </div>
                             )}
 
@@ -482,7 +463,6 @@ export default function ProfilePage() {
                                     <div className="rounded-[20px] border border-white/[0.07] bg-[#0D1117] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-6">
 
                                         <div className="mb-6">
-
                                             <h2 className="text-lg font-bold text-white">
                                                 Изменение пароля
                                             </h2>
@@ -490,7 +470,6 @@ export default function ProfilePage() {
                                             <p className="mt-1 text-xs text-slate-600">
                                                 Используйте сложный пароль, который не используется на других сайтах.
                                             </p>
-
                                         </div>
 
                                         <form
@@ -499,7 +478,6 @@ export default function ProfilePage() {
                                         >
 
                                             <div>
-
                                                 <label className="mb-2 block text-xs font-medium text-slate-400">
                                                     Текущий пароль
                                                 </label>
@@ -516,11 +494,9 @@ export default function ProfilePage() {
                                                     required
                                                     className="h-12 w-full rounded-xl border border-white/[0.07] bg-[#11161D] px-4 text-sm text-white outline-none transition focus:border-blue-500/50 focus:bg-[#131920] focus:ring-4 focus:ring-blue-500/[0.07]"
                                                 />
-
                                             </div>
 
                                             <div>
-
                                                 <label className="mb-2 block text-xs font-medium text-slate-400">
                                                     Новый пароль
                                                 </label>
@@ -537,11 +513,9 @@ export default function ProfilePage() {
                                                     required
                                                     className="h-12 w-full rounded-xl border border-white/[0.07] bg-[#11161D] px-4 text-sm text-white outline-none transition focus:border-blue-500/50 focus:bg-[#131920] focus:ring-4 focus:ring-blue-500/[0.07]"
                                                 />
-
                                             </div>
 
                                             <div>
-
                                                 <label className="mb-2 block text-xs font-medium text-slate-400">
                                                     Повторите новый пароль
                                                 </label>
@@ -558,7 +532,6 @@ export default function ProfilePage() {
                                                     required
                                                     className="h-12 w-full rounded-xl border border-white/[0.07] bg-[#11161D] px-4 text-sm text-white outline-none transition focus:border-blue-500/50 focus:bg-[#131920] focus:ring-4 focus:ring-blue-500/[0.07]"
                                                 />
-
                                             </div>
 
                                             {passwordMessage && (
@@ -578,9 +551,9 @@ export default function ProfilePage() {
                                             </button>
 
                                         </form>
-
                                     </div>
 
+                                    {/* Текущая сессия */}
                                     <div className="rounded-[20px] border border-white/[0.07] bg-[#0D1117] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-6">
 
                                         <h2 className="text-lg font-bold text-white">
@@ -594,7 +567,6 @@ export default function ProfilePage() {
                                         <div className="mt-5 flex items-center justify-between rounded-xl border border-white/[0.05] bg-[#11161D] px-4 py-3">
 
                                             <div>
-
                                                 <div className="text-sm font-medium text-white">
                                                     Это устройство
                                                 </div>
@@ -602,7 +574,6 @@ export default function ProfilePage() {
                                                 <div className="mt-1 text-[11px] text-slate-600">
                                                     Текущая активная сессия
                                                 </div>
-
                                             </div>
 
                                             <div className="rounded-lg bg-green-500/[0.08] px-2.5 py-1 text-[10px] font-semibold text-green-400">
@@ -610,9 +581,7 @@ export default function ProfilePage() {
                                             </div>
 
                                         </div>
-
                                     </div>
-
                                 </div>
                             )}
 
@@ -659,19 +628,15 @@ export default function ProfilePage() {
                                             </button>
 
                                         </div>
-
                                     </div>
-
                                 </div>
                             )}
 
                         </section>
-
                     </div>
-
                 </div>
 
-                {/* МОДАЛЬНОЕ ОКНО УДАЛЕНИЯ */}
+                {/* Модальное окно удаления */}
                 {showDeleteModal && (
                     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 px-5 backdrop-blur-sm">
 
@@ -737,12 +702,9 @@ export default function ProfilePage() {
                                 </button>
 
                             </div>
-
                         </div>
-
                     </div>
                 )}
-
             </main>
         </>
     );
