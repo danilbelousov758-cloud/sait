@@ -1,15 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-
-type User = {
-    id: number;
-    username: string;
-    avatar: string | null;
-    role: string;
-};
 
 const navigation = [
     {
@@ -26,126 +19,67 @@ const navigation = [
     },
 ];
 
-function getRoleInfo(role: string) {
-    switch (role) {
-        case "FOUNDER":
-            return {
-                name: "Основатель",
-                className:
-                    "border-purple-500/20 bg-purple-500/10 text-purple-400",
-            };
+type User = {
+    id: number;
+    username: string;
+    avatar?: string | null;
+    role?: string;
+};
 
-        case "ADMIN":
-            return {
-                name: "Администратор",
-                className:
-                    "border-red-500/20 bg-red-500/10 text-red-400",
-            };
-
-        case "SELLER":
-            return {
-                name: "Продавец",
-                className:
-                    "border-blue-500/20 bg-blue-500/10 text-blue-400",
-            };
-
-        default:
-            return {
-                name: "Пользователь",
-                className:
-                    "border-white/[0.08] bg-white/[0.04] text-slate-300",
-            };
-    }
-}
-
-function getPanel(role: string) {
-    switch (role) {
-        case "FOUNDER":
-            return {
-                name: "Панель основателя",
-                href: "/founder",
-            };
-
-        case "ADMIN":
-            return {
-                name: "Панель администратора",
-                href: "/admin",
-            };
-
-        case "SELLER":
-            return {
-                name: "Панель продавца",
-                href: "/seller",
-            };
-
-        default:
-            return null;
-    }
-}
-
-function getInitial(username: string) {
-    return username.trim().charAt(0).toUpperCase() || "?";
-}
+const roleNames: Record<string, string> = {
+    USER: "Пользователь",
+    SELLER: "Продавец",
+    ADMIN: "Администратор",
+    FOUNDER: "Основатель",
+};
 
 export default function Header() {
     const pathname = usePathname();
     const router = useRouter();
 
     const [user, setUser] = useState<User | null>(null);
-    const [profileOpen, setProfileOpen] = useState(false);
-    const [loading, setLoading] = useState(true);
+    const [menuOpen, setMenuOpen] = useState(false);
 
-    const profileRef = useRef<HTMLDivElement>(null);
+    const menuRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const loadUser = async () => {
+        const loadUser = () => {
             try {
-                const response = await fetch("/api/me", {
-                    method: "GET",
-                    cache: "no-store",
-                });
+                const savedUser = localStorage.getItem("user");
 
-                if (!response.ok) {
-                    setUser(null);
-                    return;
-                }
-
-                const data = await response.json();
-
-                if (data.success && data.user) {
-                    setUser(data.user);
+                if (savedUser) {
+                    setUser(JSON.parse(savedUser));
                 } else {
                     setUser(null);
                 }
             } catch (error) {
-                console.error(
-                    "Ошибка загрузки пользователя:",
-                    error
-                );
-
+                console.error("Ошибка загрузки пользователя:", error);
                 setUser(null);
-            } finally {
-                setLoading(false);
             }
         };
 
         loadUser();
-    }, [pathname]);
+
+        window.addEventListener("storage", loadUser);
+        window.addEventListener("userUpdated", loadUser);
+
+        return () => {
+            window.removeEventListener("storage", loadUser);
+            window.removeEventListener("userUpdated", loadUser);
+        };
+    }, []);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (
-                profileRef.current &&
-                !profileRef.current.contains(event.target as Node)
+                menuRef.current &&
+                !menuRef.current.contains(event.target as Node)
             ) {
-                setProfileOpen(false);
+                setMenuOpen(false);
             }
         };
 
-        document.addEventListener(
-            "mousedown",
-            handleClickOutside
-        );
+        document.addEventListener("mousedown", handleClickOutside);
 
         return () => {
             document.removeEventListener(
@@ -155,27 +89,48 @@ export default function Header() {
         };
     }, []);
 
-    const handleLogout = async () => {
-        try {
-            await fetch("/api/logout", {
-                method: "POST",
-            });
-        } catch (error) {
-            console.error("Ошибка выхода:", error);
-        }
+    const handleLogout = () => {
+        localStorage.removeItem("user");
 
         setUser(null);
-        setProfileOpen(false);
+        setMenuOpen(false);
+
+        window.dispatchEvent(new Event("userUpdated"));
 
         router.push("/");
         router.refresh();
     };
 
-    const panel = user ? getPanel(user.role) : null;
+    const firstLetter =
+        user?.username?.trim().charAt(0).toUpperCase() || "?";
 
-    const roleInfo = user
-        ? getRoleInfo(user.role)
-        : null;
+    const role = user?.role || "USER";
+
+    const roleName =
+        roleNames[role] || "Пользователь";
+
+    const hasSpecialPanel =
+        role === "ADMIN" ||
+        role === "SELLER" ||
+        role === "FOUNDER";
+
+    const panelTitle =
+        role === "FOUNDER"
+            ? "Панель основателя"
+            : role === "ADMIN"
+              ? "Панель администратора"
+              : role === "SELLER"
+                ? "Панель продавца"
+                : "";
+
+    const panelHref =
+        role === "FOUNDER"
+            ? "/founder"
+            : role === "ADMIN"
+              ? "/admin"
+              : role === "SELLER"
+                ? "/seller"
+                : "";
 
     return (
         <header className="fixed left-1/2 top-5 z-50 w-[calc(100%-24px)] max-w-7xl -translate-x-1/2 sm:w-[calc(100%-32px)]">
@@ -208,8 +163,7 @@ export default function Header() {
                 {/* Навигация */}
                 <nav className="hidden items-center gap-1 md:flex">
                     {navigation.map((item) => {
-                        const active =
-                            pathname === item.href;
+                        const active = pathname === item.href;
 
                         return (
                             <Link
@@ -229,105 +183,86 @@ export default function Header() {
 
                 {/* Авторизация */}
                 <div
+                    ref={menuRef}
                     className="relative"
-                    ref={profileRef}
                 >
-                    {loading ? (
-                        <div className="h-10 w-24 animate-pulse rounded-xl bg-white/[0.04]" />
-                    ) : user ? (
+                    {!user ? (
+                        <Link
+                            href="/login"
+                            className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/10 transition-all duration-200 hover:bg-blue-500"
+                        >
+                            Войти
+                        </Link>
+                    ) : (
                         <>
-                            {/* Кнопка профиля */}
+                            {/* Кнопка пользователя */}
                             <button
                                 type="button"
                                 onClick={() =>
-                                    setProfileOpen(
-                                        (value) => !value
-                                    )
+                                    setMenuOpen((value) => !value)
                                 }
-                                className={`flex items-center gap-3 rounded-xl border px-3 py-2 transition-all ${
-                                    profileOpen
-                                        ? "border-white/[0.1] bg-white/[0.06]"
-                                        : "border-transparent hover:border-white/[0.06] hover:bg-white/[0.04]"
+                                className={`flex items-center gap-2.5 rounded-xl px-2.5 py-2 transition-all duration-200 ${
+                                    menuOpen
+                                        ? "bg-blue-600 shadow-lg shadow-blue-600/20"
+                                        : "bg-blue-600 hover:bg-blue-500"
                                 }`}
                             >
                                 {/* Аватар */}
                                 {user.avatar ? (
-                                    <img
-                                        src={user.avatar}
-                                        alt={user.username}
-                                        className="h-8 w-8 rounded-lg object-cover"
-                                    />
+                                    <div className="h-8 w-8 overflow-hidden rounded-lg border border-white/10 bg-black">
+                                        <img
+                                            src={user.avatar}
+                                            alt={user.username}
+                                            className="h-full w-full object-cover"
+                                        />
+                                    </div>
                                 ) : (
-                                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#11161D] text-xs font-bold text-white">
-                                        {getInitial(
-                                            user.username
-                                        )}
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-black text-xs font-bold text-white">
+                                        {firstLetter}
                                     </div>
                                 )}
 
-                                {/* Ник + роль */}
-                                <div className="hidden text-left sm:block">
-                                    <div className="max-w-[130px] truncate text-xs font-semibold text-white">
+                                {/* Ник */}
+                                <div className="hidden max-w-[140px] text-left sm:block">
+                                    <div className="truncate text-xs font-semibold text-white">
                                         {user.username}
                                     </div>
 
-                                    {roleInfo && (
-                                        <span
-                                            className={`mt-1 inline-flex rounded-md border px-2 py-0.5 text-[9px] font-semibold leading-none ${roleInfo.className}`}
-                                        >
-                                            {roleInfo.name}
-                                        </span>
-                                    )}
+                                    <div className="truncate text-[9px] font-medium text-blue-100">
+                                        {roleName}
+                                    </div>
                                 </div>
 
-                                <span
-                                    className={`hidden text-[10px] text-slate-600 transition-transform sm:block ${
-                                        profileOpen
+                                {/* Стрелка */}
+                                <svg
+                                    className={`h-3.5 w-3.5 text-blue-100 transition-transform duration-200 ${
+                                        menuOpen
                                             ? "rotate-180"
                                             : ""
                                     }`}
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
                                 >
-                                    ↓
-                                </span>
+                                    <path
+                                        fillRule="evenodd"
+                                        d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.51a.75.75 0 01-1.08 0l-4.25-4.51a.75.75 0 01.02-1.06z"
+                                        clipRule="evenodd"
+                                    />
+                                </svg>
                             </button>
 
                             {/* Выпадающее меню */}
-                            {profileOpen && (
-                                <div className="absolute right-0 top-[calc(100%+10px)] w-[250px] overflow-hidden rounded-[17px] border border-white/[0.08] bg-[#0D1117] p-2 shadow-[0_20px_70px_rgba(0,0,0,0.55)]">
+                            {menuOpen && (
+                                <div className="absolute right-0 top-[calc(100%+10px)] w-[230px] overflow-hidden rounded-[17px] border border-white/[0.08] bg-[#0D1117] p-1.5 shadow-[0_20px_60px_rgba(0,0,0,0.55)]">
 
-                                    {/* Информация о пользователе */}
-                                    <div className="mb-1 rounded-xl bg-white/[0.025] px-3 py-3">
-                                        <div className="flex items-center gap-3">
+                                    {/* Информация */}
+                                    <div className="mb-1 rounded-[13px] bg-white/[0.025] px-3 py-2.5">
+                                        <div className="truncate text-sm font-semibold text-white">
+                                            {user.username}
+                                        </div>
 
-                                            {user.avatar ? (
-                                                <img
-                                                    src={user.avatar}
-                                                    alt={user.username}
-                                                    className="h-10 w-10 rounded-xl object-cover"
-                                                />
-                                            ) : (
-                                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#11161D] text-sm font-bold text-white">
-                                                    {getInitial(
-                                                        user.username
-                                                    )}
-                                                </div>
-                                            )}
-
-                                            <div className="min-w-0">
-                                                <div className="truncate text-sm font-semibold text-white">
-                                                    {user.username}
-                                                </div>
-
-                                                {roleInfo && (
-                                                    <span
-                                                        className={`mt-1 inline-flex rounded-md border px-2 py-0.5 text-[9px] font-semibold leading-none ${roleInfo.className}`}
-                                                    >
-                                                        {
-                                                            roleInfo.name
-                                                        }
-                                                    </span>
-                                                )}
-                                            </div>
+                                        <div className="mt-0.5 text-[10px] text-slate-500">
+                                            {roleName}
                                         </div>
                                     </div>
 
@@ -335,97 +270,78 @@ export default function Header() {
                                     <Link
                                         href="/profile"
                                         onClick={() =>
-                                            setProfileOpen(
-                                                false
-                                            )
+                                            setMenuOpen(false)
                                         }
-                                        className="flex items-center justify-between rounded-xl px-3 py-2.5 text-sm text-slate-400 transition hover:bg-white/[0.04] hover:text-white"
+                                        className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-slate-300 transition hover:bg-white/[0.05] hover:text-white"
                                     >
-                                        <span>
-                                            Профиль
+                                        <span className="text-sm">
+                                            👤
                                         </span>
 
-                                        <span className="text-xs text-slate-700">
-                                            →
+                                        <span>
+                                            Профиль
                                         </span>
                                     </Link>
 
                                     {/* Настройки */}
                                     <Link
-                                        href="/profile/settings"
+                                        href="/profile"
                                         onClick={() =>
-                                            setProfileOpen(
-                                                false
-                                            )
+                                            setMenuOpen(false)
                                         }
-                                        className="flex items-center justify-between rounded-xl px-3 py-2.5 text-sm text-slate-400 transition hover:bg-white/[0.04] hover:text-white"
+                                        className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-slate-300 transition hover:bg-white/[0.05] hover:text-white"
                                     >
-                                        <span>
-                                            Настройки
+                                        <span className="text-sm">
+                                            ⚙
                                         </span>
 
-                                        <span className="text-xs text-slate-700">
-                                            →
+                                        <span>
+                                            Настройки
                                         </span>
                                     </Link>
 
                                     {/* Панель */}
-                                    {panel && (
-                                        <>
-                                            <div className="my-1 h-px bg-white/[0.05]" />
+                                    {hasSpecialPanel && (
+                                        <Link
+                                            href={panelHref}
+                                            onClick={() =>
+                                                setMenuOpen(false)
+                                            }
+                                            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-slate-300 transition hover:bg-white/[0.05] hover:text-white"
+                                        >
+                                            <span className="text-sm">
+                                                {role === "FOUNDER"
+                                                    ? "👑"
+                                                    : role === "ADMIN"
+                                                      ? "🛡️"
+                                                      : "💼"}
+                                            </span>
 
-                                            <Link
-                                                href={
-                                                    panel.href
-                                                }
-                                                onClick={() =>
-                                                    setProfileOpen(
-                                                        false
-                                                    )
-                                                }
-                                                className="flex items-center justify-between rounded-xl bg-blue-600/[0.08] px-3 py-2.5 text-sm font-medium text-blue-400 transition hover:bg-blue-600/[0.14] hover:text-blue-300"
-                                            >
-                                                <span>
-                                                    {
-                                                        panel.name
-                                                    }
-                                                </span>
-
-                                                <span className="text-xs">
-                                                    →
-                                                </span>
-                                            </Link>
-                                        </>
+                                            <span>
+                                                {panelTitle}
+                                            </span>
+                                        </Link>
                                     )}
 
-                                    <div className="my-1 h-px bg-white/[0.05]" />
+                                    <div className="my-1.5 h-px bg-white/[0.06]" />
 
                                     {/* Выход */}
                                     <button
                                         type="button"
-                                        onClick={
-                                            handleLogout
-                                        }
-                                        className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm text-red-400/70 transition hover:bg-red-500/[0.06] hover:text-red-400"
+                                        onClick={handleLogout}
+                                        className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-red-400 transition hover:bg-red-500/[0.06] hover:text-red-300"
                                     >
-                                        <span>
-                                            Выйти
+                                        <span className="text-sm">
+                                            ↪
                                         </span>
 
-                                        <span className="text-xs">
-                                            ↗
+                                        <span>
+                                            Выйти
                                         </span>
                                     </button>
                                 </div>
                             )}
                         </>
-                    ) : (
-                        <Link
-                            href="/login"
-                            className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/10 transition-all duration-200 hover:bg-blue-500"
-                        >
-                            Войти
-                        </Link>
                     )}
                 </div>
             </div>
