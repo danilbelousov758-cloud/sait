@@ -26,6 +26,45 @@ type User = {
     role?: string;
 };
 
+function UserAvatar({
+    username,
+    avatar,
+    size = "small",
+}: {
+    username: string;
+    avatar?: string | null;
+    size?: "small" | "large";
+}) {
+    const firstLetter = username?.trim().charAt(0).toUpperCase() || "?";
+
+    const sizeClass =
+        size === "large"
+            ? "h-20 w-20 text-2xl"
+            : "h-7 w-7 text-xs";
+
+    if (avatar) {
+        return (
+            <div
+                className={`${sizeClass} overflow-hidden rounded-lg bg-black`}
+            >
+                <img
+                    src={avatar}
+                    alt={username}
+                    className="h-full w-full object-cover"
+                />
+            </div>
+        );
+    }
+
+    return (
+        <div
+            className={`${sizeClass} flex items-center justify-center rounded-lg border border-white/[0.08] bg-black font-bold text-white`}
+        >
+            {firstLetter}
+        </div>
+    );
+}
+
 export default function Header() {
     const pathname = usePathname();
 
@@ -38,12 +77,18 @@ export default function Header() {
                 const savedUser = localStorage.getItem("user");
 
                 if (savedUser) {
-                    setUser(JSON.parse(savedUser));
+                    const parsedUser = JSON.parse(savedUser);
+
+                    setUser(parsedUser);
                 } else {
                     setUser(null);
                 }
             } catch (error) {
-                console.error("Ошибка загрузки пользователя:", error);
+                console.error(
+                    "Ошибка загрузки пользователя:",
+                    error
+                );
+
                 setUser(null);
             } finally {
                 setLoaded(true);
@@ -116,16 +161,10 @@ export default function Header() {
                         href="/profile"
                         className="flex items-center gap-2 rounded-xl bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-lg shadow-blue-600/10 transition-all duration-200 hover:bg-blue-500"
                     >
-                        <div className="h-7 w-7 overflow-hidden rounded-lg bg-[#11161D]">
-                            <img
-                                src={
-                                    user.avatar ||
-                                    "/images/avatar.png"
-                                }
-                                alt={user.username}
-                                className="h-full w-full object-cover"
-                            />
-                        </div>
+                        <UserAvatar
+                            username={user.username}
+                            avatar={user.avatar}
+                        />
 
                         <span className="max-w-[120px] truncate">
                             {user.username}
