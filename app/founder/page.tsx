@@ -4,16 +4,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const menu = [
-    { name: "Обзор", href: "/seller", icon: "⌂" },
-    { name: "Мои товары", href: "/seller/products", icon: "▦" },
-    { name: "Добавить товар", href: "/seller/products/create", icon: "+" },
-    { name: "Мои продажи", href: "/seller/sales", icon: "↗" },
-    { name: "Заказы", href: "/seller/orders", icon: "◫" },
-    { name: "Финансы", href: "/seller/finance", icon: "₽" },
-    { name: "Статистика", href: "/seller/statistics", icon: "⌁" },
+    { name: "Обзор", href: "/founder", icon: "⌂" },
+    { name: "Пользователи", href: "/founder/users", icon: "♙" },
+    { name: "Продавцы", href: "/founder/sellers", icon: "♜" },
+    { name: "Товары", href: "/founder/products", icon: "▦" },
+    { name: "Продажи", href: "/founder/sales", icon: "↗" },
+    { name: "Финансы", href: "/founder/finance", icon: "₽" },
+    { name: "Администраторы", href: "/founder/admins", icon: "★" },
+    { name: "Логи", href: "/founder/logs", icon: "≡" },
+    { name: "Настройки сайта", href: "/founder/settings", icon: "⚙" },
+    { name: "Статистика", href: "/founder/statistics", icon: "⌁" },
 ];
 
-export default function SellerPage() {
+export default function FounderPage() {
     const pathname = usePathname();
 
     return (
@@ -22,69 +25,115 @@ export default function SellerPage() {
 
             <div className="relative flex min-h-screen">
                 <Sidebar
-                    title="Панель продавца"
+                    title="Панель основателя"
                     menu={menu}
                     pathname={pathname}
                 />
 
                 <section className="min-w-0 flex-1 lg:ml-[250px]">
-                    <TopBar
-                        title="Панель продавца"
-                        buttonText="+ Добавить товар"
-                        buttonHref="/seller/products/create"
-                    />
-
-                    <div className="mx-auto max-w-7xl p-5 sm:p-8">
-                        <div className="mb-7">
+                    <header className="flex min-h-[88px] items-center justify-between gap-4 border-b border-white/[0.06] px-5 sm:px-8">
+                        <div>
                             <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-blue-500">
                                 MAZEPOV CONNEXTION
                             </div>
 
+                            <h1 className="mt-1 text-xl font-bold text-white">
+                                Панель основателя
+                            </h1>
+                        </div>
+
+                        <Link
+                            href="/founder/settings"
+                            className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/10 transition hover:bg-blue-500"
+                        >
+                            Настройки
+                        </Link>
+                    </header>
+
+                    <div className="mx-auto max-w-7xl p-5 sm:p-8">
+                        <div className="mb-7">
+                            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-blue-500">
+                                FOUNDER
+                            </div>
+
                             <h1 className="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">
-                                Добро пожаловать, продавец
+                                Центр управления проектом
                             </h1>
 
                             <p className="mt-2 text-sm text-slate-600">
-                                Управляйте товарами, продажами и финансами
-                                магазина.
+                                Полное управление пользователями, продавцами,
+                                финансами и системой сайта.
                             </p>
                         </div>
 
                         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                             <StatCard
-                                title="Доход"
-                                value="0 ₽"
-                                description="За всё время"
-                                icon="₽"
+                                title="Пользователи"
+                                value="0"
+                                description="Всего аккаунтов"
+                                icon="♙"
                             />
+
+                            <StatCard
+                                title="Продавцы"
+                                value="0"
+                                description="Активных продавцов"
+                                icon="♜"
+                            />
+
                             <StatCard
                                 title="Продажи"
-                                value="0"
-                                description="Всего продаж"
-                                icon="↗"
+                                value="0 ₽"
+                                description="Общий оборот"
+                                icon="₽"
                             />
+
                             <StatCard
                                 title="Товары"
                                 value="0"
-                                description="Опубликовано"
+                                description="Всего товаров"
                                 icon="▦"
-                            />
-                            <StatCard
-                                title="Заказы"
-                                value="0"
-                                description="Ожидают обработки"
-                                icon="◫"
                             />
                         </div>
 
                         <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_330px]">
-                            <EmptyBlock
-                                title="Продажи"
-                                description="Здесь будет отображаться динамика ваших продаж."
-                                icon="⌁"
-                                link="/seller/sales"
-                                linkText="Все продажи →"
-                            />
+                            <div className="rounded-[20px] border border-white/[0.07] bg-[#0D1117] p-6">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <h2 className="text-base font-semibold text-white">
+                                            Активность проекта
+                                        </h2>
+
+                                        <p className="mt-1 text-xs text-slate-600">
+                                            Общая статистика проекта
+                                        </p>
+                                    </div>
+
+                                    <Link
+                                        href="/founder/statistics"
+                                        className="text-xs font-medium text-blue-500 transition hover:text-blue-400"
+                                    >
+                                        Подробнее →
+                                    </Link>
+                                </div>
+
+                                <div className="flex h-[280px] items-center justify-center">
+                                    <div className="text-center">
+                                        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-white/[0.06] bg-[#11161D] text-xl text-slate-600">
+                                            ⌁
+                                        </div>
+
+                                        <div className="mt-4 text-sm font-medium text-slate-500">
+                                            Пока нет статистики
+                                        </div>
+
+                                        <p className="mt-1 text-xs text-slate-700">
+                                            После подключения базы здесь
+                                            появится статистика проекта.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
 
                             <div className="rounded-[20px] border border-white/[0.07] bg-[#0D1117] p-6">
                                 <h2 className="text-base font-semibold text-white">
@@ -92,47 +141,61 @@ export default function SellerPage() {
                                 </h2>
 
                                 <p className="mt-1 text-xs text-slate-600">
-                                    Управление магазином
+                                    Управление проектом
                                 </p>
 
                                 <div className="mt-5 space-y-2">
                                     <QuickAction
-                                        href="/seller/products/create"
-                                        icon="+"
-                                        title="Добавить товар"
-                                        description="Опубликовать новый товар"
+                                        href="/founder/users"
+                                        icon="♙"
+                                        title="Пользователи"
+                                        description="Управление аккаунтами"
                                     />
 
                                     <QuickAction
-                                        href="/seller/products"
-                                        icon="▦"
-                                        title="Мои товары"
-                                        description="Управление товарами"
+                                        href="/founder/sellers"
+                                        icon="♜"
+                                        title="Продавцы"
+                                        description="Управление продавцами"
                                     />
 
                                     <QuickAction
-                                        href="/seller/orders"
-                                        icon="◫"
-                                        title="Заказы"
-                                        description="Просмотреть заказы"
+                                        href="/founder/admins"
+                                        icon="★"
+                                        title="Администраторы"
+                                        description="Управление администраторами"
                                     />
 
                                     <QuickAction
-                                        href="/seller/finance"
-                                        icon="₽"
-                                        title="Финансы"
-                                        description="Баланс и выплаты"
+                                        href="/founder/settings"
+                                        icon="⚙"
+                                        title="Настройки сайта"
+                                        description="Настройки проекта"
                                     />
                                 </div>
                             </div>
                         </div>
 
-                        <InfoBlock
-                            title="Начните с добавления товара"
-                            text="Создайте первый товар, чтобы он появился в каталоге и стал доступен покупателям."
-                            href="/seller/products/create"
-                            linkText="Добавить первый товар →"
-                        />
+                        <div className="mt-5 rounded-[20px] border border-blue-500/[0.12] bg-blue-500/[0.025] p-5">
+                            <div className="flex gap-4">
+                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-500/[0.08] text-sm text-blue-400">
+                                    i
+                                </div>
+
+                                <div>
+                                    <div className="text-sm font-semibold text-slate-300">
+                                        Панель основателя
+                                    </div>
+
+                                    <p className="mt-1 text-xs leading-5 text-slate-600">
+                                        Вам доступны все основные разделы
+                                        управления проектом. Реальные данные
+                                        подключим к базе данных следующим
+                                        этапом.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </section>
             </div>
@@ -189,11 +252,11 @@ function Sidebar({
                     </div>
                 </div>
 
-                <nav className="flex-1 space-y-1 px-3">
+                <nav className="flex-1 space-y-1 overflow-y-auto px-3 pb-3">
                     {menu.map((item) => {
                         const active =
                             pathname === item.href ||
-                            (item.href !== "/seller" &&
+                            (item.href !== "/founder" &&
                                 pathname.startsWith(item.href));
 
                         return (
@@ -246,37 +309,6 @@ function Sidebar({
                 </div>
             </div>
         </aside>
-    );
-}
-
-function TopBar({
-    title,
-    buttonText,
-    buttonHref,
-}: {
-    title: string;
-    buttonText: string;
-    buttonHref: string;
-}) {
-    return (
-        <header className="flex min-h-[88px] items-center justify-between gap-4 border-b border-white/[0.06] px-5 sm:px-8">
-            <div>
-                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-blue-500">
-                    MAZEPOV CONNEXTION
-                </div>
-
-                <h1 className="mt-1 text-xl font-bold text-white">
-                    {title}
-                </h1>
-            </div>
-
-            <Link
-                href={buttonHref}
-                className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/10 transition hover:bg-blue-500"
-            >
-                {buttonText}
-            </Link>
-        </header>
     );
 }
 
@@ -348,97 +380,5 @@ function QuickAction({
                 →
             </span>
         </Link>
-    );
-}
-
-function EmptyBlock({
-    title,
-    description,
-    icon,
-    link,
-    linkText,
-}: {
-    title: string;
-    description: string;
-    icon: string;
-    link: string;
-    linkText: string;
-}) {
-    return (
-        <div className="rounded-[20px] border border-white/[0.07] bg-[#0D1117] p-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h3 className="text-base font-semibold text-white">
-                        {title}
-                    </h3>
-
-                    <p className="mt-1 text-xs text-slate-600">
-                        {description}
-                    </p>
-                </div>
-
-                <Link
-                    href={link}
-                    className="text-xs font-medium text-blue-500 transition hover:text-blue-400"
-                >
-                    {linkText}
-                </Link>
-            </div>
-
-            <div className="flex h-[280px] items-center justify-center">
-                <div className="text-center">
-                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-white/[0.06] bg-[#11161D] text-xl text-slate-600">
-                        {icon}
-                    </div>
-
-                    <div className="mt-4 text-sm font-medium text-slate-500">
-                        Пока нет данных
-                    </div>
-
-                    <p className="mt-1 text-xs text-slate-700">
-                        Данные появятся после первых действий.
-                    </p>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-function InfoBlock({
-    title,
-    text,
-    href,
-    linkText,
-}: {
-    title: string;
-    text: string;
-    href: string;
-    linkText: string;
-}) {
-    return (
-        <div className="mt-5 rounded-[20px] border border-blue-500/[0.12] bg-blue-500/[0.025] p-5">
-            <div className="flex gap-4">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-500/[0.08] text-sm text-blue-400">
-                    i
-                </div>
-
-                <div>
-                    <div className="text-sm font-semibold text-slate-300">
-                        {title}
-                    </div>
-
-                    <p className="mt-1 text-xs leading-5 text-slate-600">
-                        {text}
-                    </p>
-
-                    <Link
-                        href={href}
-                        className="mt-3 inline-flex text-xs font-semibold text-blue-500 transition hover:text-blue-400"
-                    >
-                        {linkText}
-                    </Link>
-                </div>
-            </div>
-        </div>
     );
 }

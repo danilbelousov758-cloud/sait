@@ -4,16 +4,17 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const menu = [
-    { name: "Обзор", href: "/seller", icon: "⌂" },
-    { name: "Мои товары", href: "/seller/products", icon: "▦" },
-    { name: "Добавить товар", href: "/seller/products/create", icon: "+" },
-    { name: "Мои продажи", href: "/seller/sales", icon: "↗" },
-    { name: "Заказы", href: "/seller/orders", icon: "◫" },
-    { name: "Финансы", href: "/seller/finance", icon: "₽" },
-    { name: "Статистика", href: "/seller/statistics", icon: "⌁" },
+    { name: "Обзор", href: "/admin", icon: "⌂" },
+    { name: "Пользователи", href: "/admin/users", icon: "♙" },
+    { name: "Товары", href: "/admin/products", icon: "▦" },
+    { name: "Модерация", href: "/admin/moderation", icon: "✓" },
+    { name: "Жалобы", href: "/admin/reports", icon: "!" },
+    { name: "Заказы", href: "/admin/orders", icon: "◫" },
+    { name: "Финансы", href: "/admin/finance", icon: "₽" },
+    { name: "Статистика", href: "/admin/statistics", icon: "⌁" },
 ];
 
-export default function SellerPage() {
+export default function AdminPage() {
     const pathname = usePathname();
 
     return (
@@ -22,69 +23,104 @@ export default function SellerPage() {
 
             <div className="relative flex min-h-screen">
                 <Sidebar
-                    title="Панель продавца"
+                    title="Панель администратора"
                     menu={menu}
                     pathname={pathname}
                 />
 
                 <section className="min-w-0 flex-1 lg:ml-[250px]">
-                    <TopBar
-                        title="Панель продавца"
-                        buttonText="+ Добавить товар"
-                        buttonHref="/seller/products/create"
-                    />
-
-                    <div className="mx-auto max-w-7xl p-5 sm:p-8">
-                        <div className="mb-7">
+                    <header className="flex min-h-[88px] items-center justify-between gap-4 border-b border-white/[0.06] px-5 sm:px-8">
+                        <div>
                             <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-blue-500">
                                 MAZEPOV CONNEXTION
                             </div>
 
+                            <h1 className="mt-1 text-xl font-bold text-white">
+                                Панель администратора
+                            </h1>
+                        </div>
+
+                        <Link
+                            href="/admin/moderation"
+                            className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/10 transition hover:bg-blue-500"
+                        >
+                            Модерация
+                        </Link>
+                    </header>
+
+                    <div className="mx-auto max-w-7xl p-5 sm:p-8">
+                        <div className="mb-7">
+                            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-blue-500">
+                                ADMIN
+                            </div>
+
                             <h1 className="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">
-                                Добро пожаловать, продавец
+                                Центр управления
                             </h1>
 
                             <p className="mt-2 text-sm text-slate-600">
-                                Управляйте товарами, продажами и финансами
-                                магазина.
+                                Управляйте пользователями, товарами,
+                                заказами и модерацией сайта.
                             </p>
                         </div>
 
                         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                             <StatCard
-                                title="Доход"
-                                value="0 ₽"
-                                description="За всё время"
-                                icon="₽"
-                            />
-                            <StatCard
-                                title="Продажи"
+                                title="Пользователи"
                                 value="0"
-                                description="Всего продаж"
-                                icon="↗"
+                                description="Всего аккаунтов"
+                                icon="♙"
                             />
+
                             <StatCard
                                 title="Товары"
                                 value="0"
-                                description="Опубликовано"
+                                description="На сайте"
                                 icon="▦"
                             />
+
+                            <StatCard
+                                title="Жалобы"
+                                value="0"
+                                description="Требуют внимания"
+                                icon="!"
+                            />
+
                             <StatCard
                                 title="Заказы"
                                 value="0"
-                                description="Ожидают обработки"
+                                description="Всего заказов"
                                 icon="◫"
                             />
                         </div>
 
                         <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_330px]">
-                            <EmptyBlock
-                                title="Продажи"
-                                description="Здесь будет отображаться динамика ваших продаж."
-                                icon="⌁"
-                                link="/seller/sales"
-                                linkText="Все продажи →"
-                            />
+                            <div className="rounded-[20px] border border-white/[0.07] bg-[#0D1117] p-6">
+                                <h2 className="text-base font-semibold text-white">
+                                    Последние действия
+                                </h2>
+
+                                <p className="mt-1 text-xs text-slate-600">
+                                    События административной панели
+                                </p>
+
+                                <div className="flex h-[280px] items-center justify-center">
+                                    <div className="text-center">
+                                        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-white/[0.06] bg-[#11161D] text-xl text-slate-600">
+                                            ⌁
+                                        </div>
+
+                                        <div className="mt-4 text-sm font-medium text-slate-500">
+                                            Пока нет действий
+                                        </div>
+
+                                        <p className="mt-1 text-xs text-slate-700">
+                                            Здесь появится история действий
+                                            администратора.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
 
                             <div className="rounded-[20px] border border-white/[0.07] bg-[#0D1117] p-6">
                                 <h2 className="text-base font-semibold text-white">
@@ -92,47 +128,59 @@ export default function SellerPage() {
                                 </h2>
 
                                 <p className="mt-1 text-xs text-slate-600">
-                                    Управление магазином
+                                    Управление сайтом
                                 </p>
 
                                 <div className="mt-5 space-y-2">
                                     <QuickAction
-                                        href="/seller/products/create"
-                                        icon="+"
-                                        title="Добавить товар"
-                                        description="Опубликовать новый товар"
+                                        href="/admin/users"
+                                        icon="♙"
+                                        title="Пользователи"
+                                        description="Управление аккаунтами"
                                     />
 
                                     <QuickAction
-                                        href="/seller/products"
+                                        href="/admin/products"
                                         icon="▦"
-                                        title="Мои товары"
-                                        description="Управление товарами"
+                                        title="Товары"
+                                        description="Проверка товаров"
                                     />
 
                                     <QuickAction
-                                        href="/seller/orders"
-                                        icon="◫"
-                                        title="Заказы"
-                                        description="Просмотреть заказы"
+                                        href="/admin/moderation"
+                                        icon="✓"
+                                        title="Модерация"
+                                        description="Проверка контента"
                                     />
 
                                     <QuickAction
-                                        href="/seller/finance"
-                                        icon="₽"
-                                        title="Финансы"
-                                        description="Баланс и выплаты"
+                                        href="/admin/reports"
+                                        icon="!"
+                                        title="Жалобы"
+                                        description="Обращения пользователей"
                                     />
                                 </div>
                             </div>
                         </div>
 
-                        <InfoBlock
-                            title="Начните с добавления товара"
-                            text="Создайте первый товар, чтобы он появился в каталоге и стал доступен покупателям."
-                            href="/seller/products/create"
-                            linkText="Добавить первый товар →"
-                        />
+                        <div className="mt-5 rounded-[20px] border border-blue-500/[0.12] bg-blue-500/[0.025] p-5">
+                            <div className="flex gap-4">
+                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-500/[0.08] text-sm text-blue-400">
+                                    i
+                                </div>
+
+                                <div>
+                                    <div className="text-sm font-semibold text-slate-300">
+                                        Панель администратора
+                                    </div>
+
+                                    <p className="mt-1 text-xs leading-5 text-slate-600">
+                                        Здесь будут находиться инструменты
+                                        управления сайтом и модерации.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </section>
             </div>
@@ -193,7 +241,7 @@ function Sidebar({
                     {menu.map((item) => {
                         const active =
                             pathname === item.href ||
-                            (item.href !== "/seller" &&
+                            (item.href !== "/admin" &&
                                 pathname.startsWith(item.href));
 
                         return (
@@ -246,37 +294,6 @@ function Sidebar({
                 </div>
             </div>
         </aside>
-    );
-}
-
-function TopBar({
-    title,
-    buttonText,
-    buttonHref,
-}: {
-    title: string;
-    buttonText: string;
-    buttonHref: string;
-}) {
-    return (
-        <header className="flex min-h-[88px] items-center justify-between gap-4 border-b border-white/[0.06] px-5 sm:px-8">
-            <div>
-                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-blue-500">
-                    MAZEPOV CONNEXTION
-                </div>
-
-                <h1 className="mt-1 text-xl font-bold text-white">
-                    {title}
-                </h1>
-            </div>
-
-            <Link
-                href={buttonHref}
-                className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/10 transition hover:bg-blue-500"
-            >
-                {buttonText}
-            </Link>
-        </header>
     );
 }
 
@@ -348,97 +365,5 @@ function QuickAction({
                 →
             </span>
         </Link>
-    );
-}
-
-function EmptyBlock({
-    title,
-    description,
-    icon,
-    link,
-    linkText,
-}: {
-    title: string;
-    description: string;
-    icon: string;
-    link: string;
-    linkText: string;
-}) {
-    return (
-        <div className="rounded-[20px] border border-white/[0.07] bg-[#0D1117] p-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h3 className="text-base font-semibold text-white">
-                        {title}
-                    </h3>
-
-                    <p className="mt-1 text-xs text-slate-600">
-                        {description}
-                    </p>
-                </div>
-
-                <Link
-                    href={link}
-                    className="text-xs font-medium text-blue-500 transition hover:text-blue-400"
-                >
-                    {linkText}
-                </Link>
-            </div>
-
-            <div className="flex h-[280px] items-center justify-center">
-                <div className="text-center">
-                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-white/[0.06] bg-[#11161D] text-xl text-slate-600">
-                        {icon}
-                    </div>
-
-                    <div className="mt-4 text-sm font-medium text-slate-500">
-                        Пока нет данных
-                    </div>
-
-                    <p className="mt-1 text-xs text-slate-700">
-                        Данные появятся после первых действий.
-                    </p>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-function InfoBlock({
-    title,
-    text,
-    href,
-    linkText,
-}: {
-    title: string;
-    text: string;
-    href: string;
-    linkText: string;
-}) {
-    return (
-        <div className="mt-5 rounded-[20px] border border-blue-500/[0.12] bg-blue-500/[0.025] p-5">
-            <div className="flex gap-4">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-500/[0.08] text-sm text-blue-400">
-                    i
-                </div>
-
-                <div>
-                    <div className="text-sm font-semibold text-slate-300">
-                        {title}
-                    </div>
-
-                    <p className="mt-1 text-xs leading-5 text-slate-600">
-                        {text}
-                    </p>
-
-                    <Link
-                        href={href}
-                        className="mt-3 inline-flex text-xs font-semibold text-blue-500 transition hover:text-blue-400"
-                    >
-                        {linkText}
-                    </Link>
-                </div>
-            </div>
-        </div>
     );
 }
