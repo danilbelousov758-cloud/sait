@@ -9,16 +9,60 @@ export default function LoginPage() {
 
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
+        if (loading) return;
+
         setLoading(true);
+        setError("");
 
-        // Авторизацию подключим следующим этапом
-        await new Promise((resolve) => setTimeout(resolve, 700));
+        try {
+            console.log("LOGIN: отправляем запрос");
 
-        setLoading(false);
+            const response = await fetch("/api/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    username,
+                    password,
+                }),
+            });
+
+            console.log("LOGIN: статус", response.status);
+
+            const data = await response.json();
+
+            console.log("LOGIN: ответ", data);
+
+            if (!response.ok || !data.success) {
+                setError(
+                    data.message || "Неверный логин или пароль."
+                );
+                return;
+            }
+
+            localStorage.setItem(
+                "user",
+                JSON.stringify(data.user)
+            );
+
+            setError("Вход выполнен! Перенаправляем...");
+
+            window.location.href = "/";
+        } catch (error) {
+            console.error("LOGIN ERROR:", error);
+
+            setError(
+                "Не удалось подключиться к серверу. Попробуйте ещё раз."
+            );
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -114,7 +158,11 @@ export default function LoginPage() {
                             <div className="relative">
                                 <input
                                     id="password"
-                                    type={showPassword ? "text" : "password"}
+                                    type={
+                                        showPassword
+                                            ? "text"
+                                            : "password"
+                                    }
                                     value={password}
                                     onChange={(event) =>
                                         setPassword(event.target.value)
@@ -141,6 +189,19 @@ export default function LoginPage() {
                                 </button>
                             </div>
                         </div>
+
+                        {/* Сообщение */}
+                        {error && (
+                            <div
+                                className={`rounded-xl border px-4 py-3 text-sm ${
+                                    error.includes("Вход выполнен")
+                                        ? "border-green-500/10 bg-green-500/[0.06] text-green-400"
+                                        : "border-red-500/10 bg-red-500/[0.06] text-red-400"
+                                }`}
+                            >
+                                {error}
+                            </div>
+                        )}
 
                         {/* Кнопка */}
                         <button
