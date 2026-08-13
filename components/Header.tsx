@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
 const navigation = [
@@ -18,8 +19,45 @@ const navigation = [
     },
 ];
 
+type User = {
+    id: number;
+    username: string;
+    avatar?: string | null;
+    role?: string;
+};
+
 export default function Header() {
     const pathname = usePathname();
+
+    const [user, setUser] = useState<User | null>(null);
+    const [loaded, setLoaded] = useState(false);
+
+    useEffect(() => {
+        const loadUser = () => {
+            try {
+                const savedUser = localStorage.getItem("user");
+
+                if (savedUser) {
+                    setUser(JSON.parse(savedUser));
+                } else {
+                    setUser(null);
+                }
+            } catch (error) {
+                console.error("Ошибка загрузки пользователя:", error);
+                setUser(null);
+            } finally {
+                setLoaded(true);
+            }
+        };
+
+        loadUser();
+
+        window.addEventListener("storage", loadUser);
+
+        return () => {
+            window.removeEventListener("storage", loadUser);
+        };
+    }, []);
 
     return (
         <header className="fixed left-1/2 top-5 z-50 w-[calc(100%-24px)] max-w-7xl -translate-x-1/2 sm:w-[calc(100%-32px)]">
@@ -71,12 +109,36 @@ export default function Header() {
                 </nav>
 
                 {/* Авторизация */}
-                <Link
-                    href="/login"
-                    className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/10 transition-all duration-200 hover:bg-blue-500"
-                >
-                    Войти
-                </Link>
+                {!loaded ? (
+                    <div className="h-10 w-[80px] rounded-xl bg-white/[0.03]" />
+                ) : user ? (
+                    <Link
+                        href="/profile"
+                        className="flex items-center gap-2 rounded-xl bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-lg shadow-blue-600/10 transition-all duration-200 hover:bg-blue-500"
+                    >
+                        <div className="h-7 w-7 overflow-hidden rounded-lg bg-[#11161D]">
+                            <img
+                                src={
+                                    user.avatar ||
+                                    "/images/avatar.png"
+                                }
+                                alt={user.username}
+                                className="h-full w-full object-cover"
+                            />
+                        </div>
+
+                        <span className="max-w-[120px] truncate">
+                            {user.username}
+                        </span>
+                    </Link>
+                ) : (
+                    <Link
+                        href="/login"
+                        className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/10 transition-all duration-200 hover:bg-blue-500"
+                    >
+                        Войти
+                    </Link>
+                )}
             </div>
         </header>
     );
