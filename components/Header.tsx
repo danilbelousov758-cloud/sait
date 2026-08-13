@@ -36,22 +36,16 @@ const roleNames: Record<string, string> = {
 function UserAvatar({
     username,
     avatar,
-    large = false,
 }: {
     username: string;
     avatar?: string | null;
-    large?: boolean;
 }) {
     const firstLetter =
         username?.trim().charAt(0).toUpperCase() || "?";
 
     if (avatar) {
         return (
-            <div
-                className={`overflow-hidden rounded-xl bg-black ${
-                    large ? "h-11 w-11" : "h-7 w-7"
-                }`}
-            >
+            <div className="h-7 w-7 shrink-0 overflow-hidden rounded-lg bg-black">
                 <img
                     src={avatar}
                     alt={username}
@@ -62,13 +56,7 @@ function UserAvatar({
     }
 
     return (
-        <div
-            className={`flex items-center justify-center rounded-xl border border-white/[0.08] bg-black font-bold text-white ${
-                large
-                    ? "h-11 w-11 text-sm"
-                    : "h-7 w-7 text-xs"
-            }`}
-        >
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-black text-xs font-bold text-white">
             {firstLetter}
         </div>
     );
@@ -146,6 +134,7 @@ export default function Header() {
 
     const handleLogout = () => {
         localStorage.removeItem("user");
+
         setUser(null);
         setMenuOpen(false);
 
@@ -204,9 +193,9 @@ export default function Header() {
                     })}
                 </nav>
 
-                {/* Правая часть */}
+                {/* Авторизация */}
                 {!loaded ? (
-                    <div className="h-10 w-[80px] rounded-xl bg-white/[0.03]" />
+                    <div className="h-11 w-[185px] rounded-xl bg-white/[0.03]" />
                 ) : user ? (
                     <div
                         ref={menuRef}
@@ -218,7 +207,7 @@ export default function Header() {
                             onClick={() =>
                                 setMenuOpen((value) => !value)
                             }
-                            className={`flex items-center gap-2 rounded-xl px-2.5 py-2 text-sm font-semibold text-white transition-all duration-200 ${
+                            className={`flex h-11 min-w-[185px] items-center gap-2 rounded-xl px-2.5 transition-all duration-200 ${
                                 menuOpen
                                     ? "bg-white/[0.08]"
                                     : "bg-blue-600 shadow-lg shadow-blue-600/10 hover:bg-blue-500"
@@ -229,12 +218,12 @@ export default function Header() {
                                 avatar={user.avatar}
                             />
 
-                            <span className="max-w-[120px] truncate">
+                            <span className="min-w-0 flex-1 truncate text-left text-sm font-semibold text-white">
                                 {user.username}
                             </span>
 
                             <svg
-                                className={`h-3.5 w-3.5 text-white/60 transition-transform duration-200 ${
+                                className={`h-3.5 w-3.5 shrink-0 text-white/60 transition-transform duration-200 ${
                                     menuOpen
                                         ? "rotate-180"
                                         : ""
@@ -244,7 +233,7 @@ export default function Header() {
                             >
                                 <path
                                     fillRule="evenodd"
-                                    d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.51a.75.75 0 01-1.08 0l-4.25-4.51a.75.75 0 01.02-1.06z"
+                                    d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25-4.51a.75.75 0 01.02-1.06l4.25 4.51a.75.75 0 01-.02 1.06z"
                                     clipRule="evenodd"
                                 />
                             </svg>
@@ -252,193 +241,120 @@ export default function Header() {
 
                         {/* Выпадающее меню */}
                         {menuOpen && (
-                            <div className="absolute right-0 top-[calc(100%+10px)] w-[270px] overflow-hidden rounded-[20px] border border-white/[0.08] bg-[#0D1117] shadow-[0_25px_70px_rgba(0,0,0,0.55)] backdrop-blur-xl">
+                            <div className="absolute right-0 top-[calc(100%+8px)] w-[205px] overflow-hidden rounded-[15px] border border-white/[0.08] bg-[#0D1117] p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
 
-                                {/* Информация о пользователе */}
-                                <div className="border-b border-white/[0.06] p-4">
-                                    <div className="flex items-center gap-3">
-                                        <UserAvatar
-                                            username={user.username}
-                                            avatar={user.avatar}
-                                            large
-                                        />
+                                {/* Имя и роль */}
+                                <div className="mb-1 flex items-center gap-2.5 rounded-lg px-2.5 py-2">
+                                    <UserAvatar
+                                        username={user.username}
+                                        avatar={user.avatar}
+                                    />
 
-                                        <div className="min-w-0">
-                                            <div className="truncate text-sm font-bold text-white">
-                                                {user.username}
-                                            </div>
+                                    <div className="min-w-0">
+                                        <div className="truncate text-xs font-semibold text-white">
+                                            {user.username}
+                                        </div>
 
-                                            <div className="mt-1 text-xs text-slate-500">
-                                                {roleName}
-                                            </div>
+                                        <div className="mt-0.5 truncate text-[10px] text-slate-500">
+                                            {roleName}
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Основные пункты */}
-                                <div className="p-2">
+                                <div className="mb-1 h-px bg-white/[0.06]" />
 
-                                    {/* Профиль */}
+                                {/* Профиль */}
+                                <Link
+                                    href="/profile"
+                                    className="flex h-10 items-center gap-3 rounded-lg px-3 text-sm text-slate-300 transition-colors hover:bg-white/[0.06] hover:text-white"
+                                >
+                                    <span className="w-5 text-center text-slate-500">
+                                        👤
+                                    </span>
+
+                                    <span>
+                                        Профиль
+                                    </span>
+                                </Link>
+
+                                {/* Настройки */}
+                                <Link
+                                    href="/profile/settings"
+                                    className="flex h-10 items-center gap-3 rounded-lg px-3 text-sm text-slate-300 transition-colors hover:bg-white/[0.06] hover:text-white"
+                                >
+                                    <span className="w-5 text-center text-slate-500">
+                                        ⚙
+                                    </span>
+
+                                    <span>
+                                        Настройки
+                                    </span>
+                                </Link>
+
+                                {/* Продавец */}
+                                {role === "SELLER" && (
                                     <Link
-                                        href="/profile"
-                                        className="flex items-center gap-3 rounded-xl px-3 py-3 transition-colors hover:bg-white/[0.05]"
+                                        href="/seller"
+                                        className="flex h-10 items-center gap-3 rounded-lg px-3 text-sm text-slate-300 transition-colors hover:bg-white/[0.06] hover:text-white"
                                     >
-                                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.04] text-slate-400">
-                                            <svg
-                                                className="h-4 w-4"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="1.8"
-                                            >
-                                                <circle
-                                                    cx="12"
-                                                    cy="8"
-                                                    r="3.5"
-                                                />
-                                                <path d="M5 20c.8-3.2 3.1-5 7-5s6.2 1.8 7 5" />
-                                            </svg>
-                                        </div>
+                                        <span className="w-5 text-center text-slate-500">
+                                            🛒
+                                        </span>
 
-                                        <div>
-                                            <div className="text-sm font-medium text-white">
-                                                Профиль
-                                            </div>
-
-                                            <div className="text-[11px] text-slate-600">
-                                                Ваш аккаунт
-                                            </div>
-                                        </div>
+                                        <span>
+                                            Панель продавца
+                                        </span>
                                     </Link>
+                                )}
 
-                                    {/* Настройки */}
+                                {/* Администратор */}
+                                {role === "ADMIN" && (
                                     <Link
-                                        href="/profile/settings"
-                                        className="flex items-center gap-3 rounded-xl px-3 py-3 transition-colors hover:bg-white/[0.05]"
+                                        href="/admin"
+                                        className="flex h-10 items-center gap-3 rounded-lg px-3 text-sm text-slate-300 transition-colors hover:bg-white/[0.06] hover:text-white"
                                     >
-                                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.04] text-slate-400">
-                                            <svg
-                                                className="h-4 w-4"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="1.8"
-                                            >
-                                                <path d="M12 15.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" />
-                                                <path d="M19.4 15a1.7 1.7 0 00.34 1.88l.06.06-1.8 1.8-.06-.06a1.7 1.7 0 00-1.88-.34 1.7 1.7 0 00-1.03 1.56V20h-2.55v-.1a1.7 1.7 0 00-1.03-1.56 1.7 1.7 0 00-1.88.34l-.06.06-1.8-1.8.06-.06A1.7 1.7 0 008.1 15a1.7 1.7 0 00-1.56-1.03H6v-2.55h.1A1.7 1.7 0 007.66 10a1.7 1.7 0 00-.34-1.88l-.06-.06 1.8-1.8.06.06A1.7 1.7 0 0011 6.1 1.7 1.7 0 0012.03 4.55V4h2.55v.1A1.7 1.7 0 0015.6 5.66a1.7 1.7 0 001.88-.34l.06-.06 1.8 1.8-.06.06A1.7 1.7 0 0018.94 9a1.7 1.7 0 001.56 1.03h.1v2.55h-.1A1.7 1.7 0 0018.94 14a1.7 1.7 0 00.46 1z" />
-                                            </svg>
-                                        </div>
+                                        <span className="w-5 text-center text-slate-500">
+                                            🛡
+                                        </span>
 
-                                        <div>
-                                            <div className="text-sm font-medium text-white">
-                                                Настройки
-                                            </div>
-
-                                            <div className="text-[11px] text-slate-600">
-                                                Настройки аккаунта
-                                            </div>
-                                        </div>
+                                        <span>
+                                            Панель администратора
+                                        </span>
                                     </Link>
+                                )}
 
-                                    {/* Панель продавца */}
-                                    {role === "SELLER" && (
-                                        <Link
-                                            href="/seller"
-                                            className="flex items-center gap-3 rounded-xl px-3 py-3 transition-colors hover:bg-white/[0.05]"
-                                        >
-                                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.04] text-slate-400">
-                                                🛒
-                                            </div>
+                                {/* Основатель */}
+                                {role === "FOUNDER" && (
+                                    <Link
+                                        href="/founder"
+                                        className="flex h-10 items-center gap-3 rounded-lg px-3 text-sm text-slate-300 transition-colors hover:bg-white/[0.06] hover:text-white"
+                                    >
+                                        <span className="w-5 text-center text-slate-500">
+                                            ★
+                                        </span>
 
-                                            <div>
-                                                <div className="text-sm font-medium text-white">
-                                                    Панель продавца
-                                                </div>
+                                        <span>
+                                            Панель основателя
+                                        </span>
+                                    </Link>
+                                )}
 
-                                                <div className="text-[11px] text-slate-600">
-                                                    Управление магазином
-                                                </div>
-                                            </div>
-                                        </Link>
-                                    )}
-
-                                    {/* Панель администратора */}
-                                    {role === "ADMIN" && (
-                                        <Link
-                                            href="/admin"
-                                            className="flex items-center gap-3 rounded-xl px-3 py-3 transition-colors hover:bg-white/[0.05]"
-                                        >
-                                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.04] text-slate-400">
-                                                🛡
-                                            </div>
-
-                                            <div>
-                                                <div className="text-sm font-medium text-white">
-                                                    Панель администратора
-                                                </div>
-
-                                                <div className="text-[11px] text-slate-600">
-                                                    Управление сайтом
-                                                </div>
-                                            </div>
-                                        </Link>
-                                    )}
-
-                                    {/* Панель основателя */}
-                                    {role === "FOUNDER" && (
-                                        <Link
-                                            href="/founder"
-                                            className="flex items-center gap-3 rounded-xl px-3 py-3 transition-colors hover:bg-white/[0.05]"
-                                        >
-                                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.04] text-slate-400">
-                                                ★
-                                            </div>
-
-                                            <div>
-                                                <div className="text-sm font-medium text-white">
-                                                    Панель основателя
-                                                </div>
-
-                                                <div className="text-[11px] text-slate-600">
-                                                    Полное управление
-                                                </div>
-                                            </div>
-                                        </Link>
-                                    )}
-                                </div>
+                                <div className="my-1.5 h-px bg-white/[0.06]" />
 
                                 {/* Выход */}
-                                <div className="border-t border-white/[0.06] p-2">
-                                    <button
-                                        type="button"
-                                        onClick={handleLogout}
-                                        className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition-colors hover:bg-red-500/[0.06]"
-                                    >
-                                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-500/[0.06] text-red-400">
-                                            <svg
-                                                className="h-4 w-4"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="1.8"
-                                            >
-                                                <path d="M10 17l5-5-5-5" />
-                                                <path d="M15 12H3" />
-                                                <path d="M21 19V5a2 2 0 00-2-2h-7" />
-                                            </svg>
-                                        </div>
+                                <button
+                                    type="button"
+                                    onClick={handleLogout}
+                                    className="flex h-10 w-full items-center gap-3 rounded-lg px-3 text-left text-sm text-red-400 transition-colors hover:bg-red-500/[0.07]"
+                                >
+                                    <span className="w-5 text-center">
+                                        ⇥
+                                    </span>
 
-                                        <div>
-                                            <div className="text-sm font-medium text-red-400">
-                                                Выйти
-                                            </div>
-
-                                            <div className="text-[11px] text-slate-600">
-                                                Завершить сессию
-                                            </div>
-                                        </div>
-                                    </button>
-                                </div>
+                                    <span>
+                                        Выйти
+                                    </span>
+                                </button>
                             </div>
                         )}
                     </div>
