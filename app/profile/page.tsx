@@ -8,7 +8,7 @@ type User = {
     username: string;
     avatar?: string | null;
     role?: string;
-    email?: string | null;
+    server?: string | null;
 };
 
 const roleNames: Record<string, string> = {
@@ -21,7 +21,10 @@ const roleNames: Record<string, string> = {
 export default function ProfilePage() {
     const [user, setUser] = useState<User | null>(null);
     const [loaded, setLoaded] = useState(false);
-    const [activeSection, setActiveSection] = useState("profile");
+
+    const [activeSection, setActiveSection] = useState<
+        "profile" | "security" | "privacy"
+    >("profile");
 
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
@@ -31,6 +34,10 @@ export default function ProfilePage() {
 
     const [savingPassword, setSavingPassword] = useState(false);
     const [passwordMessage, setPasswordMessage] = useState("");
+
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deleteConfirm, setDeleteConfirm] = useState("");
+    const [deletingAccount, setDeletingAccount] = useState(false);
 
     useEffect(() => {
         try {
@@ -104,7 +111,7 @@ export default function ProfilePage() {
             );
 
             setPasswordMessage(
-                "Форма работает. Подключение сохранения пароля сделаем следующим этапом."
+                "Изменение пароля будет подключено следующим этапом."
             );
 
             setCurrentPassword("");
@@ -112,6 +119,28 @@ export default function ProfilePage() {
             setConfirmPassword("");
         } finally {
             setSavingPassword(false);
+        }
+    };
+
+    const handleDeleteAccount = async () => {
+        if (!user) return;
+
+        if (deleteConfirm !== user.username) {
+            return;
+        }
+
+        setDeletingAccount(true);
+
+        try {
+            await new Promise((resolve) =>
+                setTimeout(resolve, 800)
+            );
+
+            localStorage.removeItem("user");
+
+            window.location.href = "/";
+        } finally {
+            setDeletingAccount(false);
         }
     };
 
@@ -131,7 +160,9 @@ export default function ProfilePage() {
         return (
             <main className="flex min-h-screen items-center justify-center bg-[#080B10] px-5 text-white">
                 <div className="text-center">
-                    <div className="text-5xl">🔒</div>
+                    <div className="text-5xl">
+                        🔒
+                    </div>
 
                     <h1 className="mt-5 text-2xl font-bold">
                         Вы не авторизованы
@@ -154,6 +185,8 @@ export default function ProfilePage() {
 
     return (
         <main className="min-h-screen bg-[#080B10] px-4 pb-20 pt-[125px] text-slate-100 sm:px-6">
+
+            {/* Фоновое свечение */}
             <div className="pointer-events-none fixed inset-0 overflow-hidden">
                 <div className="absolute left-1/2 top-[-250px] h-[500px] w-[700px] -translate-x-1/2 rounded-full bg-blue-600/[0.055] blur-[150px]" />
 
@@ -164,6 +197,7 @@ export default function ProfilePage() {
 
                 {/* Заголовок */}
                 <div className="mb-7">
+
                     <div className="flex items-center gap-2 text-xs text-slate-600">
                         <Link
                             href="/"
@@ -190,12 +224,13 @@ export default function ProfilePage() {
 
                 <div className="grid gap-5 lg:grid-cols-[230px_minmax(0,1fr)]">
 
-                    {/* Левая панель */}
+                    {/* Левое меню */}
                     <aside className="h-fit rounded-[20px] border border-white/[0.07] bg-[#0D1117] p-2 shadow-[0_20px_60px_rgba(0,0,0,0.2)]">
 
-                        {/* Мини-профиль */}
+                        {/* Пользователь */}
                         <div className="mb-2 rounded-[15px] bg-white/[0.025] p-3">
                             <div className="flex items-center gap-3">
+
                                 {avatarPreview ? (
                                     <div className="h-10 w-10 overflow-hidden rounded-xl bg-black">
                                         <img
@@ -222,9 +257,12 @@ export default function ProfilePage() {
                             </div>
                         </div>
 
+                        {/* Профиль */}
                         <button
                             type="button"
-                            onClick={() => setActiveSection("profile")}
+                            onClick={() =>
+                                setActiveSection("profile")
+                            }
                             className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm transition-all ${
                                 activeSection === "profile"
                                     ? "bg-blue-600 text-white shadow-lg shadow-blue-600/10"
@@ -235,9 +273,12 @@ export default function ProfilePage() {
                             <span>Профиль</span>
                         </button>
 
+                        {/* Безопасность */}
                         <button
                             type="button"
-                            onClick={() => setActiveSection("security")}
+                            onClick={() =>
+                                setActiveSection("security")
+                            }
                             className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm transition-all ${
                                 activeSection === "security"
                                     ? "bg-blue-600 text-white shadow-lg shadow-blue-600/10"
@@ -248,24 +289,27 @@ export default function ProfilePage() {
                             <span>Безопасность</span>
                         </button>
 
+                        {/* Приватность */}
                         <button
                             type="button"
-                            onClick={() => setActiveSection("privacy")}
+                            onClick={() =>
+                                setActiveSection("privacy")
+                            }
                             className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm transition-all ${
                                 activeSection === "privacy"
                                     ? "bg-blue-600 text-white shadow-lg shadow-blue-600/10"
                                     : "text-slate-400 hover:bg-white/[0.04] hover:text-white"
                             }`}
                         >
-                            <span>🛡</span>
+                            <span>🛡️</span>
                             <span>Приватность</span>
                         </button>
                     </aside>
 
-                    {/* Контент */}
+                    {/* Основной контент */}
                     <section className="min-w-0">
 
-                        {/* ПРОФИЛЬ */}
+                        {/* ================= PROFILE ================= */}
                         {activeSection === "profile" && (
                             <div className="space-y-5">
 
@@ -285,6 +329,7 @@ export default function ProfilePage() {
 
                                         {/* Аватар */}
                                         <div className="relative shrink-0">
+
                                             {avatarPreview ? (
                                                 <div className="h-28 w-28 overflow-hidden rounded-[24px] border border-white/[0.08] bg-black shadow-xl">
                                                     <img
@@ -347,11 +392,21 @@ export default function ProfilePage() {
                                         </h2>
 
                                         <p className="mt-1 text-xs text-slate-600">
-                                            Основные данные вашего аккаунта.
+                                            Основная информация об аккаунте.
                                         </p>
                                     </div>
 
                                     <div className="grid gap-4 sm:grid-cols-2">
+
+                                        <div>
+                                            <div className="mb-2 text-xs font-medium text-slate-500">
+                                                ID пользователя
+                                            </div>
+
+                                            <div className="flex h-12 items-center rounded-xl border border-white/[0.06] bg-[#11161D] px-4 text-sm text-slate-300">
+                                                #{user.id}
+                                            </div>
+                                        </div>
 
                                         <div>
                                             <div className="mb-2 text-xs font-medium text-slate-500">
@@ -373,13 +428,13 @@ export default function ProfilePage() {
                                             </div>
                                         </div>
 
-                                        <div className="sm:col-span-2">
+                                        <div>
                                             <div className="mb-2 text-xs font-medium text-slate-500">
-                                                Электронная почта
+                                                Сервер
                                             </div>
 
                                             <div className="flex h-12 items-center rounded-xl border border-white/[0.06] bg-[#11161D] px-4 text-sm text-slate-300">
-                                                {user.email || "Не указана"}
+                                                {user.server || "Не указан"}
                                             </div>
                                         </div>
                                     </div>
@@ -387,7 +442,7 @@ export default function ProfilePage() {
                             </div>
                         )}
 
-                        {/* БЕЗОПАСНОСТЬ */}
+                        {/* ================= SECURITY ================= */}
                         {activeSection === "security" && (
                             <div className="space-y-5">
 
@@ -395,11 +450,11 @@ export default function ProfilePage() {
 
                                     <div className="mb-6">
                                         <h2 className="text-lg font-bold text-white">
-                                            Безопасность
+                                            Изменение пароля
                                         </h2>
 
                                         <p className="mt-1 text-xs text-slate-600">
-                                            Управляйте паролем и безопасностью аккаунта.
+                                            Используйте сложный пароль, который не используется на других сайтах.
                                         </p>
                                     </div>
 
@@ -407,6 +462,7 @@ export default function ProfilePage() {
                                         onSubmit={handlePasswordSubmit}
                                         className="space-y-5"
                                     >
+
                                         <div>
                                             <label className="mb-2 block text-xs font-medium text-slate-400">
                                                 Текущий пароль
@@ -482,25 +538,26 @@ export default function ProfilePage() {
                                     </form>
                                 </div>
 
+                                {/* Сессия */}
                                 <div className="rounded-[20px] border border-white/[0.07] bg-[#0D1117] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-6">
 
                                     <h2 className="text-lg font-bold text-white">
-                                        Сессия
+                                        Текущая сессия
                                     </h2>
 
                                     <p className="mt-1 text-xs text-slate-600">
-                                        Управление текущей сессией аккаунта.
+                                        Информация о текущем входе в аккаунт.
                                     </p>
 
                                     <div className="mt-5 flex items-center justify-between rounded-xl border border-white/[0.05] bg-[#11161D] px-4 py-3">
 
                                         <div>
                                             <div className="text-sm font-medium text-white">
-                                                Текущая сессия
+                                                Это устройство
                                             </div>
 
                                             <div className="mt-1 text-[11px] text-slate-600">
-                                                Вы вошли в аккаунт с этого устройства
+                                                Текущая активная сессия
                                             </div>
                                         </div>
 
@@ -512,80 +569,121 @@ export default function ProfilePage() {
                             </div>
                         )}
 
-                        {/* ПРИВАТНОСТЬ */}
+                        {/* ================= PRIVACY ================= */}
                         {activeSection === "privacy" && (
                             <div className="space-y-5">
 
-                                <div className="rounded-[20px] border border-white/[0.07] bg-[#0D1117] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-6">
+                                <div className="rounded-[20px] border border-red-500/[0.12] bg-[#0D1117] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-6">
 
                                     <div className="mb-6">
-                                        <h2 className="text-lg font-bold text-white">
-                                            Приватность
+
+                                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-500/[0.08] text-lg">
+                                            ⚠
+                                        </div>
+
+                                        <h2 className="mt-5 text-lg font-bold text-white">
+                                            Удаление аккаунта
                                         </h2>
 
-                                        <p className="mt-1 text-xs text-slate-600">
-                                            Управление видимостью информации аккаунта.
+                                        <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500">
+                                            После удаления аккаунта восстановить его будет невозможно. Все связанные с аккаунтом данные могут быть удалены.
                                         </p>
                                     </div>
 
-                                    <div className="space-y-2">
+                                    <div className="rounded-xl border border-red-500/[0.08] bg-red-500/[0.025] p-4">
 
-                                        <div className="flex items-center justify-between rounded-xl border border-white/[0.05] bg-[#11161D] p-4">
-                                            <div>
-                                                <div className="text-sm font-medium text-white">
-                                                    Показывать профиль
-                                                </div>
-
-                                                <div className="mt-1 text-[11px] text-slate-600">
-                                                    Другие пользователи смогут открыть ваш профиль.
-                                                </div>
-                                            </div>
-
-                                            <div className="h-6 w-11 rounded-full bg-blue-600 p-1">
-                                                <div className="ml-5 h-4 w-4 rounded-full bg-white" />
-                                            </div>
+                                        <div className="text-sm font-semibold text-red-400">
+                                            Опасная зона
                                         </div>
 
-                                        <div className="flex items-center justify-between rounded-xl border border-white/[0.05] bg-[#11161D] p-4">
-                                            <div>
-                                                <div className="text-sm font-medium text-white">
-                                                    Показывать статус
-                                                </div>
-
-                                                <div className="mt-1 text-[11px] text-slate-600">
-                                                    Разрешить отображение вашего статуса.
-                                                </div>
-                                            </div>
-
-                                            <div className="h-6 w-11 rounded-full bg-white/[0.08] p-1">
-                                                <div className="h-4 w-4 rounded-full bg-slate-500" />
-                                            </div>
+                                        <div className="mt-1 text-xs leading-5 text-slate-600">
+                                            Это действие необратимо. Перед удалением убедитесь, что вы действительно хотите удалить свой аккаунт.
                                         </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setShowDeleteModal(true)
+                                            }
+                                            className="mt-4 rounded-xl border border-red-500/[0.15] bg-red-500/[0.06] px-4 py-2.5 text-xs font-semibold text-red-400 transition hover:bg-red-500/[0.1] hover:text-red-300"
+                                        >
+                                            Удалить аккаунт
+                                        </button>
                                     </div>
-                                </div>
-
-                                <div className="rounded-[20px] border border-red-500/[0.12] bg-[#0D1117] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-6">
-
-                                    <h2 className="text-lg font-bold text-red-400">
-                                        Опасная зона
-                                    </h2>
-
-                                    <p className="mt-1 text-xs text-slate-600">
-                                        Действия в этом разделе могут быть необратимыми.
-                                    </p>
-
-                                    <button
-                                        type="button"
-                                        className="mt-5 rounded-xl border border-red-500/[0.15] bg-red-500/[0.05] px-4 py-3 text-xs font-semibold text-red-400 transition hover:bg-red-500/[0.1]"
-                                    >
-                                        Удалить аккаунт
-                                    </button>
                                 </div>
                             </div>
                         )}
                     </section>
                 </div>
             </div>
+
+            {/* ================= DELETE MODAL ================= */}
+            {showDeleteModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 px-5 backdrop-blur-sm">
+
+                    <div className="w-full max-w-[420px] rounded-[22px] border border-white/[0.08] bg-[#0D1117] p-6 shadow-[0_30px_100px_rgba(0,0,0,0.6)]">
+
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-500/[0.08] text-xl">
+                            ⚠
+                        </div>
+
+                        <h3 className="mt-5 text-xl font-bold text-white">
+                            Удалить аккаунт?
+                        </h3>
+
+                        <p className="mt-2 text-sm leading-6 text-slate-500">
+                            Это действие нельзя отменить. Все данные аккаунта будут удалены.
+                        </p>
+
+                        <div className="mt-5">
+
+                            <label className="mb-2 block text-xs font-medium text-slate-400">
+                                Введите ваш логин для подтверждения
+                            </label>
+
+                            <input
+                                type="text"
+                                value={deleteConfirm}
+                                onChange={(event) =>
+                                    setDeleteConfirm(
+                                        event.target.value
+                                    )
+                                }
+                                placeholder={user.username}
+                                className="h-12 w-full rounded-xl border border-white/[0.07] bg-[#11161D] px-4 text-sm text-white outline-none transition placeholder:text-slate-700 focus:border-red-500/40 focus:ring-4 focus:ring-red-500/[0.05]"
+                            />
+                        </div>
+
+                        <div className="mt-6 flex gap-3">
+
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setShowDeleteModal(false);
+                                    setDeleteConfirm("");
+                                }}
+                                className="h-11 flex-1 rounded-xl border border-white/[0.07] bg-white/[0.03] text-sm font-semibold text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
+                            >
+                                Отмена
+                            </button>
+
+                            <button
+                                type="button"
+                                disabled={
+                                    deleteConfirm !== user.username ||
+                                    deletingAccount
+                                }
+                                onClick={handleDeleteAccount}
+                                className="h-11 flex-1 rounded-xl bg-red-600 text-sm font-semibold text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-40"
+                            >
+                                {deletingAccount
+                                    ? "Удаляем..."
+                                    : "Удалить"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </main>
     );
 }
