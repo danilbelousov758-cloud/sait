@@ -1,14 +1,14 @@
 "use client";
 
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 
 type User = {
     id: number;
     username: string;
     avatar?: string | null;
     role?: string;
+    email?: string | null;
 };
 
 const roleNames: Record<string, string> = {
@@ -18,253 +18,572 @@ const roleNames: Record<string, string> = {
     FOUNDER: "Основатель",
 };
 
-function UserAvatar({
-    username,
-    avatar,
-}: {
-    username: string;
-    avatar?: string | null;
-}) {
-    const firstLetter =
-        username?.trim().charAt(0).toUpperCase() || "?";
-
-    if (avatar) {
-        return (
-            <div className="h-24 w-24 overflow-hidden rounded-[26px] border border-white/[0.08] bg-black shadow-2xl">
-                <img
-                    src={avatar}
-                    alt={username}
-                    className="h-full w-full object-cover"
-                />
-            </div>
-        );
-    }
-
-    return (
-        <div className="flex h-24 w-24 items-center justify-center rounded-[26px] border border-white/[0.08] bg-black text-3xl font-bold text-white shadow-2xl">
-            {firstLetter}
-        </div>
-    );
-}
-
 export default function ProfilePage() {
-    const router = useRouter();
-
     const [user, setUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [loaded, setLoaded] = useState(false);
+    const [activeSection, setActiveSection] = useState("profile");
+
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+
+    const [currentPassword, setCurrentPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+
+    const [savingPassword, setSavingPassword] = useState(false);
+    const [passwordMessage, setPasswordMessage] = useState("");
 
     useEffect(() => {
         try {
             const savedUser = localStorage.getItem("user");
 
-            if (!savedUser) {
-                router.replace("/login");
-                return;
+            if (savedUser) {
+                const parsedUser = JSON.parse(savedUser);
+
+                setUser(parsedUser);
+                setAvatarPreview(parsedUser.avatar || null);
             }
-
-            const parsedUser = JSON.parse(savedUser);
-
-            setUser(parsedUser);
         } catch (error) {
-            console.error(
-                "Ошибка загрузки профиля:",
-                error
-            );
-
-            localStorage.removeItem("user");
-            router.replace("/login");
+            console.error("Ошибка загрузки профиля:", error);
         } finally {
-            setLoading(false);
+            setLoaded(true);
         }
-    }, [router]);
+    }, []);
 
-    const handleLogout = () => {
-        localStorage.removeItem("user");
+    const handleAvatarChange = (
+        event: ChangeEvent<HTMLInputElement>
+    ) => {
+        const file = event.target.files?.[0];
 
-        router.replace("/");
+        if (!file) return;
 
-        window.location.reload();
+        if (!file.type.startsWith("image/")) {
+            alert("Выберите изображение.");
+            return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            alert("Размер изображения не должен превышать 5 МБ.");
+            return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = () => {
+            if (typeof reader.result === "string") {
+                setAvatarPreview(reader.result);
+            }
+        };
+
+        reader.readAsDataURL(file);
     };
 
-    if (loading || !user) {
+    const handlePasswordSubmit = async (
+        event: FormEvent<HTMLFormElement>
+    ) => {
+        event.preventDefault();
+
+        setPasswordMessage("");
+
+        if (newPassword.length < 6) {
+            setPasswordMessage(
+                "Новый пароль должен содержать минимум 6 символов."
+            );
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            setPasswordMessage("Пароли не совпадают.");
+            return;
+        }
+
+        setSavingPassword(true);
+
+        try {
+            await new Promise((resolve) =>
+                setTimeout(resolve, 700)
+            );
+
+            setPasswordMessage(
+                "Форма работает. Подключение сохранения пароля сделаем следующим этапом."
+            );
+
+            setCurrentPassword("");
+            setNewPassword("");
+            setConfirmPassword("");
+        } finally {
+            setSavingPassword(false);
+        }
+    };
+
+    const firstLetter =
+        user?.username?.trim().charAt(0).toUpperCase() || "?";
+
+    const roleName =
+        roleNames[user?.role || "USER"] || "Пользователь";
+
+    if (!loaded) {
         return (
-            <main className="flex min-h-screen items-center justify-center bg-[#080B10] text-white">
-                <div className="text-sm text-slate-500">
-                    Загрузка профиля...
+            <main className="min-h-screen bg-[#080B10]" />
+        );
+    }
+
+    if (!user) {
+        return (
+            <main className="flex min-h-screen items-center justify-center bg-[#080B10] px-5 text-white">
+                <div className="text-center">
+                    <div className="text-5xl">🔒</div>
+
+                    <h1 className="mt-5 text-2xl font-bold">
+                        Вы не авторизованы
+                    </h1>
+
+                    <p className="mt-2 text-sm text-slate-500">
+                        Войдите в аккаунт, чтобы открыть профиль.
+                    </p>
+
+                    <Link
+                        href="/login"
+                        className="mt-6 inline-flex rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-500"
+                    >
+                        Войти
+                    </Link>
                 </div>
             </main>
         );
     }
 
-    const role = user.role || "USER";
-
-    const roleName =
-        roleNames[role] || "Пользователь";
-
-    const isSeller = role === "SELLER";
-    const isAdmin = role === "ADMIN";
-    const isFounder = role === "FOUNDER";
-
     return (
-        <main className="min-h-screen bg-[#080B10] px-5 pb-16 pt-32 text-slate-100">
-            <div className="mx-auto w-full max-w-5xl">
+        <main className="min-h-screen bg-[#080B10] px-4 pb-20 pt-[125px] text-slate-100 sm:px-6">
+            <div className="pointer-events-none fixed inset-0 overflow-hidden">
+                <div className="absolute left-1/2 top-[-250px] h-[500px] w-[700px] -translate-x-1/2 rounded-full bg-blue-600/[0.055] blur-[150px]" />
 
-                {/* Верхняя карточка */}
-                <div className="rounded-[28px] border border-white/[0.07] bg-[#0D1117] p-6 shadow-[0_25px_80px_rgba(0,0,0,0.35)] sm:p-8">
+                <div className="absolute bottom-[-250px] left-[-150px] h-[450px] w-[450px] rounded-full bg-blue-500/[0.025] blur-[150px]" />
+            </div>
 
-                    <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
+            <div className="relative mx-auto w-full max-w-6xl">
 
-                        <UserAvatar
-                            username={user.username}
-                            avatar={user.avatar}
-                        />
+                {/* Заголовок */}
+                <div className="mb-7">
+                    <div className="flex items-center gap-2 text-xs text-slate-600">
+                        <Link
+                            href="/"
+                            className="transition-colors hover:text-slate-400"
+                        >
+                            Главная
+                        </Link>
 
-                        <div className="flex-1">
-                            <div className="flex flex-wrap items-center gap-3">
-                                <h1 className="text-2xl font-bold tracking-tight text-white">
-                                    {user.username}
-                                </h1>
+                        <span>/</span>
 
-                                <span className="rounded-lg border border-white/[0.07] bg-white/[0.03] px-2.5 py-1 text-[11px] font-medium text-slate-400">
-                                    {roleName}
-                                </span>
-                            </div>
-
-                            <p className="mt-2 text-sm text-slate-500">
-                                Добро пожаловать в MAZEPOV CONNEXTION
-                            </p>
-                        </div>
+                        <span className="text-slate-500">
+                            Профиль
+                        </span>
                     </div>
+
+                    <h1 className="mt-4 text-3xl font-bold tracking-tight text-white">
+                        Профиль
+                    </h1>
+
+                    <p className="mt-2 text-sm text-slate-500">
+                        Управляйте своим аккаунтом и настройками профиля.
+                    </p>
                 </div>
 
-                {/* Меню */}
-                <div className="mt-5 grid gap-3">
+                <div className="grid gap-5 lg:grid-cols-[230px_minmax(0,1fr)]">
 
-                    {/* Профиль */}
-                    <Link
-                        href="/profile"
-                        className="group flex items-center justify-between rounded-2xl border border-white/[0.07] bg-[#0D1117] px-5 py-4 transition-all hover:border-white/[0.12] hover:bg-[#11161D]"
-                    >
-                        <div>
-                            <div className="text-sm font-semibold text-white">
-                                Профиль
-                            </div>
+                    {/* Левая панель */}
+                    <aside className="h-fit rounded-[20px] border border-white/[0.07] bg-[#0D1117] p-2 shadow-[0_20px_60px_rgba(0,0,0,0.2)]">
 
-                            <div className="mt-1 text-xs text-slate-600">
-                                Информация о вашем аккаунте
+                        {/* Мини-профиль */}
+                        <div className="mb-2 rounded-[15px] bg-white/[0.025] p-3">
+                            <div className="flex items-center gap-3">
+                                {avatarPreview ? (
+                                    <div className="h-10 w-10 overflow-hidden rounded-xl bg-black">
+                                        <img
+                                            src={avatarPreview}
+                                            alt={user.username}
+                                            className="h-full w-full object-cover"
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.08] bg-black text-sm font-bold text-white">
+                                        {firstLetter}
+                                    </div>
+                                )}
+
+                                <div className="min-w-0">
+                                    <div className="truncate text-sm font-semibold text-white">
+                                        {user.username}
+                                    </div>
+
+                                    <div className="mt-0.5 text-[10px] text-slate-500">
+                                        {roleName}
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <span className="text-slate-600 transition-transform group-hover:translate-x-1">
-                            →
-                        </span>
-                    </Link>
-
-                    {/* Настройки */}
-                    <Link
-                        href="/profile/settings"
-                        className="group flex items-center justify-between rounded-2xl border border-white/[0.07] bg-[#0D1117] px-5 py-4 transition-all hover:border-white/[0.12] hover:bg-[#11161D]"
-                    >
-                        <div>
-                            <div className="text-sm font-semibold text-white">
-                                Настройки
-                            </div>
-
-                            <div className="mt-1 text-xs text-slate-600">
-                                Настройки аккаунта и профиля
-                            </div>
-                        </div>
-
-                        <span className="text-slate-600 transition-transform group-hover:translate-x-1">
-                            →
-                        </span>
-                    </Link>
-
-                    {/* Панель продавца */}
-                    {isSeller && (
-                        <Link
-                            href="/seller"
-                            className="group flex items-center justify-between rounded-2xl border border-white/[0.07] bg-[#0D1117] px-5 py-4 transition-all hover:border-white/[0.12] hover:bg-[#11161D]"
+                        <button
+                            type="button"
+                            onClick={() => setActiveSection("profile")}
+                            className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm transition-all ${
+                                activeSection === "profile"
+                                    ? "bg-blue-600 text-white shadow-lg shadow-blue-600/10"
+                                    : "text-slate-400 hover:bg-white/[0.04] hover:text-white"
+                            }`}
                         >
-                            <div>
-                                <div className="text-sm font-semibold text-white">
-                                    Панель продавца
-                                </div>
+                            <span>👤</span>
+                            <span>Профиль</span>
+                        </button>
 
-                                <div className="mt-1 text-xs text-slate-600">
-                                    Управление товарами и продажами
-                                </div>
-                            </div>
-
-                            <span className="text-slate-600 transition-transform group-hover:translate-x-1">
-                                →
-                            </span>
-                        </Link>
-                    )}
-
-                    {/* Панель администратора */}
-                    {isAdmin && (
-                        <Link
-                            href="/admin"
-                            className="group flex items-center justify-between rounded-2xl border border-white/[0.07] bg-[#0D1117] px-5 py-4 transition-all hover:border-white/[0.12] hover:bg-[#11161D]"
+                        <button
+                            type="button"
+                            onClick={() => setActiveSection("security")}
+                            className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm transition-all ${
+                                activeSection === "security"
+                                    ? "bg-blue-600 text-white shadow-lg shadow-blue-600/10"
+                                    : "text-slate-400 hover:bg-white/[0.04] hover:text-white"
+                            }`}
                         >
-                            <div>
-                                <div className="text-sm font-semibold text-white">
-                                    Панель администратора
-                                </div>
+                            <span>🔐</span>
+                            <span>Безопасность</span>
+                        </button>
 
-                                <div className="mt-1 text-xs text-slate-600">
-                                    Управление сайтом и пользователями
-                                </div>
-                            </div>
-
-                            <span className="text-slate-600 transition-transform group-hover:translate-x-1">
-                                →
-                            </span>
-                        </Link>
-                    )}
-
-                    {/* Панель основателя */}
-                    {isFounder && (
-                        <Link
-                            href="/founder"
-                            className="group flex items-center justify-between rounded-2xl border border-white/[0.07] bg-[#0D1117] px-5 py-4 transition-all hover:border-white/[0.12] hover:bg-[#11161D]"
+                        <button
+                            type="button"
+                            onClick={() => setActiveSection("privacy")}
+                            className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm transition-all ${
+                                activeSection === "privacy"
+                                    ? "bg-blue-600 text-white shadow-lg shadow-blue-600/10"
+                                    : "text-slate-400 hover:bg-white/[0.04] hover:text-white"
+                            }`}
                         >
-                            <div>
-                                <div className="text-sm font-semibold text-white">
-                                    Панель основателя
+                            <span>🛡</span>
+                            <span>Приватность</span>
+                        </button>
+                    </aside>
+
+                    {/* Контент */}
+                    <section className="min-w-0">
+
+                        {/* ПРОФИЛЬ */}
+                        {activeSection === "profile" && (
+                            <div className="space-y-5">
+
+                                <div className="rounded-[20px] border border-white/[0.07] bg-[#0D1117] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-6">
+
+                                    <div className="mb-6">
+                                        <h2 className="text-lg font-bold text-white">
+                                            Основная информация
+                                        </h2>
+
+                                        <p className="mt-1 text-xs text-slate-600">
+                                            Информация вашего аккаунта.
+                                        </p>
+                                    </div>
+
+                                    <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
+
+                                        {/* Аватар */}
+                                        <div className="relative shrink-0">
+                                            {avatarPreview ? (
+                                                <div className="h-28 w-28 overflow-hidden rounded-[24px] border border-white/[0.08] bg-black shadow-xl">
+                                                    <img
+                                                        src={avatarPreview}
+                                                        alt={user.username}
+                                                        className="h-full w-full object-cover"
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <div className="flex h-28 w-28 items-center justify-center rounded-[24px] border border-white/[0.08] bg-black text-4xl font-bold text-white shadow-xl">
+                                                    {firstLetter}
+                                                </div>
+                                            )}
+
+                                            <label
+                                                htmlFor="avatar-upload"
+                                                className="absolute -bottom-2 -right-2 flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-white/[0.08] bg-[#151B23] text-sm shadow-lg transition hover:bg-[#1B222C]"
+                                            >
+                                                ✎
+                                            </label>
+
+                                            <input
+                                                id="avatar-upload"
+                                                type="file"
+                                                accept="image/png,image/jpeg,image/webp"
+                                                onChange={handleAvatarChange}
+                                                className="hidden"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <div className="text-xl font-bold text-white">
+                                                {user.username}
+                                            </div>
+
+                                            <div className="mt-1 text-sm text-slate-500">
+                                                {roleName}
+                                            </div>
+
+                                            <label
+                                                htmlFor="avatar-upload"
+                                                className="mt-4 inline-flex cursor-pointer rounded-xl border border-white/[0.07] bg-white/[0.03] px-4 py-2 text-xs font-medium text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
+                                            >
+                                                Изменить аватар
+                                            </label>
+
+                                            <div className="mt-2 text-[10px] text-slate-700">
+                                                PNG, JPG или WEBP · до 5 МБ
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div className="mt-1 text-xs text-slate-600">
-                                    Полное управление проектом
+                                {/* Данные аккаунта */}
+                                <div className="rounded-[20px] border border-white/[0.07] bg-[#0D1117] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-6">
+
+                                    <div className="mb-6">
+                                        <h2 className="text-lg font-bold text-white">
+                                            Данные аккаунта
+                                        </h2>
+
+                                        <p className="mt-1 text-xs text-slate-600">
+                                            Основные данные вашего аккаунта.
+                                        </p>
+                                    </div>
+
+                                    <div className="grid gap-4 sm:grid-cols-2">
+
+                                        <div>
+                                            <div className="mb-2 text-xs font-medium text-slate-500">
+                                                Логин
+                                            </div>
+
+                                            <div className="flex h-12 items-center rounded-xl border border-white/[0.06] bg-[#11161D] px-4 text-sm text-slate-300">
+                                                {user.username}
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <div className="mb-2 text-xs font-medium text-slate-500">
+                                                Роль
+                                            </div>
+
+                                            <div className="flex h-12 items-center rounded-xl border border-white/[0.06] bg-[#11161D] px-4 text-sm text-slate-300">
+                                                {roleName}
+                                            </div>
+                                        </div>
+
+                                        <div className="sm:col-span-2">
+                                            <div className="mb-2 text-xs font-medium text-slate-500">
+                                                Электронная почта
+                                            </div>
+
+                                            <div className="flex h-12 items-center rounded-xl border border-white/[0.06] bg-[#11161D] px-4 text-sm text-slate-300">
+                                                {user.email || "Не указана"}
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+                        )}
 
-                            <span className="text-slate-600 transition-transform group-hover:translate-x-1">
-                                →
-                            </span>
-                        </Link>
-                    )}
+                        {/* БЕЗОПАСНОСТЬ */}
+                        {activeSection === "security" && (
+                            <div className="space-y-5">
 
-                    {/* Выход */}
-                    <button
-                        onClick={handleLogout}
-                        className="mt-2 flex w-full items-center justify-between rounded-2xl border border-red-500/[0.08] bg-[#0D1117] px-5 py-4 text-left transition-all hover:border-red-500/[0.15] hover:bg-red-500/[0.03]"
-                    >
-                        <div>
-                            <div className="text-sm font-semibold text-red-400">
-                                Выйти
+                                <div className="rounded-[20px] border border-white/[0.07] bg-[#0D1117] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-6">
+
+                                    <div className="mb-6">
+                                        <h2 className="text-lg font-bold text-white">
+                                            Безопасность
+                                        </h2>
+
+                                        <p className="mt-1 text-xs text-slate-600">
+                                            Управляйте паролем и безопасностью аккаунта.
+                                        </p>
+                                    </div>
+
+                                    <form
+                                        onSubmit={handlePasswordSubmit}
+                                        className="space-y-5"
+                                    >
+                                        <div>
+                                            <label className="mb-2 block text-xs font-medium text-slate-400">
+                                                Текущий пароль
+                                            </label>
+
+                                            <input
+                                                type="password"
+                                                value={currentPassword}
+                                                onChange={(event) =>
+                                                    setCurrentPassword(
+                                                        event.target.value
+                                                    )
+                                                }
+                                                placeholder="Введите текущий пароль"
+                                                required
+                                                className="h-12 w-full rounded-xl border border-white/[0.07] bg-[#11161D] px-4 text-sm text-white outline-none transition focus:border-blue-500/50 focus:bg-[#131920] focus:ring-4 focus:ring-blue-500/[0.07]"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="mb-2 block text-xs font-medium text-slate-400">
+                                                Новый пароль
+                                            </label>
+
+                                            <input
+                                                type="password"
+                                                value={newPassword}
+                                                onChange={(event) =>
+                                                    setNewPassword(
+                                                        event.target.value
+                                                    )
+                                                }
+                                                placeholder="Введите новый пароль"
+                                                required
+                                                className="h-12 w-full rounded-xl border border-white/[0.07] bg-[#11161D] px-4 text-sm text-white outline-none transition focus:border-blue-500/50 focus:bg-[#131920] focus:ring-4 focus:ring-blue-500/[0.07]"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="mb-2 block text-xs font-medium text-slate-400">
+                                                Повторите новый пароль
+                                            </label>
+
+                                            <input
+                                                type="password"
+                                                value={confirmPassword}
+                                                onChange={(event) =>
+                                                    setConfirmPassword(
+                                                        event.target.value
+                                                    )
+                                                }
+                                                placeholder="Повторите новый пароль"
+                                                required
+                                                className="h-12 w-full rounded-xl border border-white/[0.07] bg-[#11161D] px-4 text-sm text-white outline-none transition focus:border-blue-500/50 focus:bg-[#131920] focus:ring-4 focus:ring-blue-500/[0.07]"
+                                            />
+                                        </div>
+
+                                        {passwordMessage && (
+                                            <div className="rounded-xl border border-blue-500/10 bg-blue-500/[0.05] px-4 py-3 text-xs text-blue-400">
+                                                {passwordMessage}
+                                            </div>
+                                        )}
+
+                                        <button
+                                            type="submit"
+                                            disabled={savingPassword}
+                                            className="h-12 rounded-xl bg-blue-600 px-5 text-sm font-semibold text-white shadow-lg shadow-blue-600/10 transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+                                        >
+                                            {savingPassword
+                                                ? "Сохраняем..."
+                                                : "Изменить пароль"}
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <div className="rounded-[20px] border border-white/[0.07] bg-[#0D1117] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-6">
+
+                                    <h2 className="text-lg font-bold text-white">
+                                        Сессия
+                                    </h2>
+
+                                    <p className="mt-1 text-xs text-slate-600">
+                                        Управление текущей сессией аккаунта.
+                                    </p>
+
+                                    <div className="mt-5 flex items-center justify-between rounded-xl border border-white/[0.05] bg-[#11161D] px-4 py-3">
+
+                                        <div>
+                                            <div className="text-sm font-medium text-white">
+                                                Текущая сессия
+                                            </div>
+
+                                            <div className="mt-1 text-[11px] text-slate-600">
+                                                Вы вошли в аккаунт с этого устройства
+                                            </div>
+                                        </div>
+
+                                        <div className="rounded-lg bg-green-500/[0.08] px-2.5 py-1 text-[10px] font-semibold text-green-400">
+                                            Активна
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+                        )}
 
-                            <div className="mt-1 text-xs text-slate-600">
-                                Завершить текущую сессию
+                        {/* ПРИВАТНОСТЬ */}
+                        {activeSection === "privacy" && (
+                            <div className="space-y-5">
+
+                                <div className="rounded-[20px] border border-white/[0.07] bg-[#0D1117] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-6">
+
+                                    <div className="mb-6">
+                                        <h2 className="text-lg font-bold text-white">
+                                            Приватность
+                                        </h2>
+
+                                        <p className="mt-1 text-xs text-slate-600">
+                                            Управление видимостью информации аккаунта.
+                                        </p>
+                                    </div>
+
+                                    <div className="space-y-2">
+
+                                        <div className="flex items-center justify-between rounded-xl border border-white/[0.05] bg-[#11161D] p-4">
+                                            <div>
+                                                <div className="text-sm font-medium text-white">
+                                                    Показывать профиль
+                                                </div>
+
+                                                <div className="mt-1 text-[11px] text-slate-600">
+                                                    Другие пользователи смогут открыть ваш профиль.
+                                                </div>
+                                            </div>
+
+                                            <div className="h-6 w-11 rounded-full bg-blue-600 p-1">
+                                                <div className="ml-5 h-4 w-4 rounded-full bg-white" />
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center justify-between rounded-xl border border-white/[0.05] bg-[#11161D] p-4">
+                                            <div>
+                                                <div className="text-sm font-medium text-white">
+                                                    Показывать статус
+                                                </div>
+
+                                                <div className="mt-1 text-[11px] text-slate-600">
+                                                    Разрешить отображение вашего статуса.
+                                                </div>
+                                            </div>
+
+                                            <div className="h-6 w-11 rounded-full bg-white/[0.08] p-1">
+                                                <div className="h-4 w-4 rounded-full bg-slate-500" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="rounded-[20px] border border-red-500/[0.12] bg-[#0D1117] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-6">
+
+                                    <h2 className="text-lg font-bold text-red-400">
+                                        Опасная зона
+                                    </h2>
+
+                                    <p className="mt-1 text-xs text-slate-600">
+                                        Действия в этом разделе могут быть необратимыми.
+                                    </p>
+
+                                    <button
+                                        type="button"
+                                        className="mt-5 rounded-xl border border-red-500/[0.15] bg-red-500/[0.05] px-4 py-3 text-xs font-semibold text-red-400 transition hover:bg-red-500/[0.1]"
+                                    >
+                                        Удалить аккаунт
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-
-                        <span className="text-red-500/50">
-                            →
-                        </span>
-                    </button>
+                        )}
+                    </section>
                 </div>
             </div>
         </main>
