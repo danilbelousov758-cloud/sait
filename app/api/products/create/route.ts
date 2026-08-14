@@ -1,70 +1,322 @@
-import { NextResponse } from "next/server";
-import mysql from "mysql2/promise";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: Request) {
+import {
+    S3Client,
+    PutObjectCommand,
+} from "@aws-sdk/client-s3";
+
+import { db } from "@/lib/mysql";
+
+
+
+const s3 = new S3Client({
+
+    region:
+        process.env.S3_REGION,
+
+    endpoint:
+        process.env.S3_ENDPOINT,
+
+    credentials: {
+
+        accessKeyId:
+            process.env.S3_ACCESS_KEY!,
+
+        secretAccessKey:
+            process.env.S3_SECRET_KEY!,
+
+    },
+
+});
+
+
+
+
+
+async function uploadFile(
+    file: File,
+    folder: string
+) {
+
+    const buffer =
+        Buffer.from(
+            await file.arrayBuffer()
+        );
+
+
+    const safeName =
+        file.name.replace(
+            /[^a-zA-Z0-9._-]/g,
+            "-"
+        );
+
+
+    const key =
+        `${folder}/${Date.now()}-${safeName}`;
+
+
+
+    await s3.send(
+
+        new PutObjectCommand({
+
+            Bucket:
+                process.env.S3_BUCKET!,
+
+
+            Key:
+                key,
+
+
+            Body:
+                buffer,
+
+
+            ContentType:
+                file.type || "application/octet-stream",
+
+
+        })
+
+    );
+
+
+
+    return (
+        `${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET}/${key}`
+    );
+
+}
+
+
+
+
+
+
+export async function POST(
+    request: NextRequest
+) {
+
+
     try {
-        const formData = await req.formData();
+
+
+        const form =
+            await request.formData();
+
+
+
+
 
         const name =
-            String(formData.get("name") || "");
+            String(
+                form.get("name") || ""
+            );
+
+
 
         const category =
-            String(formData.get("category") || "");
+            String(
+                form.get("path") || ""
+            );
 
-        const description =
-            String(formData.get("description") || "");
+
 
         const price =
-            Number(formData.get("price") || 0);
+            Number(
+                form.get("price") || 0
+            );
+
+
+
+        const description =
+            String(
+                form.get("description") || ""
+            );
+
+
 
         const pinned =
-            formData.get("pinned") === "true";
+            form.get("pinned")
+            ===
+            "true";
 
-        const author_id =
-            Number(formData.get("author_id") || 0);
+
+
+        const authorId =
+            Number(
+                form.get("author_id")
+            );
+
+
+
 
 
         const dff =
-            formData.get("dff_file") as File | null;
+            form.get("dff") as File | null;
+
+
 
         const txd =
-            formData.get("txd_file") as File | null;
+            form.get("txd") as File | null;
 
 
-        if (!name || !category) {
+
+        const images =
+            form.getAll(
+                "images"
+            ) as File[];
+
+
+
+
+
+
+        if(!name){
+
             return NextResponse.json(
+
                 {
-                    error:
-                        "Название и категория обязательны"
+                    message:
+                        "Введите название товара"
                 },
+
                 {
                     status:400
                 }
+
             );
+
         }
 
 
-        const db =
-            await mysql.createConnection({
-                host:
-                    "185.200.242.40",
 
-                user:
-                    "mazepov_user",
 
-                password:
-                    "dy_dyb_1901",
 
-                database:
-                    "sait",
+        if(!dff || !txd){
 
-                port:
-                    3306
-            });
+            return NextResponse.json(
+
+                {
+                    message:
+                        "DFF и TXD обязательны"
+                },
+
+                {
+                    status:400
+                }
+
+            );
+
+        }
+
+
+
+
+
+
+        if(!authorId){
+
+            return NextResponse.json(
+
+                {
+                    message:
+                        "Не найден автор товара"
+                },
+
+                {
+                    status:400
+                }
+
+            );
+
+        }
+
+
+
+
+
+
+        const folderName =
+            name
+                .toLowerCase()
+                .replace(
+                    /[^a-z0-9а-яё]+/gi,
+                    "-"
+                );
+
+
+
+        const folder =
+            `products/${authorId}/${folderName}-${Date.now()}`;
+
+
+
+
+
+
+
+        const dffUrl =
+            await uploadFile(
+                dff,
+                folder
+            );
+
+
+
+        const txdUrl =
+            await uploadFile(
+                txd,
+                folder
+            );
+
+
+
+
+
+
+        const imageUrls:string[] = [];
+
+
+
+        for(
+            const image of images
+        ){
+
+            if(
+                image.size === 0
+            ){
+                continue;
+            }
+
+
+
+            const url =
+                await uploadFile(
+
+                    image,
+
+                    `${folder}/images`
+
+                );
+
+
+
+            imageUrls.push(
+                url
+            );
+
+        }
+
+
+
+
+
 
 
 
         await db.execute(
+
             `
             INSERT INTO products
             (
@@ -77,7 +329,8 @@ export async function POST(req: Request) {
                 txd_file,
                 images,
                 author_id,
-                status
+                status,
+                created_at
             )
 
             VALUES
@@ -91,10 +344,14 @@ export async function POST(req: Request) {
                 ?,
                 ?,
                 ?,
-                ?
+                ?,
+                NOW()
             )
+
             `,
+
             [
+
                 name,
 
                 category,
@@ -103,42 +360,76 @@ export async function POST(req: Request) {
 
                 description,
 
-                pinned ? 1 : 0,
+                pinned
+                    ?
+                    1
+                    :
+                    0,
 
-                dff?.name || null,
 
-                txd?.name || null,
+                dffUrl,
 
-                JSON.stringify([]),
+                txdUrl,
 
-                author_id,
+
+                JSON.stringify(
+                    imageUrls
+                ),
+
+
+                authorId,
+
 
                 "ACTIVE"
+
             ]
+
         );
 
 
-        await db.end();
 
 
-        return NextResponse.json({
-            success:true
-        });
+
+
+
+        return NextResponse.json(
+
+            {
+                success:true,
+                message:
+                    "Товар успешно создан"
+            }
+
+        );
+
+
 
 
     } catch(error){
 
-        console.log(error);
+
+        console.error(
+            "CREATE PRODUCT ERROR:",
+            error
+        );
+
 
 
         return NextResponse.json(
+
             {
-                error:
-                    "Ошибка создания товара"
+                success:false,
+                message:
+                    "Ошибка сервера при создании товара"
             },
+
             {
                 status:500
             }
+
         );
+
     }
+
+
 }
