@@ -76,7 +76,9 @@ export default function CreateProductPage() {
         }
     };
 
-    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = (
+        event: FormEvent<HTMLFormElement>
+    ) => {
         event.preventDefault();
 
         console.log({
@@ -87,7 +89,9 @@ export default function CreateProductPage() {
             file,
         });
 
-        alert("Товар пока не сохраняется в базу. Подключим сохранение следующим этапом.");
+        alert(
+            "Товар пока не сохраняется в базу. Подключим сохранение следующим этапом."
+        );
     };
 
     if (!loaded) {
@@ -112,7 +116,8 @@ export default function CreateProductPage() {
                         </h1>
 
                         <p className="mt-2 text-sm leading-6 text-slate-500">
-                            У вашего аккаунта нет доступа к добавлению товаров.
+                            У вашего аккаунта нет доступа к добавлению
+                            товаров.
                         </p>
 
                         <Link
@@ -132,7 +137,7 @@ export default function CreateProductPage() {
             <Header />
 
             <main className="min-h-screen bg-[#080B10] pt-[95px] text-slate-100">
-                {/* Фоновое свечение */}
+                {/* Фон */}
                 <div className="pointer-events-none fixed inset-0 overflow-hidden">
                     <div className="absolute left-1/2 top-[-300px] h-[550px] w-[750px] -translate-x-1/2 rounded-full bg-blue-600/[0.055] blur-[160px]" />
 
@@ -222,10 +227,16 @@ export default function CreateProductPage() {
                                         icon="₽"
                                         title="Финансы"
                                     />
+
+                                    <PanelLink
+                                        href="/seller/statistics"
+                                        icon="⌁"
+                                        title="Статистика"
+                                    />
                                 </div>
                             </nav>
 
-                            {/* Низ */}
+                            {/* Нижняя часть */}
                             <div className="border-t border-white/[0.06] p-3">
                                 <Link
                                     href="/"
@@ -397,7 +408,7 @@ export default function CreateProductPage() {
                                         </div>
                                     </div>
 
-                                    {/* Файл и публикация */}
+                                    {/* Правая колонка */}
                                     <div className="space-y-5">
                                         {/* Файл */}
                                         <div className="rounded-[20px] border border-white/[0.07] bg-[#0D1117] p-6">
@@ -433,7 +444,7 @@ export default function CreateProductPage() {
                                                                 ↑
                                                             </div>
 
-                                                            <div className="mt-4 text-xs font-semibold text-slate-400">
+                                                            <div className="mt-4 break-all text-xs font-semibold text-slate-400">
                                                                 {file
                                                                     ? file.name
                                                                     : "Загрузить файл"}
