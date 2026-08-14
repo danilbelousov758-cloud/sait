@@ -12,18 +12,20 @@ import { db } from "@/lib/mysql";
 const s3 = new S3Client({
 
     region:
-        process.env.S3_REGION,
+        process.env.S3_REGION || "ru-1",
 
     endpoint:
         process.env.S3_ENDPOINT,
 
+    forcePathStyle: true,
+
     credentials: {
 
         accessKeyId:
-            process.env.S3_ACCESS_KEY!,
+            process.env.S3_ACCESS_KEY || "",
 
         secretAccessKey:
-            process.env.S3_SECRET_KEY!,
+            process.env.S3_SECRET_KEY || "",
 
     },
 
@@ -38,21 +40,38 @@ async function uploadFile(
     folder: string
 ) {
 
+    const bucket =
+        process.env.S3_BUCKET;
+
+
+    if (!bucket) {
+
+        throw new Error(
+            "S3_BUCKET не найден в .env.local"
+        );
+
+    }
+
+
+
     const buffer =
         Buffer.from(
             await file.arrayBuffer()
         );
 
 
-    const safeName =
+
+    const fileName =
         file.name.replace(
             /[^a-zA-Z0-9._-]/g,
             "-"
         );
 
 
+
     const key =
-        `${folder}/${Date.now()}-${safeName}`;
+        `${folder}/${Date.now()}-${fileName}`;
+
 
 
 
@@ -61,20 +80,17 @@ async function uploadFile(
         new PutObjectCommand({
 
             Bucket:
-                process.env.S3_BUCKET!,
-
+                bucket,
 
             Key:
                 key,
 
-
             Body:
                 buffer,
 
-
             ContentType:
-                file.type || "application/octet-stream",
-
+                file.type ||
+                "application/octet-stream",
 
         })
 
@@ -83,10 +99,11 @@ async function uploadFile(
 
 
     return (
-        `${process.env.S3_ENDPOINT}/${process.env.S3_BUCKET}/${key}`
+        `${process.env.S3_ENDPOINT}/${bucket}/${key}`
     );
 
 }
+
 
 
 
@@ -97,8 +114,20 @@ export async function POST(
     request: NextRequest
 ) {
 
-
     try {
+
+
+        console.log(
+            "S3 BUCKET:",
+            process.env.S3_BUCKET
+        );
+
+
+        console.log(
+            "S3 ENDPOINT:",
+            process.env.S3_ENDPOINT
+        );
+
 
 
         const form =
@@ -117,7 +146,9 @@ export async function POST(
 
         const category =
             String(
-                form.get("path") || ""
+                form.get("category") ||
+                form.get("path") ||
+                ""
             );
 
 
@@ -137,9 +168,7 @@ export async function POST(
 
 
         const pinned =
-            form.get("pinned")
-            ===
-            "true";
+            form.get("pinned") === "true";
 
 
 
@@ -150,29 +179,48 @@ export async function POST(
 
 
 
+        const dffValue =
+            form.get("dff");
+
+
+        const txdValue =
+            form.get("txd");
+
 
 
         const dff =
-            form.get("dff") as File | null;
+            dffValue instanceof File
+                ? dffValue
+                : null;
 
 
 
         const txd =
-            form.get("txd") as File | null;
+            txdValue instanceof File
+                ? txdValue
+                : null;
+
 
 
 
         const images =
-            form.getAll(
-                "images"
-            ) as File[];
+            form
+                .getAll("images")
+                .filter(
+                    (
+                        item
+                    ): item is File =>
+                        item instanceof File
+                );
 
 
 
 
 
 
-        if(!name){
+
+
+        if (!name.trim()) {
 
             return NextResponse.json(
 
@@ -193,13 +241,13 @@ export async function POST(
 
 
 
-        if(!dff || !txd){
+        if (!dff || !txd) {
 
             return NextResponse.json(
 
                 {
                     message:
-                        "DFF и TXD обязательны"
+                        "Необходимо загрузить DFF и TXD"
                 },
 
                 {
@@ -214,14 +262,13 @@ export async function POST(
 
 
 
-
-        if(!authorId){
+        if (!authorId) {
 
             return NextResponse.json(
 
                 {
                     message:
-                        "Не найден автор товара"
+                        "Автор товара не найден"
                 },
 
                 {
@@ -235,20 +282,12 @@ export async function POST(
 
 
 
-
-
-        const folderName =
-            name
-                .toLowerCase()
-                .replace(
-                    /[^a-z0-9а-яё]+/gi,
-                    "-"
-                );
 
 
 
         const folder =
-            `products/${authorId}/${folderName}-${Date.now()}`;
+
+            `products/${authorId}/${Date.now()}`;
 
 
 
@@ -274,20 +313,18 @@ export async function POST(
 
 
 
-
         const imageUrls:string[] = [];
 
 
 
-        for(
+        for (
             const image of images
-        ){
+        ) {
 
-            if(
-                image.size === 0
-            ){
-                continue;
-            }
+
+            if (
+                image.size <= 0
+            ) continue;
 
 
 
@@ -299,7 +336,6 @@ export async function POST(
                     `${folder}/images`
 
                 );
-
 
 
             imageUrls.push(
@@ -347,8 +383,8 @@ export async function POST(
                 ?,
                 NOW()
             )
-
             `,
+
 
             [
 
@@ -361,10 +397,8 @@ export async function POST(
                 description,
 
                 pinned
-                    ?
-                    1
-                    :
-                    0,
+                    ? 1
+                    : 0,
 
 
                 dffUrl,
@@ -392,12 +426,22 @@ export async function POST(
 
 
 
+
         return NextResponse.json(
 
             {
+
                 success:true,
+
                 message:
-                    "Товар успешно создан"
+                    "Товар создан"
+
+            },
+
+            {
+
+                status:200
+
             }
 
         );
@@ -405,7 +449,9 @@ export async function POST(
 
 
 
-    } catch(error){
+
+    }
+    catch(error) {
 
 
         console.error(
@@ -418,18 +464,24 @@ export async function POST(
         return NextResponse.json(
 
             {
+
                 success:false,
+
                 message:
-                    "Ошибка сервера при создании товара"
+                    error instanceof Error
+                    ? error.message
+                    : "Ошибка сервера"
+
             },
 
             {
+
                 status:500
+
             }
 
         );
 
     }
-
 
 }
