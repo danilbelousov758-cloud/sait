@@ -11,15 +11,6 @@ type User = {
     role?: string;
 };
 
-type Sale = {
-    id: number;
-    product: string;
-    buyer: string;
-    amount: number;
-    date: string;
-    status: "Оплачено" | "Возврат";
-};
-
 const roleNames: Record<string, string> = {
     USER: "Пользователь",
     SELLER: "Продавец",
@@ -27,11 +18,9 @@ const roleNames: Record<string, string> = {
     FOUNDER: "Основатель",
 };
 
-export default function SellerSalesPage() {
+export default function SellerFinancePage() {
     const [user, setUser] = useState<User | null>(null);
     const [loaded, setLoaded] = useState(false);
-
-    const [sales] = useState<Sale[]>([]);
 
     useEffect(() => {
         try {
@@ -82,7 +71,7 @@ export default function SellerSalesPage() {
 
                         <p className="mt-2 text-sm leading-6 text-slate-500">
                             У вашего аккаунта нет прав для просмотра
-                            продаж.
+                            финансовой информации.
                         </p>
 
                         <Link
@@ -97,20 +86,6 @@ export default function SellerSalesPage() {
             </>
         );
     }
-
-    const totalSales = sales.length;
-
-    const paidSales = sales.filter(
-        (sale) => sale.status === "Оплачено"
-    ).length;
-
-    const refundedSales = sales.filter(
-        (sale) => sale.status === "Возврат"
-    ).length;
-
-    const totalIncome = sales
-        .filter((sale) => sale.status === "Оплачено")
-        .reduce((sum, sale) => sum + sale.amount, 0);
 
     return (
         <>
@@ -207,7 +182,6 @@ export default function SellerSalesPage() {
                                         href="/seller/sales"
                                         icon="↗"
                                         title="Мои продажи"
-                                        active
                                     />
 
                                     <PanelLink
@@ -220,6 +194,7 @@ export default function SellerSalesPage() {
                                         href="/seller/finance"
                                         icon="₽"
                                         title="Финансы"
+                                        active
                                     />
 
                                     <PanelLink
@@ -277,11 +252,11 @@ export default function SellerSalesPage() {
                                 </div>
 
                                 <h1 className="mt-1 text-xl font-bold text-white sm:text-2xl">
-                                    Мои продажи
+                                    Финансы
                                 </h1>
 
                                 <p className="mt-1 text-xs text-slate-600">
-                                    История продаж ваших товаров.
+                                    Управление доходами и выплатами.
                                 </p>
 
                             </div>
@@ -291,99 +266,178 @@ export default function SellerSalesPage() {
                         {/* Контент */}
                         <div className="mx-auto max-w-7xl p-5 sm:p-8">
 
-                            {/* Статистика */}
+                            {/* Основная статистика */}
                             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
 
-                                <SaleCard
-                                    title="Всего продаж"
-                                    value={totalSales.toString()}
-                                    description="Все операции"
+                                <FinanceCard
+                                    title="Баланс"
+                                    value="0 ₽"
+                                    description="Доступно сейчас"
+                                    icon="₽"
+                                />
+
+                                <FinanceCard
+                                    title="Заработано"
+                                    value="0 ₽"
+                                    description="За всё время"
                                     icon="↗"
                                 />
 
-                                <SaleCard
-                                    title="Оплачено"
-                                    value={paidSales.toString()}
-                                    description="Успешные продажи"
+                                <FinanceCard
+                                    title="Выплачено"
+                                    value="0 ₽"
+                                    description="Всего получено"
                                     icon="✓"
                                 />
 
-                                <SaleCard
-                                    title="Возвраты"
-                                    value={refundedSales.toString()}
-                                    description="Возвращённые заказы"
-                                    icon="↩"
-                                />
-
-                                <SaleCard
-                                    title="Доход"
-                                    value={`${totalIncome} ₽`}
-                                    description="Сумма продаж"
-                                    icon="₽"
+                                <FinanceCard
+                                    title="Ожидает"
+                                    value="0 ₽"
+                                    description="Ожидает выплаты"
+                                    icon="◷"
                                 />
 
                             </div>
 
-                            {/* Таблица продаж */}
-                            <div className="mt-5 rounded-[20px] border border-white/[0.07] bg-[#0D1117]">
+                            {/* Баланс */}
+                            <div className="mt-5 rounded-[20px] border border-white/[0.07] bg-[#0D1117] p-6">
 
-                                <div className="border-b border-white/[0.06] px-5 py-5 sm:px-6">
+                                <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
 
-                                    <h2 className="text-base font-semibold text-white">
-                                        История продаж
-                                    </h2>
+                                    <div>
 
-                                    <p className="mt-1 text-xs text-slate-600">
-                                        Все операции по вашим товарам.
-                                    </p>
+                                        <div className="text-xs text-slate-600">
+                                            Текущий баланс
+                                        </div>
+
+                                        <div className="mt-2 text-3xl font-bold tracking-tight text-white">
+                                            0 ₽
+                                        </div>
+
+                                        <p className="mt-2 text-xs text-slate-700">
+                                            Средства, доступные для вывода.
+                                        </p>
+
+                                    </div>
+
+                                    <button
+                                        type="button"
+                                        disabled
+                                        className="rounded-xl bg-blue-600 px-5 py-3 text-xs font-semibold text-white opacity-40"
+                                    >
+                                        Вывести средства
+                                    </button>
 
                                 </div>
 
-                                {sales.length === 0 ? (
+                            </div>
 
-                                    <div className="flex min-h-[360px] items-center justify-center px-5">
+                            {/* Нижние блоки */}
+                            <div className="mt-5 grid gap-5 xl:grid-cols-2">
+
+                                {/* История выплат */}
+                                <div className="rounded-[20px] border border-white/[0.07] bg-[#0D1117]">
+
+                                    <div className="border-b border-white/[0.06] px-5 py-5 sm:px-6">
+
+                                        <h2 className="text-base font-semibold text-white">
+                                            История выплат
+                                        </h2>
+
+                                        <p className="mt-1 text-xs text-slate-600">
+                                            Ваши последние выплаты.
+                                        </p>
+
+                                    </div>
+
+                                    <div className="flex min-h-[260px] items-center justify-center px-5">
 
                                         <div className="text-center">
 
-                                            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-white/[0.06] bg-[#11161D] text-2xl text-slate-700">
-                                                ↗
+                                            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-white/[0.06] bg-[#11161D] text-xl text-slate-700">
+                                                ₽
                                             </div>
 
-                                            <h3 className="mt-5 text-sm font-semibold text-slate-400">
-                                                Продаж пока нет
-                                            </h3>
+                                            <div className="mt-4 text-sm font-medium text-slate-500">
+                                                Выплат пока нет
+                                            </div>
 
-                                            <p className="mx-auto mt-2 max-w-sm text-xs leading-5 text-slate-700">
-                                                После первой покупки вашего
-                                                товара информация появится
-                                                здесь.
+                                            <p className="mt-1 text-xs text-slate-700">
+                                                Здесь появится история ваших
+                                                выплат.
                                             </p>
-
-                                            <Link
-                                                href="/seller/products"
-                                                className="mt-5 inline-flex rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-semibold text-white transition hover:bg-blue-500"
-                                            >
-                                                Перейти к товарам
-                                            </Link>
 
                                         </div>
 
                                     </div>
 
-                                ) : (
+                                </div>
 
-                                    <div className="divide-y divide-white/[0.05]">
+                                {/* Транзакции */}
+                                <div className="rounded-[20px] border border-white/[0.07] bg-[#0D1117]">
 
-                                        {sales.map((sale) => (
-                                            <SaleRow
-                                                key={sale.id}
-                                                sale={sale}
-                                            />
-                                        ))}
+                                    <div className="border-b border-white/[0.06] px-5 py-5 sm:px-6">
+
+                                        <h2 className="text-base font-semibold text-white">
+                                            Последние операции
+                                        </h2>
+
+                                        <p className="mt-1 text-xs text-slate-600">
+                                            Движение средств по аккаунту.
+                                        </p>
 
                                     </div>
 
-                                )}
+                                    <div className="flex min-h-[260px] items-center justify-center px-5">
+
+                                        <div className="text-center">
+
+                                            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-white/[0.06] bg-[#11161D] text-xl text-slate-700">
+                                                ⌁
+                                            </div>
+
+                                            <div className="mt-4 text-sm font-medium text-slate-500">
+                                                Операций пока нет
+                                            </div>
+
+                                            <p className="mt-1 text-xs text-slate-700">
+                                                После первых продаж здесь
+                                                появятся операции.
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            {/* Информация */}
+                            <div className="mt-5 rounded-[20px] border border-blue-500/[0.12] bg-blue-500/[0.025] p-5">
+
+                                <div className="flex gap-4">
+
+                                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-500/[0.08] text-sm text-blue-400">
+                                        i
+                                    </div>
+
+                                    <div>
+
+                                        <div className="text-sm font-semibold text-slate-300">
+                                            Финансовая система
+                                        </div>
+
+                                        <p className="mt-1 text-xs leading-5 text-slate-600">
+                                            После подключения системы продаж
+                                            здесь будут отображаться баланс,
+                                            доходы, выплаты и история всех
+                                            финансовых операций.
+                                        </p>
+
+                                    </div>
+
+                                </div>
 
                             </div>
 
@@ -443,7 +497,7 @@ function PanelLink({
     );
 }
 
-function SaleCard({
+function FinanceCard({
     title,
     value,
     description,
@@ -479,52 +533,6 @@ function SaleCard({
                     {icon}
                 </div>
 
-            </div>
-
-        </div>
-    );
-}
-
-function SaleRow({
-    sale,
-}: {
-    sale: Sale;
-}) {
-    return (
-        <div className="flex items-center gap-4 px-5 py-4 transition hover:bg-white/[0.015] sm:px-6">
-
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#11161D] text-sm text-slate-600">
-                ↗
-            </div>
-
-            <div className="min-w-0 flex-1">
-
-                <div className="truncate text-sm font-semibold text-white">
-                    {sale.product}
-                </div>
-
-                <div className="mt-1 text-[10px] text-slate-700">
-                    Покупатель: {sale.buyer}
-                </div>
-
-            </div>
-
-            <div className="hidden text-[10px] text-slate-700 md:block">
-                {sale.date}
-            </div>
-
-            <div className="hidden text-sm font-semibold text-slate-300 sm:block">
-                {sale.amount} ₽
-            </div>
-
-            <div
-                className={`hidden rounded-lg px-2.5 py-1 text-[10px] font-semibold sm:block ${
-                    sale.status === "Оплачено"
-                        ? "bg-green-500/[0.08] text-green-400"
-                        : "bg-red-500/[0.08] text-red-400"
-                }`}
-            >
-                {sale.status}
             </div>
 
         </div>

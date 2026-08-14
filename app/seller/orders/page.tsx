@@ -11,13 +11,13 @@ type User = {
     role?: string;
 };
 
-type Sale = {
+type Order = {
     id: number;
     product: string;
     buyer: string;
-    amount: number;
+    price: number;
+    status: "Новый" | "Выполнен" | "Отменён";
     date: string;
-    status: "Оплачено" | "Возврат";
 };
 
 const roleNames: Record<string, string> = {
@@ -27,11 +27,11 @@ const roleNames: Record<string, string> = {
     FOUNDER: "Основатель",
 };
 
-export default function SellerSalesPage() {
+export default function SellerOrdersPage() {
     const [user, setUser] = useState<User | null>(null);
     const [loaded, setLoaded] = useState(false);
 
-    const [sales] = useState<Sale[]>([]);
+    const [orders] = useState<Order[]>([]);
 
     useEffect(() => {
         try {
@@ -82,7 +82,7 @@ export default function SellerSalesPage() {
 
                         <p className="mt-2 text-sm leading-6 text-slate-500">
                             У вашего аккаунта нет прав для просмотра
-                            продаж.
+                            заказов.
                         </p>
 
                         <Link
@@ -97,20 +97,6 @@ export default function SellerSalesPage() {
             </>
         );
     }
-
-    const totalSales = sales.length;
-
-    const paidSales = sales.filter(
-        (sale) => sale.status === "Оплачено"
-    ).length;
-
-    const refundedSales = sales.filter(
-        (sale) => sale.status === "Возврат"
-    ).length;
-
-    const totalIncome = sales
-        .filter((sale) => sale.status === "Оплачено")
-        .reduce((sum, sale) => sum + sale.amount, 0);
 
     return (
         <>
@@ -207,13 +193,13 @@ export default function SellerSalesPage() {
                                         href="/seller/sales"
                                         icon="↗"
                                         title="Мои продажи"
-                                        active
                                     />
 
                                     <PanelLink
                                         href="/seller/orders"
                                         icon="◫"
                                         title="Заказы"
+                                        active
                                     />
 
                                     <PanelLink
@@ -270,19 +256,23 @@ export default function SellerSalesPage() {
                         {/* Заголовок */}
                         <header className="border-b border-white/[0.06] px-5 py-6 sm:px-8">
 
-                            <div>
+                            <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
 
-                                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-blue-500">
-                                    MAZEPOV CONNEXTION
+                                <div>
+
+                                    <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-blue-500">
+                                        MAZEPOV CONNEXTION
+                                    </div>
+
+                                    <h1 className="mt-1 text-xl font-bold text-white sm:text-2xl">
+                                        Заказы
+                                    </h1>
+
+                                    <p className="mt-1 text-xs text-slate-600">
+                                        Управление заказами покупателей.
+                                    </p>
+
                                 </div>
-
-                                <h1 className="mt-1 text-xl font-bold text-white sm:text-2xl">
-                                    Мои продажи
-                                </h1>
-
-                                <p className="mt-1 text-xs text-slate-600">
-                                    История продаж ваших товаров.
-                                </p>
 
                             </div>
 
@@ -292,76 +282,82 @@ export default function SellerSalesPage() {
                         <div className="mx-auto max-w-7xl p-5 sm:p-8">
 
                             {/* Статистика */}
-                            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                            <div className="grid gap-4 sm:grid-cols-3">
 
-                                <SaleCard
-                                    title="Всего продаж"
-                                    value={totalSales.toString()}
-                                    description="Все операции"
-                                    icon="↗"
+                                <InfoCard
+                                    title="Всего заказов"
+                                    value={orders.length.toString()}
+                                    icon="◫"
                                 />
 
-                                <SaleCard
-                                    title="Оплачено"
-                                    value={paidSales.toString()}
-                                    description="Успешные продажи"
+                                <InfoCard
+                                    title="Новые"
+                                    value={
+                                        orders
+                                            .filter(
+                                                (order) =>
+                                                    order.status ===
+                                                    "Новый"
+                                            )
+                                            .length.toString()
+                                    }
+                                    icon="!"
+                                />
+
+                                <InfoCard
+                                    title="Выполнено"
+                                    value={
+                                        orders
+                                            .filter(
+                                                (order) =>
+                                                    order.status ===
+                                                    "Выполнен"
+                                            )
+                                            .length.toString()
+                                    }
                                     icon="✓"
-                                />
-
-                                <SaleCard
-                                    title="Возвраты"
-                                    value={refundedSales.toString()}
-                                    description="Возвращённые заказы"
-                                    icon="↩"
-                                />
-
-                                <SaleCard
-                                    title="Доход"
-                                    value={`${totalIncome} ₽`}
-                                    description="Сумма продаж"
-                                    icon="₽"
                                 />
 
                             </div>
 
-                            {/* Таблица продаж */}
+                            {/* Заказы */}
                             <div className="mt-5 rounded-[20px] border border-white/[0.07] bg-[#0D1117]">
 
                                 <div className="border-b border-white/[0.06] px-5 py-5 sm:px-6">
 
                                     <h2 className="text-base font-semibold text-white">
-                                        История продаж
+                                        Все заказы
                                     </h2>
 
                                     <p className="mt-1 text-xs text-slate-600">
-                                        Все операции по вашим товарам.
+                                        Заказы на ваши товары.
                                     </p>
 
                                 </div>
 
-                                {sales.length === 0 ? (
+                                {orders.length === 0 ? (
 
                                     <div className="flex min-h-[360px] items-center justify-center px-5">
 
                                         <div className="text-center">
 
                                             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-white/[0.06] bg-[#11161D] text-2xl text-slate-700">
-                                                ↗
+                                                ◫
                                             </div>
 
                                             <h3 className="mt-5 text-sm font-semibold text-slate-400">
-                                                Продаж пока нет
+                                                Заказов пока нет
                                             </h3>
 
                                             <p className="mx-auto mt-2 max-w-sm text-xs leading-5 text-slate-700">
-                                                После первой покупки вашего
-                                                товара информация появится
-                                                здесь.
+                                                Здесь будут отображаться
+                                                заказы покупателей после
+                                                покупки ваших товаров.
                                             </p>
 
                                             <Link
                                                 href="/seller/products"
-                                                className="mt-5 inline-flex rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-semibold text-white transition hover:bg-blue-500"
+                                                className="mt-5 inline-flex rounded-xl border border-white/[0.07] bg-white/[0.025] px-5 py-2.5 text-xs font-semibold text-slate-400 transition hover:bg-white/[0.05] hover:text-white"
                                             >
                                                 Перейти к товарам
                                             </Link>
@@ -374,10 +370,10 @@ export default function SellerSalesPage() {
 
                                     <div className="divide-y divide-white/[0.05]">
 
-                                        {sales.map((sale) => (
-                                            <SaleRow
-                                                key={sale.id}
-                                                sale={sale}
+                                        {orders.map((order) => (
+                                            <OrderRow
+                                                key={order.id}
+                                                order={order}
                                             />
                                         ))}
 
@@ -443,19 +439,17 @@ function PanelLink({
     );
 }
 
-function SaleCard({
+function InfoCard({
     title,
     value,
-    description,
     icon,
 }: {
     title: string;
     value: string;
-    description: string;
     icon: string;
 }) {
     return (
-        <div className="rounded-[18px] border border-white/[0.07] bg-[#0D1117] p-5 transition hover:border-white/[0.1]">
+        <div className="rounded-[18px] border border-white/[0.07] bg-[#0D1117] p-5">
 
             <div className="flex items-start justify-between">
 
@@ -465,12 +459,8 @@ function SaleCard({
                         {title}
                     </div>
 
-                    <div className="mt-2 text-2xl font-bold tracking-tight text-white">
+                    <div className="mt-2 text-2xl font-bold text-white">
                         {value}
-                    </div>
-
-                    <div className="mt-1 text-[10px] text-slate-700">
-                        {description}
                     </div>
 
                 </div>
@@ -485,47 +475,56 @@ function SaleCard({
     );
 }
 
-function SaleRow({
-    sale,
+function OrderRow({
+    order,
 }: {
-    sale: Sale;
+    order: Order;
 }) {
     return (
         <div className="flex items-center gap-4 px-5 py-4 transition hover:bg-white/[0.015] sm:px-6">
 
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#11161D] text-sm text-slate-600">
-                ↗
+                ◫
             </div>
 
             <div className="min-w-0 flex-1">
 
                 <div className="truncate text-sm font-semibold text-white">
-                    {sale.product}
+                    {order.product}
                 </div>
 
                 <div className="mt-1 text-[10px] text-slate-700">
-                    Покупатель: {sale.buyer}
+                    Покупатель: {order.buyer}
                 </div>
 
             </div>
 
-            <div className="hidden text-[10px] text-slate-700 md:block">
-                {sale.date}
+            <div className="hidden text-sm font-semibold text-slate-300 sm:block">
+                {order.price} ₽
             </div>
 
-            <div className="hidden text-sm font-semibold text-slate-300 sm:block">
-                {sale.amount} ₽
+            <div className="hidden text-[10px] text-slate-700 md:block">
+                {order.date}
             </div>
 
             <div
                 className={`hidden rounded-lg px-2.5 py-1 text-[10px] font-semibold sm:block ${
-                    sale.status === "Оплачено"
+                    order.status === "Выполнен"
                         ? "bg-green-500/[0.08] text-green-400"
-                        : "bg-red-500/[0.08] text-red-400"
+                        : order.status === "Новый"
+                          ? "bg-blue-500/[0.08] text-blue-400"
+                          : "bg-red-500/[0.08] text-red-400"
                 }`}
             >
-                {sale.status}
+                {order.status}
             </div>
+
+            <Link
+                href={`/seller/orders/${order.id}`}
+                className="rounded-lg border border-white/[0.06] bg-white/[0.025] px-3 py-2 text-xs text-slate-500 transition hover:bg-white/[0.05] hover:text-white"
+            >
+                Открыть
+            </Link>
 
         </div>
     );
