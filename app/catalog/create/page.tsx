@@ -56,7 +56,14 @@ export default function CreateCatalogProductPage() {
     const [category, setCategory] = useState("");
     const [price, setPrice] = useState("");
     const [description, setDescription] = useState("");
-    const [file, setFile] = useState<File | null>(null);
+
+    const [dffFile, setDffFile] = useState<File | null>(null);
+    const [txdFile, setTxdFile] = useState<File | null>(null);
+
+    const [images, setImages] = useState<File[]>([]);
+    const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+
+    const [pinned, setPinned] = useState(false);
 
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
@@ -109,11 +116,73 @@ export default function CreateCatalogProductPage() {
         };
     }, []);
 
+    useEffect(() => {
+        return () => {
+            imagePreviews.forEach((preview) => {
+                URL.revokeObjectURL(preview);
+            });
+        };
+    }, [imagePreviews]);
+
     const role =
         user?.role?.toUpperCase() || "USER";
 
     const hasAccess =
         allowedRoles.includes(role);
+
+    const handleImagesChange = (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        const selectedFiles = Array.from(
+            event.target.files || []
+        );
+
+        if (selectedFiles.length === 0) {
+            return;
+        }
+
+        const imageFiles = selectedFiles.filter((file) =>
+            file.type.startsWith("image/")
+        );
+
+        if (imageFiles.length === 0) {
+            setError(
+                "Можно загружать только изображения."
+            );
+            return;
+        }
+
+        const oldPreviews = imagePreviews;
+
+        oldPreviews.forEach((preview) => {
+            URL.revokeObjectURL(preview);
+        });
+
+        setImages(imageFiles);
+
+        const previews = imageFiles.map((file) =>
+            URL.createObjectURL(file)
+        );
+
+        setImagePreviews(previews);
+        setError("");
+    };
+
+    const removeImage = (index: number) => {
+        const preview = imagePreviews[index];
+
+        if (preview) {
+            URL.revokeObjectURL(preview);
+        }
+
+        setImages((current) =>
+            current.filter((_, i) => i !== index)
+        );
+
+        setImagePreviews((current) =>
+            current.filter((_, i) => i !== index)
+        );
+    };
 
     const handleSubmit = (
         event: FormEvent<HTMLFormElement>
@@ -148,19 +217,42 @@ export default function CreateCatalogProductPage() {
             return;
         }
 
+        if (!dffFile) {
+            setError("Выберите DFF-файл.");
+            return;
+        }
+
+        if (!txdFile) {
+            setError("Выберите TXD-файл.");
+            return;
+        }
+
+        if (images.length === 0) {
+            setError(
+                "Добавьте хотя бы одну картинку товара."
+            );
+            return;
+        }
+
         setSaving(true);
 
         /*
-         * Пока товар не отправляется на сервер.
-         * Здесь позже подключим API создания товара,
-         * загрузку файлов и Prisma.
+         * На следующем этапе здесь подключим API:
+         *
+         * - создание товара в Prisma;
+         * - загрузку DFF;
+         * - загрузку TXD;
+         * - загрузку изображений;
+         * - сохранение pinned;
+         * - сохранение владельца товара;
+         * - публикацию товара.
          */
 
         setTimeout(() => {
             setSaving(false);
 
             alert(
-                "Форма товара готова. Подключение сохранения сделаем следующим этапом."
+                "Форма товара готова. Сохранение на сервер подключим следующим этапом."
             );
         }, 500);
     };
@@ -254,8 +346,8 @@ export default function CreateCatalogProductPage() {
                                 </h2>
 
                                 <p className="mt-1 text-xs text-slate-600">
-                                    Название, категория и описание
-                                    товара.
+                                    Название, категория, цена и
+                                    описание товара.
                                 </p>
                             </div>
 
@@ -274,7 +366,7 @@ export default function CreateCatalogProductPage() {
                                                 event.target.value
                                             )
                                         }
-                                        placeholder="Например: GTA 5 Glock Pack"
+                                        placeholder="Например: Glock Pack"
                                         className="h-12 w-full rounded-xl border border-white/[0.07] bg-[#11161D] px-4 text-sm text-white outline-none transition placeholder:text-slate-700 focus:border-blue-500/40 focus:ring-4 focus:ring-blue-500/[0.06]"
                                     />
                                 </div>
@@ -362,25 +454,75 @@ export default function CreateCatalogProductPage() {
                             </div>
                         </section>
 
+                        {/* Закрепление */}
+                        <section className="rounded-[20px] border border-white/[0.07] bg-[#0D1117] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-7">
+                            <div className="flex items-center justify-between gap-5">
+                                <div>
+                                    <h2 className="text-base font-semibold text-white">
+                                        Закрепить товар
+                                    </h2>
+
+                                    <p className="mt-1 max-w-xl text-xs leading-5 text-slate-600">
+                                        Закрепленный товар будет
+                                        отображаться выше обычных
+                                        товаров в каталоге.
+                                    </p>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setPinned(
+                                            (current) =>
+                                                !current
+                                        )
+                                    }
+                                    className={`relative h-7 w-12 shrink-0 rounded-full transition ${
+                                        pinned
+                                            ? "bg-blue-600"
+                                            : "bg-[#202630]"
+                                    }`}
+                                >
+                                    <span
+                                        className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+                                            pinned
+                                                ? "translate-x-6"
+                                                : "translate-x-1"
+                                        }`}
+                                    />
+                                </button>
+                            </div>
+
+                            {pinned && (
+                                <div className="mt-4 rounded-xl border border-blue-500/15 bg-blue-500/[0.05] px-4 py-3 text-xs text-blue-300">
+                                    Товар будет закреплен в
+                                    каталоге.
+                                </div>
+                            )}
+                        </section>
+
                         {/* Файлы */}
                         <section className="rounded-[20px] border border-white/[0.07] bg-[#0D1117] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-7">
                             <div className="border-b border-white/[0.06] pb-5">
                                 <h2 className="text-base font-semibold text-white">
-                                    Файл товара
+                                    Файлы мода
                                 </h2>
 
                                 <p className="mt-1 text-xs text-slate-600">
-                                    Загрузите архив с модом.
+                                    Загрузите DFF и TXD файлы
+                                    вашего мода.
                                 </p>
                             </div>
 
-                            <div className="mt-6">
-                                <label className="flex min-h-[190px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/[0.10] bg-[#11161D] px-5 text-center transition hover:border-blue-500/30 hover:bg-[#131922]">
+                            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                                {/* DFF */}
+                                <label className="group flex min-h-[180px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/[0.10] bg-[#11161D] px-5 text-center transition hover:border-blue-500/30 hover:bg-[#131922]">
                                     <input
                                         type="file"
+                                        accept=".dff"
                                         className="hidden"
                                         onChange={(event) =>
-                                            setFile(
+                                            setDffFile(
                                                 event.target
                                                     .files?.[0] ||
                                                     null
@@ -388,34 +530,142 @@ export default function CreateCatalogProductPage() {
                                         }
                                     />
 
-                                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/[0.06] bg-[#0D1117] text-xl text-slate-500">
-                                        ↑
+                                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/[0.06] bg-[#0D1117] text-sm font-bold text-blue-400">
+                                        DFF
                                     </div>
 
-                                    {file ? (
-                                        <>
-                                            <div className="mt-4 text-sm font-semibold text-white">
-                                                {file.name}
-                                            </div>
+                                    <div className="mt-4 text-sm font-semibold text-white">
+                                        {dffFile
+                                            ? dffFile.name
+                                            : "Выберите DFF файл"}
+                                    </div>
 
-                                            <div className="mt-1 text-xs text-slate-600">
-                                                Файл выбран
-                                            </div>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <div className="mt-4 text-sm font-semibold text-slate-300">
-                                                Выберите файл
-                                            </div>
+                                    <div className="mt-1 text-xs text-slate-600">
+                                        {dffFile
+                                            ? "Файл выбран"
+                                            : "Формат .dff"}
+                                    </div>
+                                </label>
 
-                                            <div className="mt-1 text-xs text-slate-600">
-                                                Нажмите для выбора
-                                                файла с компьютера
-                                            </div>
-                                        </>
-                                    )}
+                                {/* TXD */}
+                                <label className="group flex min-h-[180px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/[0.10] bg-[#11161D] px-5 text-center transition hover:border-blue-500/30 hover:bg-[#131922]">
+                                    <input
+                                        type="file"
+                                        accept=".txd"
+                                        className="hidden"
+                                        onChange={(event) =>
+                                            setTxdFile(
+                                                event.target
+                                                    .files?.[0] ||
+                                                    null
+                                            )
+                                        }
+                                    />
+
+                                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/[0.06] bg-[#0D1117] text-sm font-bold text-purple-400">
+                                        TXD
+                                    </div>
+
+                                    <div className="mt-4 text-sm font-semibold text-white">
+                                        {txdFile
+                                            ? txdFile.name
+                                            : "Выберите TXD файл"}
+                                    </div>
+
+                                    <div className="mt-1 text-xs text-slate-600">
+                                        {txdFile
+                                            ? "Файл выбран"
+                                            : "Формат .txd"}
+                                    </div>
                                 </label>
                             </div>
+                        </section>
+
+                        {/* Изображения */}
+                        <section className="rounded-[20px] border border-white/[0.07] bg-[#0D1117] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-7">
+                            <div className="border-b border-white/[0.06] pb-5">
+                                <h2 className="text-base font-semibold text-white">
+                                    Изображения товара
+                                </h2>
+
+                                <p className="mt-1 text-xs text-slate-600">
+                                    Добавьте изображения, которые
+                                    будут отображаться на странице
+                                    товара.
+                                </p>
+                            </div>
+
+                            <div className="mt-6">
+                                <label className="flex min-h-[170px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/[0.10] bg-[#11161D] px-5 text-center transition hover:border-blue-500/30 hover:bg-[#131922]">
+                                    <input
+                                        type="file"
+                                        accept="image/png,image/jpeg,image/webp"
+                                        multiple
+                                        className="hidden"
+                                        onChange={handleImagesChange}
+                                    />
+
+                                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/[0.06] bg-[#0D1117] text-xl text-slate-500">
+                                        ▧
+                                    </div>
+
+                                    <div className="mt-4 text-sm font-semibold text-white">
+                                        Добавить изображения
+                                    </div>
+
+                                    <div className="mt-1 text-xs text-slate-600">
+                                        PNG, JPG или WEBP
+                                    </div>
+                                </label>
+                            </div>
+
+                            {imagePreviews.length > 0 && (
+                                <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                                    {imagePreviews.map(
+                                        (
+                                            preview,
+                                            index
+                                        ) => (
+                                            <div
+                                                key={preview}
+                                                className="group relative aspect-video overflow-hidden rounded-xl border border-white/[0.07] bg-[#11161D]"
+                                            >
+                                                <img
+                                                    src={preview}
+                                                    alt={`Изображение ${index + 1}`}
+                                                    className="h-full w-full object-cover"
+                                                />
+
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        removeImage(
+                                                            index
+                                                        )
+                                                    }
+                                                    className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-lg bg-black/70 text-xs text-white opacity-0 backdrop-blur transition group-hover:opacity-100 hover:bg-red-500"
+                                                >
+                                                    ×
+                                                </button>
+
+                                                {index ===
+                                                    0 && (
+                                                    <div className="absolute bottom-2 left-2 rounded-md bg-blue-600 px-2 py-1 text-[9px] font-semibold text-white">
+                                                        Главное
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )
+                                    )}
+                                </div>
+                            )}
+
+                            {images.length > 0 && (
+                                <div className="mt-4 text-xs text-slate-600">
+                                    Выбрано изображений:{" "}
+                                    {images.length}
+                                </div>
+                            )}
                         </section>
 
                         {/* Ошибка */}
