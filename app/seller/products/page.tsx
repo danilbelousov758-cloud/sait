@@ -47,7 +47,6 @@ export default function ProductsPage() {
     }, []);
 
     const role = user?.role?.toUpperCase() || "USER";
-
     const roleName = roleNames[role] || "Пользователь";
 
     const firstLetter =
@@ -211,27 +210,18 @@ export default function ProductsPage() {
                     <section className="min-w-0 flex-1 lg:ml-[250px]">
                         {/* Заголовок */}
                         <header className="border-b border-white/[0.06] px-5 py-6 sm:px-8">
-                            <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
-                                <div>
-                                    <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-blue-500">
-                                        MAZEPOV CONNEXTION
-                                    </div>
-
-                                    <h1 className="mt-1 text-xl font-bold text-white sm:text-2xl">
-                                        Мои товары
-                                    </h1>
-
-                                    <p className="mt-1 text-xs text-slate-600">
-                                        Управление товарами вашего магазина.
-                                    </p>
+                            <div>
+                                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-blue-500">
+                                    MAZEPOV CONNEXTION
                                 </div>
 
-                                <Link
-                                    href="/seller/products/create"
-                                    className="inline-flex w-fit items-center rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/10 transition hover:bg-blue-500"
-                                >
-                                    + Добавить товар
-                                </Link>
+                                <h1 className="mt-1 text-xl font-bold text-white sm:text-2xl">
+                                    Мои товары
+                                </h1>
+
+                                <p className="mt-1 text-xs text-slate-600">
+                                    Управление товарами вашего магазина.
+                                </p>
                             </div>
                         </header>
 
@@ -258,25 +248,18 @@ export default function ProductsPage() {
                                 />
                             </div>
 
-                            {/* Список товаров */}
+                            {/* Товары */}
                             <div className="mt-5 rounded-[20px] border border-white/[0.07] bg-[#0D1117]">
-                                <div className="flex flex-col justify-between gap-4 border-b border-white/[0.06] px-5 py-5 sm:flex-row sm:items-center sm:px-6">
+                                <div className="border-b border-white/[0.06] px-5 py-5 sm:px-6">
                                     <div>
                                         <h2 className="text-base font-semibold text-white">
                                             Товары
                                         </h2>
 
                                         <p className="mt-1 text-xs text-slate-600">
-                                            Все товары, добавленные в ваш магазин.
+                                            Все товары, добавленные вами.
                                         </p>
                                     </div>
-
-                                    <Link
-                                        href="/seller/products/create"
-                                        className="inline-flex w-fit rounded-xl border border-white/[0.07] bg-white/[0.025] px-3 py-2 text-xs font-semibold text-slate-400 transition hover:bg-white/[0.05] hover:text-white"
-                                    >
-                                        + Новый товар
-                                    </Link>
                                 </div>
 
                                 {products.length === 0 ? (
@@ -291,17 +274,10 @@ export default function ProductsPage() {
                                             </h3>
 
                                             <p className="mx-auto mt-2 max-w-sm text-xs leading-5 text-slate-700">
-                                                Добавьте свой первый мод,
-                                                чтобы он появился в вашем
-                                                магазине.
+                                                Когда товары появятся в вашем
+                                                магазине, они будут отображаться
+                                                здесь.
                                             </p>
-
-                                            <Link
-                                                href="/seller/products/create"
-                                                className="mt-5 inline-flex rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-semibold text-white transition hover:bg-blue-500"
-                                            >
-                                                Добавить первый товар
-                                            </Link>
                                         </div>
                                     </div>
                                 ) : (
@@ -314,34 +290,6 @@ export default function ProductsPage() {
                                         ))}
                                     </div>
                                 )}
-                            </div>
-
-                            {/* Информация */}
-                            <div className="mt-5 rounded-[20px] border border-blue-500/[0.12] bg-blue-500/[0.025] p-5">
-                                <div className="flex gap-4">
-                                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-500/[0.08] text-sm text-blue-400">
-                                        i
-                                    </div>
-
-                                    <div>
-                                        <div className="text-sm font-semibold text-slate-300">
-                                            Добавляйте свои моды
-                                        </div>
-
-                                        <p className="mt-1 text-xs leading-5 text-slate-600">
-                                            Создайте товар, загрузите необходимые
-                                            файлы и опубликуйте его в каталоге
-                                            магазина.
-                                        </p>
-
-                                        <Link
-                                            href="/seller/products/create"
-                                            className="mt-3 inline-flex text-xs font-semibold text-blue-500 transition hover:text-blue-400"
-                                        >
-                                            Добавить товар →
-                                        </Link>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </section>
