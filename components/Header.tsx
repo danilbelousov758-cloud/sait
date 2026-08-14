@@ -111,33 +111,10 @@ export default function Header() {
     const firstLetter =
         user?.username?.trim().charAt(0).toUpperCase() || "?";
 
-    const role = user?.role || "USER";
+    const role = user?.role?.toUpperCase() || "USER";
 
     const roleName =
         roleNames[role] || "Пользователь";
-
-    const hasSpecialPanel =
-        role === "ADMIN" ||
-        role === "SELLER" ||
-        role === "FOUNDER";
-
-    const panelTitle =
-        role === "FOUNDER"
-            ? "Панель основателя"
-            : role === "ADMIN"
-              ? "Панель администратора"
-              : role === "SELLER"
-                ? "Панель продавца"
-                : "";
-
-    const panelHref =
-        role === "FOUNDER"
-            ? "/founder"
-            : role === "ADMIN"
-              ? "/admin"
-              : role === "SELLER"
-                ? "/seller"
-                : "";
 
     const getRoleBadgeClass = () => {
         switch (role) {
@@ -154,6 +131,90 @@ export default function Header() {
                 return "bg-white/[0.07] text-slate-300 border-white/[0.06]";
         }
     };
+
+    /*
+     * Панели пользователя.
+     *
+     * SELLER:
+     * - Панель продавца
+     *
+     * ADMIN:
+     * - Панель администратора
+     * - Панель продавца
+     *
+     * FOUNDER:
+     * - Панель основателя
+     * - Панель администратора
+     * - Панель продавца
+     */
+    const getPanels = () => {
+        switch (role) {
+            case "FOUNDER":
+                return [
+                    {
+                        title: "Панель основателя",
+                        href: "/founder",
+                        icon: "👑",
+                        color: "text-purple-300",
+                        background:
+                            "hover:bg-purple-500/[0.06]",
+                    },
+                    {
+                        title: "Панель администратора",
+                        href: "/admin",
+                        icon: "🛡️",
+                        color: "text-red-300",
+                        background:
+                            "hover:bg-red-500/[0.06]",
+                    },
+                    {
+                        title: "Панель продавца",
+                        href: "/seller",
+                        icon: "💼",
+                        color: "text-emerald-300",
+                        background:
+                            "hover:bg-emerald-500/[0.06]",
+                    },
+                ];
+
+            case "ADMIN":
+                return [
+                    {
+                        title: "Панель администратора",
+                        href: "/admin",
+                        icon: "🛡️",
+                        color: "text-red-300",
+                        background:
+                            "hover:bg-red-500/[0.06]",
+                    },
+                    {
+                        title: "Панель продавца",
+                        href: "/seller",
+                        icon: "💼",
+                        color: "text-emerald-300",
+                        background:
+                            "hover:bg-emerald-500/[0.06]",
+                    },
+                ];
+
+            case "SELLER":
+                return [
+                    {
+                        title: "Панель продавца",
+                        href: "/seller",
+                        icon: "💼",
+                        color: "text-emerald-300",
+                        background:
+                            "hover:bg-emerald-500/[0.06]",
+                    },
+                ];
+
+            default:
+                return [];
+        }
+    };
+
+    const panels = getPanels();
 
     return (
         <header className="fixed left-1/2 top-5 z-50 w-[calc(100%-24px)] max-w-7xl -translate-x-1/2 sm:w-[calc(100%-32px)]">
@@ -273,7 +334,7 @@ export default function Header() {
                                 >
                                     <path
                                         fillRule="evenodd"
-                                        d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.51a.75.75 0 01-1.08 0l-4.25-4.51a.75.75 0 01.02-1.06z"
+                                        d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.51a.75.75 0 01-1.08 0l-4.25-4.51a.75.75 0 01-1.08 1.06z"
                                         clipRule="evenodd"
                                     />
                                 </svg>
@@ -281,7 +342,7 @@ export default function Header() {
 
                             {/* Выпадающее меню */}
                             {menuOpen && (
-                                <div className="absolute right-0 top-[calc(100%+10px)] w-[235px] overflow-hidden rounded-[17px] border border-white/[0.08] bg-[#0D1117] p-1.5 shadow-[0_20px_60px_rgba(0,0,0,0.55)]">
+                                <div className="absolute right-0 top-[calc(100%+10px)] w-[250px] overflow-hidden rounded-[17px] border border-white/[0.08] bg-[#0D1117] p-1.5 shadow-[0_20px_60px_rgba(0,0,0,0.55)]">
 
                                     {/* Пользователь */}
                                     <div className="mb-1 rounded-[13px] bg-white/[0.025] px-3 py-2.5">
@@ -323,9 +384,7 @@ export default function Header() {
                                         }
                                         className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-slate-300 transition hover:bg-white/[0.05] hover:text-white"
                                     >
-                                        <span>
-                                            👤
-                                        </span>
+                                        <span>👤</span>
 
                                         <span>
                                             Профиль
@@ -340,38 +399,51 @@ export default function Header() {
                                         }
                                         className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-slate-300 transition hover:bg-white/[0.05] hover:text-white"
                                     >
-                                        <span>
-                                            ⚙
-                                        </span>
+                                        <span>⚙</span>
 
                                         <span>
                                             Настройки
                                         </span>
                                     </Link>
 
-                                    {/* Специальная панель */}
-                                    {hasSpecialPanel && (
-                                        <Link
-                                            href={panelHref}
-                                            onClick={() =>
-                                                setMenuOpen(false)
-                                            }
-                                            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-slate-300 transition hover:bg-white/[0.05] hover:text-white"
-                                        >
-                                            <span>
-                                                {role ===
-                                                "FOUNDER"
-                                                    ? "👑"
-                                                    : role ===
-                                                        "ADMIN"
-                                                      ? "🛡️"
-                                                      : "💼"}
-                                            </span>
+                                    {/* Панели */}
+                                    {panels.length > 0 && (
+                                        <>
+                                            <div className="my-1.5 h-px bg-white/[0.06]" />
 
-                                            <span>
-                                                {panelTitle}
-                                            </span>
-                                        </Link>
+                                            <div className="px-3 pb-1 pt-1">
+                                                <div className="text-[9px] font-bold uppercase tracking-[0.16em] text-slate-700">
+                                                    Управление
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-0.5">
+                                                {panels.map((panel) => (
+                                                    <Link
+                                                        key={panel.href}
+                                                        href={panel.href}
+                                                        onClick={() =>
+                                                            setMenuOpen(false)
+                                                        }
+                                                        className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-slate-300 transition hover:text-white ${panel.background}`}
+                                                    >
+                                                        <span
+                                                            className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/[0.035] text-sm ${panel.color}`}
+                                                        >
+                                                            {panel.icon}
+                                                        </span>
+
+                                                        <span className="flex-1">
+                                                            {panel.title}
+                                                        </span>
+
+                                                        <span className="text-xs text-slate-700">
+                                                            →
+                                                        </span>
+                                                    </Link>
+                                                ))}
+                                            </div>
+                                        </>
                                     )}
 
                                     <div className="my-1.5 h-px bg-white/[0.06]" />
@@ -382,9 +454,7 @@ export default function Header() {
                                         onClick={handleLogout}
                                         className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-red-400 transition hover:bg-red-500/[0.06] hover:text-red-300"
                                     >
-                                        <span>
-                                            ↪
-                                        </span>
+                                        <span>↪</span>
 
                                         <span>
                                             Выйти
