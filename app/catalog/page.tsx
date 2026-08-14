@@ -1,7 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import Header from "@/components/Header";
+
+type User = {
+    id: number;
+    username: string;
+    avatar?: string | null;
+    role?: string;
+};
 
 type CatalogItem = {
     name: string;
@@ -123,12 +131,52 @@ const simpleCategories = [
 ];
 
 export default function CatalogPage() {
+    const [user, setUser] = useState<User | null>(null);
+
     const [openCategories, setOpenCategories] = useState<string[]>([
         "Скины",
     ]);
 
     const [selectedCategory, setSelectedCategory] = useState("Скины");
     const [search, setSearch] = useState("");
+
+    useEffect(() => {
+        const loadUser = () => {
+            try {
+                const savedUser = localStorage.getItem("user");
+
+                if (savedUser) {
+                    setUser(JSON.parse(savedUser));
+                } else {
+                    setUser(null);
+                }
+            } catch (error) {
+                console.error(
+                    "Ошибка загрузки пользователя:",
+                    error
+                );
+
+                setUser(null);
+            }
+        };
+
+        loadUser();
+
+        window.addEventListener("storage", loadUser);
+        window.addEventListener("userUpdated", loadUser);
+
+        return () => {
+            window.removeEventListener("storage", loadUser);
+            window.removeEventListener("userUpdated", loadUser);
+        };
+    }, []);
+
+    const role = user?.role?.toUpperCase() || "USER";
+
+    const canCreateProduct =
+        role === "SELLER" ||
+        role === "ADMIN" ||
+        role === "FOUNDER";
 
     const toggleCategory = (name: string) => {
         setOpenCategories((current) =>
@@ -146,12 +194,16 @@ export default function CatalogPage() {
 
     const filteredExpandableCategories =
         expandableCategories.filter((category) =>
-            category.name.toLowerCase().includes(search.toLowerCase())
+            category.name
+                .toLowerCase()
+                .includes(search.toLowerCase())
         );
 
     const filteredSimpleCategories =
         simpleCategories.filter((category) =>
-            category.toLowerCase().includes(search.toLowerCase())
+            category
+                .toLowerCase()
+                .includes(search.toLowerCase())
         );
 
     return (
@@ -159,6 +211,7 @@ export default function CatalogPage() {
             <Header />
 
             <main className="min-h-screen bg-[#080B10] px-4 pb-20 pt-[125px] text-slate-100 sm:px-6">
+                {/* Фон */}
                 <div className="pointer-events-none fixed inset-0 overflow-hidden">
                     <div className="absolute left-1/2 top-[-260px] h-[520px] w-[720px] -translate-x-1/2 rounded-full bg-blue-600/[0.055] blur-[150px]" />
 
@@ -166,16 +219,34 @@ export default function CatalogPage() {
                 </div>
 
                 <div className="relative mx-auto w-full max-w-7xl">
-                    <div className="mb-7">
-                        <h1 className="text-3xl font-bold tracking-tight text-white">
-                            Каталог
-                        </h1>
+                    {/* Заголовок */}
+                    <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                            <h1 className="text-3xl font-bold tracking-tight text-white">
+                                Каталог
+                            </h1>
 
-                        <p className="mt-2 text-sm text-slate-500">
-                            Найдите нужные моды и материалы для вашего клиента.
-                        </p>
+                            <p className="mt-2 text-sm text-slate-500">
+                                Найдите нужные моды и материалы для вашего клиента.
+                            </p>
+                        </div>
+
+                        {/* Создание товара */}
+                        {canCreateProduct && (
+                            <Link
+                                href="/catalog/create"
+                                className="inline-flex w-fit items-center justify-center rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/10 transition hover:bg-blue-500"
+                            >
+                                <span className="mr-2 text-base">
+                                    +
+                                </span>
+
+                                Создать товар
+                            </Link>
+                        )}
                     </div>
 
+                    {/* Поиск */}
                     <div className="mb-5">
                         <div className="relative max-w-xl">
                             <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-slate-600">
@@ -194,7 +265,9 @@ export default function CatalogPage() {
                         </div>
                     </div>
 
+                    {/* Каталог */}
                     <div className="grid gap-5 lg:grid-cols-[260px_minmax(0,1fr)]">
+                        {/* Левая панель */}
                         <aside className="h-fit rounded-[20px] border border-white/[0.07] bg-[#0D1117] p-2 shadow-[0_20px_60px_rgba(0,0,0,0.2)]">
                             {filteredExpandableCategories.length > 0 && (
                                 <>
@@ -215,7 +288,9 @@ export default function CatalogPage() {
                                                     category.name;
 
                                                 return (
-                                                    <div key={category.name}>
+                                                    <div
+                                                        key={category.name}
+                                                    >
                                                         <button
                                                             type="button"
                                                             onClick={() =>
@@ -230,7 +305,9 @@ export default function CatalogPage() {
                                                             }`}
                                                         >
                                                             <span>
-                                                                {category.name}
+                                                                {
+                                                                    category.name
+                                                                }
                                                             </span>
 
                                                             <span
@@ -323,6 +400,7 @@ export default function CatalogPage() {
                                 )}
                         </aside>
 
+                        {/* Правая часть */}
                         <section className="min-w-0">
                             <div className="rounded-[20px] border border-white/[0.07] bg-[#0D1117] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-7">
                                 <div className="flex flex-col gap-2 border-b border-white/[0.06] pb-6 sm:flex-row sm:items-end sm:justify-between">
@@ -376,7 +454,9 @@ type CatalogTreeProps = {
     selectedCategory: string;
     setSelectedCategory: (name: string) => void;
     openCategories: string[];
-    setOpenCategories: React.Dispatch<React.SetStateAction<string[]>>;
+    setOpenCategories: React.Dispatch<
+        React.SetStateAction<string[]>
+    >;
 };
 
 function CatalogTree({
@@ -389,9 +469,15 @@ function CatalogTree({
     return (
         <div className="space-y-1">
             {items.map((item) => {
-                const hasChildren = Boolean(item.children?.length);
-                const isOpen = openCategories.includes(item.name);
-                const isSelected = selectedCategory === item.name;
+                const hasChildren = Boolean(
+                    item.children?.length
+                );
+
+                const isOpen =
+                    openCategories.includes(item.name);
+
+                const isSelected =
+                    selectedCategory === item.name;
 
                 const handleClick = () => {
                     setSelectedCategory(item.name);
@@ -400,7 +486,8 @@ function CatalogTree({
                         setOpenCategories((current) =>
                             current.includes(item.name)
                                 ? current.filter(
-                                      (name) => name !== item.name
+                                      (name) =>
+                                          name !== item.name
                                   )
                                 : [...current, item.name]
                         );
@@ -423,7 +510,9 @@ function CatalogTree({
                             {hasChildren && (
                                 <span
                                     className={`text-[10px] transition-transform duration-200 ${
-                                        isOpen ? "rotate-90" : ""
+                                        isOpen
+                                            ? "rotate-90"
+                                            : ""
                                     }`}
                                 >
                                     ›
@@ -435,10 +524,18 @@ function CatalogTree({
                             <div className="ml-2 mt-1 border-l border-white/[0.05] pl-2">
                                 <CatalogTree
                                     items={item.children!}
-                                    selectedCategory={selectedCategory}
-                                    setSelectedCategory={setSelectedCategory}
-                                    openCategories={openCategories}
-                                    setOpenCategories={setOpenCategories}
+                                    selectedCategory={
+                                        selectedCategory
+                                    }
+                                    setSelectedCategory={
+                                        setSelectedCategory
+                                    }
+                                    openCategories={
+                                        openCategories
+                                    }
+                                    setOpenCategories={
+                                        setOpenCategories
+                                    }
                                 />
                             </div>
                         )}
