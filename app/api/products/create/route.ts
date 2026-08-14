@@ -1,77 +1,51 @@
 import { NextResponse } from "next/server";
 import mysql from "mysql2/promise";
 
-export async function POST(
-    request: Request
-) {
-
+export async function POST(req: Request) {
     try {
-
-        const formData =
-            await request.formData();
-
+        const formData = await req.formData();
 
         const name =
-            String(
-                formData.get("name") || ""
-            );
-
+            String(formData.get("name") || "");
 
         const category =
-            String(
-                formData.get("category") || ""
-            );
-
-
-        const price =
-            Number(
-                formData.get("price") || 0
-            );
-
+            String(formData.get("category") || "");
 
         const description =
-            String(
-                formData.get("description") || ""
-            );
+            String(formData.get("description") || "");
 
+        const price =
+            Number(formData.get("price") || 0);
 
         const pinned =
-            String(
-                formData.get("pinned")
-            ) === "true";
+            formData.get("pinned") === "true";
 
+        const author_id =
+            Number(formData.get("author_id") || 0);
 
 
         const dff =
-            formData.get("dff") as File | null;
-
+            formData.get("dff_file") as File | null;
 
         const txd =
-            formData.get("txd") as File | null;
-
+            formData.get("txd_file") as File | null;
 
 
         if (!name || !category) {
-
             return NextResponse.json(
                 {
-                    message:
-                        "Заполните обязательные поля"
+                    error:
+                        "Название и категория обязательны"
                 },
                 {
                     status:400
                 }
             );
-
         }
 
 
-
-
-
-        const connection =
+        const db =
             await mysql.createConnection({
-
                 host:
                     "185.200.242.40",
 
@@ -86,14 +60,11 @@ export async function POST(
 
                 port:
                     3306
-
             });
 
 
 
-
-
-        await connection.execute(
+        await db.execute(
             `
             INSERT INTO products
             (
@@ -102,8 +73,11 @@ export async function POST(
                 price,
                 description,
                 pinned,
-                dff,
-                txd
+                dff_file,
+                txd_file,
+                images,
+                author_id,
+                status
             )
 
             VALUES
@@ -114,11 +88,13 @@ export async function POST(
                 ?,
                 ?,
                 ?,
+                ?,
+                ?,
+                ?,
                 ?
             )
             `,
             [
-
                 name,
 
                 category,
@@ -131,51 +107,38 @@ export async function POST(
 
                 dff?.name || null,
 
-                txd?.name || null
+                txd?.name || null,
 
+                JSON.stringify([]),
+
+                author_id,
+
+                "ACTIVE"
             ]
         );
 
 
-
-
-        await connection.end();
-
-
+        await db.end();
 
 
         return NextResponse.json({
-
-            success:true,
-
-            message:
-                "Товар создан"
-
+            success:true
         });
 
 
+    } catch(error){
 
-    } catch(error) {
-
-
-        console.error(
-            "CREATE PRODUCT ERROR:",
-            error
-        );
+        console.log(error);
 
 
         return NextResponse.json(
             {
-
-                message:
-                    "Ошибка сервера"
-
+                error:
+                    "Ошибка создания товара"
             },
             {
                 status:500
             }
         );
-
     }
-
 }

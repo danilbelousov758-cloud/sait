@@ -1,8 +1,16 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { FormEvent, useEffect, useState } from "react";
+import {
+    ChangeEvent,
+    FormEvent,
+    useEffect,
+    useState
+} from "react";
+
 import Header from "@/components/Header";
+
 
 type User = {
     id: number;
@@ -10,6 +18,7 @@ type User = {
     avatar?: string | null;
     role?: string;
 };
+
 
 const categories = [
     "Скины",
@@ -39,6 +48,7 @@ const categories = [
     "Подсказки для гос. сотрудников",
 ];
 
+
 const allowedRoles = [
     "SELLER",
     "ADMIN",
@@ -46,59 +56,77 @@ const allowedRoles = [
 ];
 
 
+
 export default function CreateCatalogProductPage() {
+
 
     const [user, setUser] =
         useState<User | null>(null);
+
 
     const [loaded, setLoaded] =
         useState(false);
 
 
+
     const [name, setName] =
         useState("");
+
 
     const [category, setCategory] =
         useState("");
 
+
     const [price, setPrice] =
         useState("");
+
 
     const [description, setDescription] =
         useState("");
 
 
+
     const [dffFile, setDffFile] =
         useState<File | null>(null);
+
 
     const [txdFile, setTxdFile] =
         useState<File | null>(null);
 
 
+
     const [images, setImages] =
         useState<File[]>([]);
 
+
     const [imagePreview, setImagePreview] =
         useState<string[]>([]);
+
 
 
     const [pinned, setPinned] =
         useState(false);
 
 
+
     const [error, setError] =
         useState("");
+
 
     const [saving, setSaving] =
         useState(false);
 
 
 
+
     useEffect(() => {
+
 
         const loadUser = () => {
 
+
             try {
+
 
                 const saved =
                     localStorage.getItem(
@@ -107,26 +135,35 @@ export default function CreateCatalogProductPage() {
 
 
                 if (saved) {
+
                     setUser(
                         JSON.parse(saved)
                     );
+
                 }
 
 
             } catch {
 
+
                 setUser(null);
+
 
             } finally {
 
+
                 setLoaded(true);
 
+
             }
+
 
         };
 
 
+
         loadUser();
+
 
 
         window.addEventListener(
@@ -135,16 +172,41 @@ export default function CreateCatalogProductPage() {
         );
 
 
+
         return () => {
+
 
             window.removeEventListener(
                 "userUpdated",
                 loadUser
             );
 
+
         };
 
+
     }, []);
+
+
+
+
+    useEffect(() => {
+
+
+        return () => {
+
+
+            imagePreview.forEach(
+                url =>
+                    URL.revokeObjectURL(url)
+            );
+
+
+        };
+
+
+    }, [imagePreview]);
+
 
 
 
@@ -154,21 +216,27 @@ export default function CreateCatalogProductPage() {
         "USER";
 
 
+
     const hasAccess =
-        allowedRoles.includes(role);
+        allowedRoles.includes(
+            role
+        );
+
 
 
 
 
 
     function changeImages(
-        e: React.ChangeEvent<HTMLInputElement>
+        e: ChangeEvent<HTMLInputElement>
     ) {
+
 
         const files =
             Array.from(
                 e.target.files || []
             );
+
 
 
         const imagesOnly =
@@ -180,9 +248,11 @@ export default function CreateCatalogProductPage() {
             );
 
 
+
         setImages(
             imagesOnly
         );
+
 
 
         setImagePreview(
@@ -194,7 +264,10 @@ export default function CreateCatalogProductPage() {
             )
         );
 
+
     }
+
+
 
 
 
@@ -204,40 +277,58 @@ export default function CreateCatalogProductPage() {
         e: FormEvent<HTMLFormElement>
     ) {
 
+
         e.preventDefault();
+
 
         setError("");
 
 
 
+
         if (!name.trim()) {
+
 
             setError(
                 "Введите название товара"
             );
 
+
             return;
+
+
         }
+
 
 
 
         if (!category) {
 
+
             setError(
                 "Выберите категорию"
             );
 
+
             return;
+
+
         }
+
+
 
 
 
         const finalPrice =
             price.trim()
-                ? Number(
+                ?
+                Number(
                     price.replace(",", ".")
                 )
-                : 0;
+                :
+                0;
+
+
 
 
 
@@ -246,39 +337,57 @@ export default function CreateCatalogProductPage() {
             finalPrice < 0
         ) {
 
+
             setError(
                 "Некорректная цена"
             );
 
+
             return;
+
+
         }
+
+
 
 
 
         if (!dffFile) {
 
+
             setError(
                 "Выберите DFF файл"
             );
 
+
             return;
+
+
         }
+
+
 
 
 
         if (!txdFile) {
 
+
             setError(
                 "Выберите TXD файл"
             );
 
+
             return;
+
+
         }
 
 
 
 
+
         setSaving(true);
+
 
 
 
@@ -289,10 +398,12 @@ export default function CreateCatalogProductPage() {
                 new FormData();
 
 
+
             formData.append(
                 "name",
                 name
             );
+
 
 
             formData.append(
@@ -301,10 +412,12 @@ export default function CreateCatalogProductPage() {
             );
 
 
+
             formData.append(
                 "price",
                 String(finalPrice)
             );
+
 
 
             formData.append(
@@ -313,10 +426,12 @@ export default function CreateCatalogProductPage() {
             );
 
 
+
             formData.append(
                 "pinned",
                 String(pinned)
             );
+
 
 
             formData.append(
@@ -325,10 +440,12 @@ export default function CreateCatalogProductPage() {
             );
 
 
+
             formData.append(
                 "txd",
                 txdFile
             );
+
 
 
             images.forEach(
@@ -341,17 +458,16 @@ export default function CreateCatalogProductPage() {
 
 
 
+
             const response =
                 await fetch(
                     "/api/products/create",
                     {
-                        method:
-                            "POST",
-
-                        body:
-                            formData,
+                        method: "POST",
+                        body: formData,
                     }
                 );
+
 
 
 
@@ -360,14 +476,20 @@ export default function CreateCatalogProductPage() {
 
 
 
+
+
             if (!response.ok) {
+
 
                 throw new Error(
                     data.message ||
                     "Ошибка создания товара"
                 );
 
+
             }
+
+
 
 
 
@@ -377,12 +499,33 @@ export default function CreateCatalogProductPage() {
 
 
 
-        } catch (err:any) {
+            window.location.href =
+                "/catalog";
 
 
-            setError(
-                err.message
-            );
+
+
+        } catch (err: unknown) {
+
+
+            if (err instanceof Error) {
+
+
+                setError(
+                    err.message
+                );
+
+
+            } else {
+
+
+                setError(
+                    "Ошибка создания товара"
+                );
+
+
+            }
+
 
 
         } finally {
@@ -392,6 +535,7 @@ export default function CreateCatalogProductPage() {
 
 
         }
+
 
     }
 
@@ -407,7 +551,10 @@ export default function CreateCatalogProductPage() {
 
 
 
+
+
     if (!user || !hasAccess) {
+
 
         return (
 
@@ -449,6 +596,7 @@ export default function CreateCatalogProductPage() {
                             Вернуться
                         </Link>
 
+
                     </div>
 
                 </main>
@@ -457,7 +605,9 @@ export default function CreateCatalogProductPage() {
 
         );
 
+
     }
+
 
 
 
@@ -467,6 +617,7 @@ export default function CreateCatalogProductPage() {
         <>
             <Header />
 
+
             <main className="
                 min-h-screen
                 bg-[#080B10]
@@ -475,6 +626,7 @@ export default function CreateCatalogProductPage() {
                 pt-[120px]
                 text-white
             ">
+
 
                 <div className="
                     mx-auto
@@ -487,6 +639,7 @@ export default function CreateCatalogProductPage() {
                         items-center
                         justify-between
                     ">
+
 
                         <div>
 
@@ -518,15 +671,15 @@ export default function CreateCatalogProductPage() {
                                 border-white/10
                                 px-4
                                 py-2
-                                text-sm
                             "
                         >
                             Назад
                         </Link>
 
+
                     </div>
 
-                                        <form
+                    <form
                         onSubmit={handleSubmit}
                         className="space-y-5"
                     >
@@ -648,7 +801,10 @@ export default function CreateCatalogProductPage() {
                                         onChange={
                                             e =>
                                                 setPrice(
-                                                    e.target.value
+                                                    e.target.value.replace(
+                                                        /[^0-9.,]/g,
+                                                        ""
+                                                    )
                                                 )
                                         }
                                         placeholder="0"
@@ -662,14 +818,6 @@ export default function CreateCatalogProductPage() {
                                             outline-none
                                         "
                                     />
-
-                                    <p className="
-                                        mt-1
-                                        text-xs
-                                        text-slate-600
-                                    ">
-                                        Если цена не указана — будет 0 ₽
-                                    </p>
 
                                 </div>
 
@@ -712,7 +860,6 @@ export default function CreateCatalogProductPage() {
                             p-6
                         ">
 
-
                             <div className="
                                 flex
                                 items-center
@@ -726,7 +873,6 @@ export default function CreateCatalogProductPage() {
                                     ">
                                         Закрепленный товар
                                     </h2>
-
 
                                     <p className="
                                         mt-1
@@ -781,11 +927,11 @@ export default function CreateCatalogProductPage() {
 
                                 </button>
 
-
                             </div>
 
-
                         </section>
+
+
 
 
 
@@ -819,13 +965,14 @@ export default function CreateCatalogProductPage() {
                                 <label className="
                                     cursor-pointer
                                     rounded-xl
-                                    border
                                     border-dashed
+                                    border
                                     border-white/10
                                     bg-[#11161D]
                                     p-8
                                     text-center
                                 ">
+
 
                                     <input
                                         type="file"
@@ -860,6 +1007,7 @@ export default function CreateCatalogProductPage() {
                                         }
                                     </p>
 
+
                                 </label>
 
 
@@ -869,8 +1017,8 @@ export default function CreateCatalogProductPage() {
                                 <label className="
                                     cursor-pointer
                                     rounded-xl
-                                    border
                                     border-dashed
+                                    border
                                     border-white/10
                                     bg-[#11161D]
                                     p-8
@@ -891,13 +1039,11 @@ export default function CreateCatalogProductPage() {
                                     />
 
 
-
                                     <b className="
                                         text-purple-400
                                     ">
                                         TXD
                                     </b>
-
 
 
                                     <p className="
@@ -927,6 +1073,7 @@ export default function CreateCatalogProductPage() {
 
 
 
+
                         <section className="
                             rounded-2xl
                             border
@@ -949,8 +1096,8 @@ export default function CreateCatalogProductPage() {
                                 block
                                 cursor-pointer
                                 rounded-xl
-                                border
                                 border-dashed
+                                border
                                 border-white/10
                                 bg-[#11161D]
                                 p-10
@@ -986,13 +1133,17 @@ export default function CreateCatalogProductPage() {
                                         gap-3
                                     ">
 
+
                                         {
                                             imagePreview.map(
                                                 img => (
 
-                                                    <img
+                                                    <Image
                                                         key={img}
                                                         src={img}
+                                                        width={300}
+                                                        height={170}
+                                                        alt="preview"
                                                         className="
                                                             aspect-video
                                                             rounded-xl
@@ -1004,6 +1155,7 @@ export default function CreateCatalogProductPage() {
                                             )
                                         }
 
+
                                     </div>
 
                                 )
@@ -1011,6 +1163,8 @@ export default function CreateCatalogProductPage() {
 
 
                         </section>
+
+
 
 
 
@@ -1037,6 +1191,7 @@ export default function CreateCatalogProductPage() {
 
 
 
+
                         <button
                             disabled={saving}
                             className="
@@ -1058,6 +1213,7 @@ export default function CreateCatalogProductPage() {
                                 :
                                 "Создать товар"
                             }
+
 
                         </button>
 
