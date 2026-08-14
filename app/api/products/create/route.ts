@@ -1,195 +1,96 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import mysql from "mysql2/promise";
-import fs from "fs/promises";
-import path from "path";
-
-const pool = mysql.createPool({
-    uri: process.env.DATABASE_URL,
-});
 
 export async function POST(
-    request: NextRequest
+    request: Request
 ) {
+
     try {
+
         const formData =
             await request.formData();
 
+
         const name =
-            String(formData.get("name") || "").trim();
+            String(
+                formData.get("name") || ""
+            );
+
 
         const category =
-            String(formData.get("category") || "").trim();
+            String(
+                formData.get("category") || ""
+            );
 
-        const description =
-            String(formData.get("description") || "");
-
-        const priceValue =
-            String(formData.get("price") || "");
 
         const price =
-            priceValue.trim() === ""
-                ? 0
-                : Number(priceValue);
+            Number(
+                formData.get("price") || 0
+            );
+
+
+        const description =
+            String(
+                formData.get("description") || ""
+            );
+
 
         const pinned =
-            formData.get("pinned") === "true";
-
-        const authorId =
-            Number(
-                formData.get("author_id")
-            );
-
-        const authorName =
             String(
-                formData.get("author_name") || ""
-            );
+                formData.get("pinned")
+            ) === "true";
+
+
 
         const dff =
-            formData.get("dff_file") as File | null;
+            formData.get("dff") as File | null;
+
 
         const txd =
-            formData.get("txd_file") as File | null;
+            formData.get("txd") as File | null;
 
 
-        if (!name) {
+
+        if (!name || !category) {
+
             return NextResponse.json(
                 {
-                    error:
-                        "Введите название товара",
+                    message:
+                        "Заполните обязательные поля"
                 },
                 {
-                    status: 400,
+                    status:400
                 }
             );
+
         }
 
 
-        if (!category) {
-            return NextResponse.json(
-                {
-                    error:
-                        "Выберите категорию",
-                },
-                {
-                    status: 400,
-                }
-            );
-        }
-
-
-        if (!authorId) {
-            return NextResponse.json(
-                {
-                    error:
-                        "Не найден пользователь",
-                },
-                {
-                    status: 400,
-                }
-            );
-        }
-
-
-        const uploadFolder =
-            path.join(
-                process.cwd(),
-                "public/uploads/products"
-            );
-
-
-        await fs.mkdir(
-            uploadFolder,
-            {
-                recursive: true,
-            }
-        );
-
-
-        let dffName = null;
-        let txdName = null;
-
-
-        if (dff) {
-
-            const buffer =
-                Buffer.from(
-                    await dff.arrayBuffer()
-                );
-
-            dffName =
-                `${Date.now()}-${dff.name}`;
-
-            await fs.writeFile(
-                path.join(
-                    uploadFolder,
-                    dffName
-                ),
-                buffer
-            );
-        }
-
-
-        if (txd) {
-
-            const buffer =
-                Buffer.from(
-                    await txd.arrayBuffer()
-                );
-
-            txdName =
-                `${Date.now()}-${txd.name}`;
-
-            await fs.writeFile(
-                path.join(
-                    uploadFolder,
-                    txdName
-                ),
-                buffer
-            );
-        }
-
-
-        const images =
-            formData
-                .getAll("images")
-                .filter(
-                    (item) =>
-                        item instanceof File
-                );
-
-
-        const imageNames:string[] = [];
-
-
-        for (const image of images) {
-
-            const buffer =
-                Buffer.from(
-                    await image.arrayBuffer()
-                );
-
-            const imageName =
-                `${Date.now()}-${image.name}`;
-
-
-            await fs.writeFile(
-                path.join(
-                    uploadFolder,
-                    imageName
-                ),
-                buffer
-            );
-
-
-            imageNames.push(
-                imageName
-            );
-        }
 
 
 
         const connection =
-            await pool.getConnection();
+            await mysql.createConnection({
+
+                host:
+                    "185.200.242.40",
+
+                user:
+                    "mazepov_user",
+
+                password:
+                    "dy_dyb_1901",
+
+                database:
+                    "sait",
+
+                port:
+                    3306
+
+            });
+
+
+
 
 
         await connection.execute(
@@ -201,11 +102,8 @@ export async function POST(
                 price,
                 description,
                 pinned,
-                dff_file,
-                txd_file,
-                images,
-                author_id,
-                author_name
+                dff,
+                txd
             )
 
             VALUES
@@ -216,43 +114,49 @@ export async function POST(
                 ?,
                 ?,
                 ?,
-                ?,
-                ?,
-                ?,
                 ?
             )
             `,
             [
+
                 name,
+
                 category,
+
                 price,
+
                 description,
+
                 pinned ? 1 : 0,
-                dffName,
-                txdName,
-                JSON.stringify(
-                    imageNames
-                ),
-                authorId,
-                authorName,
+
+                dff?.name || null,
+
+                txd?.name || null
+
             ]
         );
 
 
-        connection.release();
+
+
+        await connection.end();
 
 
 
-        return NextResponse.json(
-            {
-                success: true,
-                message:
-                    "Товар создан",
-            }
-        );
+
+        return NextResponse.json({
+
+            success:true,
+
+            message:
+                "Товар создан"
+
+        });
 
 
-    } catch (error) {
+
+    } catch(error) {
+
 
         console.error(
             "CREATE PRODUCT ERROR:",
@@ -262,12 +166,16 @@ export async function POST(
 
         return NextResponse.json(
             {
-                error:
-                    "Ошибка создания товара",
+
+                message:
+                    "Ошибка сервера"
+
             },
             {
-                status:500,
+                status:500
             }
         );
+
     }
+
 }
