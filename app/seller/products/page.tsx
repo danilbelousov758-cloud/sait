@@ -11,6 +11,14 @@ type User = {
     role?: string;
 };
 
+type Product = {
+    id: number;
+    name: string;
+    category: string;
+    price: number;
+    status: "Опубликован" | "Черновик";
+};
+
 const roleNames: Record<string, string> = {
     USER: "Пользователь",
     SELLER: "Продавец",
@@ -18,9 +26,11 @@ const roleNames: Record<string, string> = {
     FOUNDER: "Основатель",
 };
 
-export default function SellerPage() {
+export default function ProductsPage() {
     const [user, setUser] = useState<User | null>(null);
     const [loaded, setLoaded] = useState(false);
+
+    const [products] = useState<Product[]>([]);
 
     useEffect(() => {
         try {
@@ -38,8 +48,7 @@ export default function SellerPage() {
 
     const role = user?.role?.toUpperCase() || "USER";
 
-    const roleName =
-        roleNames[role] || "Пользователь";
+    const roleName = roleNames[role] || "Пользователь";
 
     const firstLetter =
         user?.username?.trim().charAt(0).toUpperCase() || "?";
@@ -71,7 +80,7 @@ export default function SellerPage() {
                         </h1>
 
                         <p className="mt-2 text-sm leading-6 text-slate-500">
-                            У вашего аккаунта нет доступа к панели продавца.
+                            У вашего аккаунта нет прав для управления товарами.
                         </p>
 
                         <Link
@@ -85,6 +94,14 @@ export default function SellerPage() {
             </>
         );
     }
+
+    const publishedProducts = products.filter(
+        (product) => product.status === "Опубликован"
+    );
+
+    const draftProducts = products.filter(
+        (product) => product.status === "Черновик"
+    );
 
     return (
         <>
@@ -149,25 +166,13 @@ export default function SellerPage() {
                                         href="/seller"
                                         icon="⌂"
                                         title="Обзор"
-                                        active
                                     />
 
                                     <PanelLink
                                         href="/seller/products"
                                         icon="▦"
                                         title="Мои товары"
-                                    />
-
-                                    <PanelLink
-                                        href="/seller/products/create"
-                                        icon="+"
-                                        title="Добавить товар"
-                                    />
-
-                                    <PanelLink
-                                        href="/seller/sales"
-                                        icon="↗"
-                                        title="Мои продажи"
+                                        active
                                     />
 
                                     <PanelLink
@@ -175,22 +180,10 @@ export default function SellerPage() {
                                         icon="◫"
                                         title="Заказы"
                                     />
-
-                                    <PanelLink
-                                        href="/seller/finance"
-                                        icon="₽"
-                                        title="Финансы"
-                                    />
-
-                                    <PanelLink
-                                        href="/seller/statistics"
-                                        icon="⌁"
-                                        title="Статистика"
-                                    />
                                 </div>
                             </nav>
 
-                            {/* Нижняя часть */}
+                            {/* Низ */}
                             <div className="border-t border-white/[0.06] p-3">
                                 <Link
                                     href="/"
@@ -216,7 +209,7 @@ export default function SellerPage() {
 
                     {/* Основная часть */}
                     <section className="min-w-0 flex-1 lg:ml-[250px]">
-                        {/* Верхняя панель */}
+                        {/* Заголовок */}
                         <header className="border-b border-white/[0.06] px-5 py-6 sm:px-8">
                             <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
                                 <div>
@@ -225,11 +218,11 @@ export default function SellerPage() {
                                     </div>
 
                                     <h1 className="mt-1 text-xl font-bold text-white sm:text-2xl">
-                                        Обзор
+                                        Мои товары
                                     </h1>
 
                                     <p className="mt-1 text-xs text-slate-600">
-                                        Управление вашим магазином.
+                                        Управление товарами вашего магазина.
                                     </p>
                                 </div>
 
@@ -244,178 +237,86 @@ export default function SellerPage() {
 
                         {/* Контент */}
                         <div className="mx-auto max-w-7xl p-5 sm:p-8">
-                            {/* Приветствие */}
-                            <div className="mb-7">
-                                <h2 className="text-2xl font-bold tracking-tight text-white">
-                                    Добро пожаловать, {user.username}
-                                </h2>
-
-                                <p className="mt-2 text-sm text-slate-600">
-                                    Здесь вы можете управлять товарами,
-                                    продажами, заказами и финансами.
-                                </p>
-                            </div>
-
                             {/* Статистика */}
-                            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                                <StatCard
-                                    title="Доход"
-                                    value="0 ₽"
-                                    description="За всё время"
-                                    icon="₽"
-                                />
-
-                                <StatCard
-                                    title="Продажи"
-                                    value="0"
-                                    description="Всего продаж"
-                                    icon="↗"
-                                />
-
-                                <StatCard
-                                    title="Товары"
-                                    value="0"
-                                    description="Добавлено товаров"
+                            <div className="grid gap-4 sm:grid-cols-3">
+                                <InfoCard
+                                    title="Всего товаров"
+                                    value={products.length.toString()}
                                     icon="▦"
                                 />
 
-                                <StatCard
-                                    title="Заказы"
-                                    value="0"
-                                    description="Всего заказов"
-                                    icon="◫"
+                                <InfoCard
+                                    title="Опубликовано"
+                                    value={publishedProducts.length.toString()}
+                                    icon="✓"
+                                />
+
+                                <InfoCard
+                                    title="Черновики"
+                                    value={draftProducts.length.toString()}
+                                    icon="✎"
                                 />
                             </div>
 
-                            {/* Основные блоки */}
-                            <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_350px]">
-                                {/* Продажи */}
-                                <div className="rounded-[20px] border border-white/[0.07] bg-[#0D1117]">
-                                    <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-5 sm:px-6">
-                                        <div>
-                                            <h3 className="text-base font-semibold text-white">
-                                                Продажи
-                                            </h3>
+                            {/* Список товаров */}
+                            <div className="mt-5 rounded-[20px] border border-white/[0.07] bg-[#0D1117]">
+                                <div className="flex flex-col justify-between gap-4 border-b border-white/[0.06] px-5 py-5 sm:flex-row sm:items-center sm:px-6">
+                                    <div>
+                                        <h2 className="text-base font-semibold text-white">
+                                            Товары
+                                        </h2>
 
-                                            <p className="mt-1 text-xs text-slate-600">
-                                                Динамика ваших продаж
-                                            </p>
-                                        </div>
-
-                                        <Link
-                                            href="/seller/sales"
-                                            className="text-xs font-medium text-blue-500 transition hover:text-blue-400"
-                                        >
-                                            Все продажи →
-                                        </Link>
+                                        <p className="mt-1 text-xs text-slate-600">
+                                            Все товары, добавленные в ваш магазин.
+                                        </p>
                                     </div>
 
-                                    <div className="flex h-[300px] items-center justify-center px-5">
+                                    <Link
+                                        href="/seller/products/create"
+                                        className="inline-flex w-fit rounded-xl border border-white/[0.07] bg-white/[0.025] px-3 py-2 text-xs font-semibold text-slate-400 transition hover:bg-white/[0.05] hover:text-white"
+                                    >
+                                        + Новый товар
+                                    </Link>
+                                </div>
+
+                                {products.length === 0 ? (
+                                    <div className="flex min-h-[390px] items-center justify-center px-5">
                                         <div className="text-center">
                                             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-white/[0.06] bg-[#11161D] text-2xl text-slate-700">
-                                                ⌁
+                                                ▦
                                             </div>
 
-                                            <div className="mt-5 text-sm font-semibold text-slate-500">
-                                                Пока нет продаж
-                                            </div>
+                                            <h3 className="mt-5 text-sm font-semibold text-slate-400">
+                                                У вас пока нет товаров
+                                            </h3>
 
                                             <p className="mx-auto mt-2 max-w-sm text-xs leading-5 text-slate-700">
-                                                Здесь появится статистика,
-                                                когда вы совершите первую
-                                                продажу.
+                                                Добавьте свой первый мод,
+                                                чтобы он появился в вашем
+                                                магазине.
                                             </p>
 
                                             <Link
                                                 href="/seller/products/create"
-                                                className="mt-5 inline-flex rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-blue-500"
+                                                className="mt-5 inline-flex rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-semibold text-white transition hover:bg-blue-500"
                                             >
-                                                Добавить товар
+                                                Добавить первый товар
                                             </Link>
                                         </div>
                                     </div>
-                                </div>
-
-                                {/* Быстрые действия */}
-                                <div className="rounded-[20px] border border-white/[0.07] bg-[#0D1117] p-6">
-                                    <h3 className="text-base font-semibold text-white">
-                                        Быстрые действия
-                                    </h3>
-
-                                    <p className="mt-1 text-xs text-slate-600">
-                                        Управление магазином
-                                    </p>
-
-                                    <div className="mt-5 space-y-2">
-                                        <QuickAction
-                                            href="/seller/products/create"
-                                            icon="+"
-                                            title="Добавить товар"
-                                            description="Создать новый товар"
-                                        />
-
-                                        <QuickAction
-                                            href="/seller/products"
-                                            icon="▦"
-                                            title="Мои товары"
-                                            description="Управление товарами"
-                                        />
-
-                                        <QuickAction
-                                            href="/seller/orders"
-                                            icon="◫"
-                                            title="Заказы"
-                                            description="Просмотр заказов"
-                                        />
-
-                                        <QuickAction
-                                            href="/seller/finance"
-                                            icon="₽"
-                                            title="Финансы"
-                                            description="Баланс и выплаты"
-                                        />
-
-                                        <QuickAction
-                                            href="/seller/statistics"
-                                            icon="⌁"
-                                            title="Статистика"
-                                            description="Аналитика магазина"
-                                        />
+                                ) : (
+                                    <div className="divide-y divide-white/[0.05]">
+                                        {products.map((product) => (
+                                            <ProductRow
+                                                key={product.id}
+                                                product={product}
+                                            />
+                                        ))}
                                     </div>
-                                </div>
+                                )}
                             </div>
 
-                            {/* Последние действия */}
-                            <div className="mt-5 rounded-[20px] border border-white/[0.07] bg-[#0D1117]">
-                                <div className="border-b border-white/[0.06] px-5 py-5 sm:px-6">
-                                    <h3 className="text-base font-semibold text-white">
-                                        Последние действия
-                                    </h3>
-
-                                    <p className="mt-1 text-xs text-slate-600">
-                                        Последние события вашего магазина.
-                                    </p>
-                                </div>
-
-                                <div className="flex min-h-[180px] items-center justify-center px-5">
-                                    <div className="text-center">
-                                        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#11161D] text-lg text-slate-700">
-                                            ⋯
-                                        </div>
-
-                                        <div className="mt-4 text-xs font-semibold text-slate-500">
-                                            Пока нет активности
-                                        </div>
-
-                                        <p className="mt-1 text-[10px] text-slate-700">
-                                            Здесь будут отображаться ваши
-                                            действия.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Информационный блок */}
+                            {/* Информация */}
                             <div className="mt-5 rounded-[20px] border border-blue-500/[0.12] bg-blue-500/[0.025] p-5">
                                 <div className="flex gap-4">
                                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-500/[0.08] text-sm text-blue-400">
@@ -424,12 +325,13 @@ export default function SellerPage() {
 
                                     <div>
                                         <div className="text-sm font-semibold text-slate-300">
-                                            Начните с добавления товара
+                                            Добавляйте свои моды
                                         </div>
 
                                         <p className="mt-1 text-xs leading-5 text-slate-600">
-                                            Создайте свой первый мод или другой
-                                            товар, чтобы начать продажи.
+                                            Создайте товар, загрузите необходимые
+                                            файлы и опубликуйте его в каталоге
+                                            магазина.
                                         </p>
 
                                         <Link
@@ -492,15 +394,13 @@ function PanelLink({
     );
 }
 
-function StatCard({
+function InfoCard({
     title,
     value,
-    description,
     icon,
 }: {
     title: string;
     value: string;
-    description: string;
     icon: string;
 }) {
     return (
@@ -514,10 +414,6 @@ function StatCard({
                     <div className="mt-2 text-2xl font-bold tracking-tight text-white">
                         {value}
                     </div>
-
-                    <div className="mt-1 text-[10px] text-slate-700">
-                        {description}
-                    </div>
                 </div>
 
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-500/[0.07] text-sm text-blue-400">
@@ -528,39 +424,48 @@ function StatCard({
     );
 }
 
-function QuickAction({
-    href,
-    icon,
-    title,
-    description,
+function ProductRow({
+    product,
 }: {
-    href: string;
-    icon: string;
-    title: string;
-    description: string;
+    product: Product;
 }) {
+    const statusClass =
+        product.status === "Опубликован"
+            ? "bg-green-500/[0.08] text-green-400"
+            : "bg-yellow-500/[0.08] text-yellow-400";
+
     return (
-        <Link
-            href={href}
-            className="group flex items-center gap-3 rounded-xl border border-white/[0.05] bg-white/[0.015] p-3 transition hover:border-white/[0.09] hover:bg-white/[0.03]"
-        >
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#11161D] text-sm text-slate-500 transition group-hover:text-blue-400">
-                {icon}
+        <div className="flex flex-col gap-4 px-5 py-4 transition hover:bg-white/[0.015] sm:flex-row sm:items-center sm:px-6">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#11161D] text-sm text-slate-600">
+                ▦
             </div>
 
             <div className="min-w-0 flex-1">
-                <div className="text-xs font-semibold text-slate-300">
-                    {title}
+                <div className="truncate text-sm font-semibold text-white">
+                    {product.name}
                 </div>
 
-                <div className="mt-0.5 truncate text-[10px] text-slate-700">
-                    {description}
+                <div className="mt-1 text-[10px] text-slate-700">
+                    {product.category}
                 </div>
             </div>
 
-            <span className="text-xs text-slate-700 transition group-hover:text-slate-400">
-                →
-            </span>
-        </Link>
+            <div className="text-sm font-semibold text-slate-300">
+                {product.price} ₽
+            </div>
+
+            <div
+                className={`w-fit rounded-lg px-2.5 py-1 text-[10px] font-semibold ${statusClass}`}
+            >
+                {product.status}
+            </div>
+
+            <Link
+                href={`/seller/products/${product.id}`}
+                className="w-fit rounded-lg border border-white/[0.06] bg-white/[0.025] px-3 py-2 text-xs text-slate-500 transition hover:bg-white/[0.05] hover:text-white"
+            >
+                Открыть
+            </Link>
+        </div>
     );
 }
