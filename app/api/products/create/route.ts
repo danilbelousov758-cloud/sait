@@ -11,13 +11,14 @@ import { db } from "@/lib/mysql";
 
 const s3 = new S3Client({
 
-    region:
-        process.env.S3_REGION || "ru-1",
-
     endpoint:
         process.env.S3_ENDPOINT,
 
-    forcePathStyle: true,
+    region:
+        process.env.S3_REGION || "ru-1",
+
+    forcePathStyle:
+        true,
 
     credentials: {
 
@@ -35,7 +36,7 @@ const s3 = new S3Client({
 
 
 
-async function uploadFile(
+async function uploadToS3(
     file: File,
     folder: string
 ) {
@@ -44,10 +45,11 @@ async function uploadFile(
         process.env.S3_BUCKET;
 
 
+
     if (!bucket) {
 
         throw new Error(
-            "S3_BUCKET не найден в .env.local"
+            "S3_BUCKET не найден"
         );
 
     }
@@ -62,10 +64,11 @@ async function uploadFile(
 
 
     const fileName =
-        file.name.replace(
-            /[^a-zA-Z0-9._-]/g,
-            "-"
-        );
+        file.name
+            .replace(
+                /[^a-zA-Z0-9._-]/g,
+                "_"
+            );
 
 
 
@@ -114,19 +117,25 @@ export async function POST(
     request: NextRequest
 ) {
 
+
     try {
 
 
         console.log(
-            "S3 BUCKET:",
-            process.env.S3_BUCKET
+            "S3 CHECK:",
+            {
+                endpoint:
+                    process.env.S3_ENDPOINT,
+
+                bucket:
+                    process.env.S3_BUCKET,
+
+                region:
+                    process.env.S3_REGION,
+            }
         );
 
 
-        console.log(
-            "S3 ENDPOINT:",
-            process.env.S3_ENDPOINT
-        );
 
 
 
@@ -146,8 +155,8 @@ export async function POST(
 
         const category =
             String(
-                form.get("category") ||
                 form.get("path") ||
+                form.get("category") ||
                 ""
             );
 
@@ -179,26 +188,29 @@ export async function POST(
 
 
 
-        const dffValue =
+
+
+        const dffData =
             form.get("dff");
 
 
-        const txdValue =
+        const txdData =
             form.get("txd");
 
 
 
         const dff =
-            dffValue instanceof File
-                ? dffValue
+            dffData instanceof File
+                ? dffData
                 : null;
 
 
 
         const txd =
-            txdValue instanceof File
-                ? txdValue
+            txdData instanceof File
+                ? txdData
                 : null;
+
 
 
 
@@ -208,9 +220,9 @@ export async function POST(
                 .getAll("images")
                 .filter(
                     (
-                        item
-                    ): item is File =>
-                        item instanceof File
+                        file
+                    ): file is File =>
+                        file instanceof File
                 );
 
 
@@ -219,8 +231,7 @@ export async function POST(
 
 
 
-
-        if (!name.trim()) {
+        if (!name) {
 
             return NextResponse.json(
 
@@ -247,7 +258,7 @@ export async function POST(
 
                 {
                     message:
-                        "Необходимо загрузить DFF и TXD"
+                        "DFF и TXD обязательны"
                 },
 
                 {
@@ -268,7 +279,7 @@ export async function POST(
 
                 {
                     message:
-                        "Автор товара не найден"
+                        "Не найден автор товара"
                 },
 
                 {
@@ -294,9 +305,8 @@ export async function POST(
 
 
 
-
         const dffUrl =
-            await uploadFile(
+            await uploadToS3(
                 dff,
                 folder
             );
@@ -304,7 +314,7 @@ export async function POST(
 
 
         const txdUrl =
-            await uploadFile(
+            await uploadToS3(
                 txd,
                 folder
             );
@@ -322,20 +332,15 @@ export async function POST(
         ) {
 
 
-            if (
-                image.size <= 0
-            ) continue;
-
-
-
             const url =
-                await uploadFile(
+                await uploadToS3(
 
                     image,
 
                     `${folder}/images`
 
                 );
+
 
 
             imageUrls.push(
@@ -400,19 +405,15 @@ export async function POST(
                     ? 1
                     : 0,
 
-
                 dffUrl,
 
                 txdUrl,
-
 
                 JSON.stringify(
                     imageUrls
                 ),
 
-
                 authorId,
-
 
                 "ACTIVE"
 
@@ -426,25 +427,14 @@ export async function POST(
 
 
 
+        return NextResponse.json({
 
-        return NextResponse.json(
+            success:true,
 
-            {
+            message:
+                "Товар успешно создан"
 
-                success:true,
-
-                message:
-                    "Товар создан"
-
-            },
-
-            {
-
-                status:200
-
-            }
-
-        );
+        });
 
 
 
@@ -469,8 +459,8 @@ export async function POST(
 
                 message:
                     error instanceof Error
-                    ? error.message
-                    : "Ошибка сервера"
+                        ? error.message
+                        : "Ошибка сервера"
 
             },
 
