@@ -1,80 +1,71 @@
 import { NextResponse } from "next/server";
+import { db } from "@/lib/mysql";
 
-const products: any[] = [];
 
-export async function POST(
-    request: Request
-) {
+export async function GET() {
+
     try {
-        const data = await request.json();
 
-        const product = {
-            id: Date.now(),
+        const [rows] = await db.execute(
+            `
+            SELECT
+                id,
+                name,
+                category,
+                price,
+                description,
+                pinned,
+                images,
+                dff_file,
+                txd_file,
+                author_id,
+                status,
+                created_at
 
-            name: data.name,
+            FROM products
 
-            category: data.category,
+            WHERE status = ?
 
-            price:
-                Number(data.price) || 0,
-
-            description:
-                data.description || "",
-
-            pinned:
-                data.pinned || false,
-
-            dff:
-                data.dff || null,
-
-            txd:
-                data.txd || null,
-
-            images:
-                data.images || [],
-
-            author:
-                data.author,
-
-            createdAt:
-                new Date(),
-        };
-
-
-        products.push(product);
-
-
-        return NextResponse.json(
-            {
-                success: true,
-                product,
-            },
-            {
-                status: 201,
-            }
+            ORDER BY pinned DESC, created_at DESC
+            `,
+            [
+                "ACTIVE"
+            ]
         );
 
 
-    } catch (error) {
+        return NextResponse.json({
+
+            success:true,
+
+            products: rows
+
+        });
+
+
+    } catch(error) {
+
+
+        console.error(
+            "GET PRODUCTS ERROR:",
+            error
+        );
+
 
         return NextResponse.json(
+
             {
                 success:false,
-                error:"Ошибка создания товара"
+                message:"Ошибка загрузки товаров"
             },
+
             {
                 status:500
             }
+
         );
 
+
     }
-}
-
-
-export async function GET(){
-
-    return NextResponse.json(
-        products
-    );
 
 }
