@@ -5,10 +5,6 @@ import {
     GetObjectCommand,
 } from "@aws-sdk/client-s3";
 
-import {
-    PutObjectCommand,
-} from "@aws-sdk/client-s3";
-
 import JSZip from "jszip";
 
 
@@ -49,28 +45,41 @@ const s3 = new S3Client({
 });
 
 
+/*
+ * Безопасное название ZIP.
+ */
+
 function cleanZipName(
     name: string
 ) {
 
     return name
+
         .replace(
             /[<>:"/\\|?*\x00-\x1F]/g,
             "_"
         )
+
         .replace(
             /\s+/g,
             " "
         )
+
         .trim()
+
         .replace(
             /\.+$/g,
             ""
         )
+
         || "mod";
 
 }
 
+
+/*
+ * Получаем имя файла из URL или S3 key.
+ */
 
 function getFileName(
     urlOrKey: string | null
@@ -81,11 +90,10 @@ function getFileName(
     }
 
 
-    try {
+    let fileName = "";
 
-        /*
-         * Если это полный URL S3.
-         */
+
+    try {
 
         const url =
             new URL(urlOrKey);
@@ -100,32 +108,65 @@ function getFileName(
                 .split("/")
                 .filter(Boolean);
 
-        return (
-            parts[parts.length - 1] ||
-            null
-        );
+        fileName =
+            parts[
+                parts.length - 1
+            ] || "";
 
     } catch {
-
-        /*
-         * Если в базе хранится
-         * непосредственно S3 key.
-         */
 
         const parts =
             urlOrKey
                 .split("/")
                 .filter(Boolean);
 
-        return (
-            parts[parts.length - 1] ||
-            null
-        );
+        fileName =
+            parts[
+                parts.length - 1
+            ] || "";
 
     }
 
+
+    if (!fileName) {
+        return null;
+    }
+
+
+    /*
+     * Убираем timestamp,
+     * который добавляется при загрузке
+     * файла в S3.
+     *
+     * Было:
+     *
+     * 1755261234567-skin.dff
+     *
+     * Станет:
+     *
+     * skin.dff
+     *
+     *
+     * Также поддерживается:
+     *
+     * 1755261234567_skin.dff
+     */
+
+    fileName =
+        fileName.replace(
+            /^\d{10,}[-_]/,
+            ""
+        );
+
+
+    return fileName || null;
+
 }
 
+
+/*
+ * Получаем настоящий S3 key.
+ */
 
 function getS3Key(
     value: string
@@ -135,16 +176,6 @@ function getS3Key(
         return "";
     }
 
-
-    /*
-     * Если в базе сохранён полный URL:
-     *
-     * https://endpoint/bucket/folder/file.dff
-     *
-     * достаём только:
-     *
-     * folder/file.dff
-     */
 
     try {
 
@@ -163,6 +194,11 @@ function getS3Key(
                 ""
             );
 
+
+        /*
+         * Убираем имя bucket
+         * из начала пути.
+         */
 
         if (
             bucket &&
@@ -183,10 +219,6 @@ function getS3Key(
 
     } catch {
 
-        /*
-         * Если уже передан key.
-         */
-
         return value.replace(
             /^\/+/,
             ""
@@ -196,6 +228,10 @@ function getS3Key(
 
 }
 
+
+/*
+ * Загружаем файл из S3.
+ */
 
 async function downloadS3File(
     value: string
@@ -243,23 +279,25 @@ async function downloadS3File(
     }
 
 
-    /*
-     * AWS SDK v3 в Node.js
-     * позволяет преобразовать Body
-     * через transformToByteArray().
-     */
-
     const bytes =
-        await result.Body.transformToByteArray();
+        await result.Body
+            .transformToByteArray();
 
 
     return {
+
         key,
+
         bytes,
+
     };
 
 }
 
+
+/*
+ * GET /api/products/[id]/download
+ */
 
 export async function GET(
     request: NextRequest,
@@ -272,6 +310,10 @@ export async function GET(
 
     try {
 
+        /*
+         * Проверяем S3.
+         */
+
         if (
             !endpoint ||
             !bucket ||
@@ -282,6 +324,7 @@ export async function GET(
             return NextResponse.json(
 
                 {
+
                     success: false,
 
                     message:
@@ -298,9 +341,14 @@ export async function GET(
         }
 
 
+        /*
+         * Получаем ID товара.
+         */
+
         const {
             id,
-        } = await context.params;
+        } =
+            await context.params;
 
 
         const productId =
@@ -317,9 +365,12 @@ export async function GET(
             return NextResponse.json(
 
                 {
+
                     success: false,
+
                     message:
                         "Некорректный ID товара",
+
                 },
 
                 {
@@ -332,7 +383,7 @@ export async function GET(
 
 
         /*
-         * Получаем товар из MySQL.
+         * Подключаем MySQL.
          */
 
         const mysql =
@@ -340,6 +391,10 @@ export async function GET(
                 "@/lib/mysql"
             );
 
+
+        /*
+         * Получаем товар.
+         */
 
         const [
             rows,
@@ -370,11 +425,20 @@ export async function GET(
 
         const products =
             rows as Array<{
+
                 id: number;
+
                 name: string;
-                dff_file: string | null;
-                txd_file: string | null;
-                status: string | null;
+
+                dff_file:
+                    string | null;
+
+                txd_file:
+                    string | null;
+
+                status:
+                    string | null;
+
             }>;
 
 
@@ -382,14 +446,21 @@ export async function GET(
             products[0];
 
 
+        /*
+         * Товар не найден.
+         */
+
         if (!product) {
 
             return NextResponse.json(
 
                 {
+
                     success: false,
+
                     message:
                         "Мод не найден",
+
                 },
 
                 {
@@ -401,6 +472,10 @@ export async function GET(
         }
 
 
+        /*
+         * Проверяем статус.
+         */
+
         if (
             product.status &&
             product.status !== "ACTIVE"
@@ -409,9 +484,12 @@ export async function GET(
             return NextResponse.json(
 
                 {
+
                     success: false,
+
                     message:
                         "Этот мод недоступен для скачивания",
+
                 },
 
                 {
@@ -423,6 +501,10 @@ export async function GET(
         }
 
 
+        /*
+         * Проверяем наличие файлов.
+         */
+
         if (
             !product.dff_file &&
             !product.txd_file
@@ -431,9 +513,12 @@ export async function GET(
             return NextResponse.json(
 
                 {
+
                     success: false,
+
                     message:
                         "У этого мода нет файлов для скачивания",
+
                 },
 
                 {
@@ -448,6 +533,7 @@ export async function GET(
         console.log(
             "BUILD ZIP:",
             {
+
                 id:
                     product.id,
 
@@ -464,6 +550,10 @@ export async function GET(
         );
 
 
+        /*
+         * Создаём ZIP.
+         */
+
         const zip =
             new JSZip();
 
@@ -473,7 +563,9 @@ export async function GET(
 
 
         /*
+         * --------------------------------
          * DFF
+         * --------------------------------
          */
 
         if (
@@ -490,18 +582,41 @@ export async function GET(
 
                 if (file) {
 
+                    /*
+                     * Получаем оригинальное
+                     * имя файла.
+                     *
+                     * Timestamp автоматически
+                     * убирается.
+                     */
+
                     const fileName =
                         getFileName(
                             product.dff_file
                         );
 
 
-                    if (fileName) {
+                    if (
+                        fileName &&
+                        fileName
+                            .toLowerCase()
+                            .endsWith(".dff")
+                    ) {
+
+                        console.log(
+                            "ZIP DFF:",
+                            fileName
+                        );
+
 
                         zip.file(
+
                             fileName,
+
                             file.bytes
+
                         );
+
 
                         addedFiles++;
 
@@ -522,7 +637,9 @@ export async function GET(
 
 
         /*
+         * --------------------------------
          * TXD
+         * --------------------------------
          */
 
         if (
@@ -539,18 +656,38 @@ export async function GET(
 
                 if (file) {
 
+                    /*
+                     * Получаем оригинальное
+                     * имя файла.
+                     */
+
                     const fileName =
                         getFileName(
                             product.txd_file
                         );
 
 
-                    if (fileName) {
+                    if (
+                        fileName &&
+                        fileName
+                            .toLowerCase()
+                            .endsWith(".txd")
+                    ) {
+
+                        console.log(
+                            "ZIP TXD:",
+                            fileName
+                        );
+
 
                         zip.file(
+
                             fileName,
+
                             file.bytes
+
                         );
+
 
                         addedFiles++;
 
@@ -570,6 +707,10 @@ export async function GET(
         }
 
 
+        /*
+         * Ни одного файла не получили.
+         */
+
         if (
             addedFiles === 0
         ) {
@@ -577,6 +718,7 @@ export async function GET(
             return NextResponse.json(
 
                 {
+
                     success: false,
 
                     message:
@@ -594,7 +736,7 @@ export async function GET(
 
 
         /*
-         * Создаём ZIP.
+         * Генерируем ZIP.
          */
 
         const zipBytes =
@@ -615,19 +757,32 @@ export async function GET(
             });
 
 
+        /*
+         * Название ZIP =
+         * название мода.
+         */
+
         const zipName =
             `${cleanZipName(
                 product.name
             )}.zip`;
 
 
+        console.log(
+            "ZIP CREATED:",
+            zipName
+        );
+
+
         /*
-         * Возвращаем ZIP напрямую
-         * браузеру.
+         * Отправляем ZIP
+         * непосредственно браузеру.
          */
 
         return new NextResponse(
+
             zipBytes as BodyInit,
+
             {
 
                 status: 200,
@@ -655,6 +810,7 @@ export async function GET(
                 },
 
             }
+
         );
 
     } catch (error) {
@@ -668,6 +824,7 @@ export async function GET(
         return NextResponse.json(
 
             {
+
                 success: false,
 
                 message:
