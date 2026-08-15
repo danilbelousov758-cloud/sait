@@ -22,7 +22,7 @@ export default function AnimatedBackground() {
                     h-[750px]
                     w-[750px]
                     rounded-full
-                    bg-blue-500/40
+                    bg-blue-600/45
                     blur-[180px]
                     animate-bg-1
                 "
@@ -38,7 +38,7 @@ export default function AnimatedBackground() {
                     h-[700px]
                     w-[700px]
                     rounded-full
-                    bg-cyan-400/30
+                    bg-white/35
                     blur-[170px]
                     animate-bg-2
                 "
@@ -54,7 +54,7 @@ export default function AnimatedBackground() {
                     h-[500px]
                     w-[500px]
                     rounded-full
-                    bg-white/20
+                    bg-white/30
                     blur-[160px]
                     animate-bg-3
                 "
@@ -70,7 +70,7 @@ export default function AnimatedBackground() {
                     h-[800px]
                     w-[800px]
                     rounded-full
-                    bg-blue-700/50
+                    bg-blue-800/55
                     blur-[200px]
                     animate-bg-4
                 "
@@ -82,7 +82,7 @@ export default function AnimatedBackground() {
                 className="
                     absolute
                     inset-0
-                    bg-black/30
+                    bg-black/15
                 "
             />
 
