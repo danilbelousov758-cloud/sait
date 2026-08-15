@@ -1915,14 +1915,17 @@ function ProductCard({
 
 <button
     type="button"
-    onClick={
-        Number(product.price) > 0
-            ? undefined
-            : downloadProduct
-    }
+    onClick={() => {
+        if (Number(product.price) > 0) {
+            window.location.href = `/catalog/${product.id}`;
+            return;
+        }
+
+        downloadProduct();
+    }}
                         disabled={
                             downloading ||
-                            !hasFiles
+                            (Number(product.price) <= 0 && !hasFiles)
                         }
                         className="
                             inline-flex
