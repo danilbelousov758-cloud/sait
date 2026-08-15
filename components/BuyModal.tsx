@@ -118,11 +118,11 @@ export default function BuyModal({
                     mt-5
                     flex
                     w-full
+                    items-center
                     justify-center
                     rounded-xl
                     bg-blue-600
-                    px-4
-                    py-2.5
+                    py-3
                     text-sm
                     font-semibold
                     text-white
@@ -138,14 +138,13 @@ export default function BuyModal({
                     className="
                         fixed
                         inset-0
-                        z-[9999]
+                        z-50
                         flex
                         items-center
                         justify-center
-                        overflow-hidden
                         bg-black/75
                         px-3
-                        py-3
+                        py-4
                         backdrop-blur-sm
                     "
                     onMouseDown={(e) => {
@@ -156,9 +155,9 @@ export default function BuyModal({
                 >
                     <div
                         className="
-                            max-h-[calc(100vh-24px)]
                             w-full
-                            max-w-[340px]
+                            max-w-[430px]
+                            max-h-[calc(100vh-24px)]
                             overflow-y-auto
                             rounded-2xl
                             border
@@ -166,39 +165,20 @@ export default function BuyModal({
                             bg-[#0D1117]
                             p-4
                             shadow-2xl
+                            sm:p-5
                         "
                     >
-                        <div
-                            className="
-                                flex
-                                items-center
-                                justify-between
-                                gap-3
-                            "
-                        >
-                            <div className="min-w-0">
-                                <div
-                                    className="
-                                        text-[9px]
-                                        font-semibold
-                                        uppercase
-                                        tracking-widest
-                                        text-blue-400
-                                    "
-                                >
-                                    Покупка
-                                </div>
+                        {/* HEADER */}
 
-                                <h2
-                                    className="
-                                        mt-1
-                                        text-base
-                                        font-bold
-                                        text-white
-                                    "
-                                >
+                        <div className="flex items-center justify-between gap-3">
+                            <div>
+                                <h2 className="text-base font-bold text-white">
                                     Оформление заказа
                                 </h2>
+
+                                <p className="mt-0.5 text-[11px] text-slate-600">
+                                    Проверьте данные перед оплатой
+                                </p>
                             </div>
 
                             <button
@@ -207,8 +187,8 @@ export default function BuyModal({
                                 disabled={loading}
                                 className="
                                     flex
-                                    h-7
-                                    w-7
+                                    h-8
+                                    w-8
                                     shrink-0
                                     items-center
                                     justify-center
@@ -226,141 +206,147 @@ export default function BuyModal({
                             </button>
                         </div>
 
+                        {/* PRODUCT */}
+
                         <div
                             className="
-                                mt-3
+                                mt-4
                                 rounded-xl
                                 border
                                 border-white/[0.06]
                                 bg-black/20
-                                px-3
-                                py-2.5
+                                p-3
                             "
                         >
-                            <h3
-                                className="
-                                    truncate
-                                    text-sm
-                                    font-semibold
-                                    text-white
-                                "
-                                title={productName}
-                            >
-                                {productName}
-                            </h3>
+                            <div className="flex items-center justify-between gap-3">
+                                <div className="min-w-0">
+                                    <div className="truncate text-sm font-semibold text-white">
+                                        {productName}
+                                    </div>
 
-                            <p
-                                className="
-                                    mt-0.5
-                                    truncate
-                                    text-[11px]
-                                    text-slate-500
-                                "
-                            >
-                                Продавец: {sellerName}
-                            </p>
+                                    <div className="mt-1 truncate text-[11px] text-slate-600">
+                                        Продавец: {sellerName}
+                                    </div>
+                                </div>
+
+                                <div className="shrink-0 text-right">
+                                    <div className="text-base font-bold text-white">
+                                        {price} ₽
+                                    </div>
+
+                                    <div className="text-[9px] uppercase tracking-wider text-slate-600">
+                                        товар
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <div
-                            className="
-                                mt-2
-                                flex
-                                items-center
-                                justify-between
-                                rounded-xl
-                                border
-                                border-white/[0.06]
-                                bg-black/20
-                                px-3
-                                py-2.5
-                            "
-                        >
-                            <span className="text-[11px] text-slate-500">
-                                Цена
-                            </span>
+                        {/* PAYMENT */}
 
-                            <span className="text-lg font-bold text-white">
-                                {price} ₽
-                            </span>
-                        </div>
-
-                        <div className="mt-3">
-                            <div
-                                className="
-                                    text-[10px]
-                                    font-semibold
-                                    uppercase
-                                    tracking-widest
-                                    text-slate-600
-                                "
-                            >
-                                Способ оплаты
+                        <div className="mt-4">
+                            <div className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-600">
+                                Способы оплаты
                             </div>
 
                             <div
                                 className="
-                                    mt-1.5
                                     rounded-xl
                                     border
                                     border-white/[0.06]
-                                    bg-black/25
-                                    px-3
-                                    py-2.5
-                                    text-[11px]
+                                    bg-black/20
+                                    p-3
+                                    text-[12px]
                                     leading-5
                                     text-slate-400
                                 "
                             >
                                 <div>
                                     <span className="font-semibold text-slate-300">
-                                        СберБанк:
-                                    </span>{" "}
-                                    2202 2088 8291 8056
+                                        СберБанк
+                                    </span>
+                                    <span className="ml-2 text-slate-500">
+                                        2202 2088 8291 8056
+                                    </span>
                                 </div>
+
+                                <div className="my-2 h-px bg-white/[0.05]" />
 
                                 <div>
                                     <span className="font-semibold text-slate-300">
-                                        Т-Банк:
-                                    </span>{" "}
-                                    5536 9177 2933 9314
+                                        Т-Банк
+                                    </span>
+                                    <span className="ml-2 text-slate-500">
+                                        5536 9177 2933 9314
+                                    </span>
                                 </div>
 
-                                <div className="mt-1 truncate text-blue-400">
+                                <div className="my-2 h-px bg-white/[0.05]" />
+
+                                <div>
                                     <span className="font-semibold text-slate-300">
-                                        Donation Alerts:
-                                    </span>{" "}
-                                    donationalerts.com/r/galbraith1629
+                                        Donation Alerts
+                                    </span>
+
+                                    <div className="mt-0.5 break-all text-[10px] text-slate-600">
+                                        donationalerts.com/r/galbraith1629
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="mt-3">
-                            <label
-                                className="
-                                    text-[10px]
-                                    font-semibold
-                                    uppercase
-                                    tracking-widest
-                                    text-slate-600
-                                "
-                            >
+                        {/* DONATION ALERTS WARNING */}
+
+                        <div
+                            className="
+                                mt-3
+                                rounded-lg
+                                border
+                                border-amber-500/15
+                                bg-amber-500/[0.05]
+                                px-3
+                                py-2
+                            "
+                        >
+                            <p className="text-[11px] leading-4 text-slate-400">
+                                ⚠️{" "}
+                                <b className="text-amber-300">
+                                    Donation Alerts:
+                                </b>{" "}
+                                комиссия{" "}
+                                <b className="text-slate-300">
+                                    15%
+                                </b>
+                                . При недостаточной сумме доната потребуется{" "}
+                                <b className="text-amber-300">
+                                    доплата разницы
+                                </b>
+                                .
+                            </p>
+                        </div>
+
+                        {/* PROMO */}
+
+                        <div className="mt-4">
+                            <label className="text-[10px] font-semibold uppercase tracking-widest text-slate-600">
                                 Промокод
                             </label>
 
                             <input
                                 value={promo}
-                                onChange={(e) => setPromo(e.target.value)}
+                                onChange={(e) =>
+                                    setPromo(e.target.value)
+                                }
                                 disabled={loading}
                                 className="
-                                    mt-1.5
-                                    h-9
+                                    mt-2
+                                    h-10
                                     w-full
                                     rounded-lg
                                     border
                                     border-white/10
                                     bg-black/30
                                     px-3
-                                    text-xs
+                                    text-sm
                                     text-white
                                     outline-none
                                     transition
@@ -372,34 +358,40 @@ export default function BuyModal({
                             />
                         </div>
 
+                        {/* TOTAL */}
+
                         <div
                             className="
-                                mt-3
-                                border-t
-                                border-white/[0.07]
-                                pt-3
+                                mt-4
+                                rounded-xl
+                                border
+                                border-white/[0.06]
+                                bg-black/20
+                                p-3
                             "
                         >
-                            <div
-                                className="
-                                    flex
-                                    items-center
-                                    justify-between
-                                "
-                            >
+                            <div className="flex items-center justify-between">
                                 <span className="text-xs text-slate-500">
                                     Итого
                                 </span>
 
-                                <b className="text-base text-white">
+                                <span className="text-lg font-bold text-white">
                                     {price} ₽
-                                </b>
+                                </span>
                             </div>
 
-                            <div className="mt-1 text-[10px] text-slate-600">
-                                Через Donation Alerts: {donationPrice} ₽
+                            <div className="mt-1.5 flex items-center justify-between">
+                                <span className="text-[10px] text-slate-700">
+                                    Через Donation Alerts
+                                </span>
+
+                                <span className="text-[11px] font-medium text-slate-500">
+                                    {donationPrice} ₽
+                                </span>
                             </div>
                         </div>
+
+                        {/* ERROR */}
 
                         {error && (
                             <div
@@ -408,9 +400,9 @@ export default function BuyModal({
                                     rounded-lg
                                     border
                                     border-red-500/20
-                                    bg-red-500/10
+                                    bg-red-500/[0.08]
                                     px-3
-                                    py-2
+                                    py-2.5
                                     text-[11px]
                                     leading-4
                                     text-red-300
@@ -420,18 +412,22 @@ export default function BuyModal({
                             </div>
                         )}
 
+                        {/* BUY */}
+
                         <button
                             type="button"
                             onClick={buy}
                             disabled={loading}
                             className="
-                                mt-3
+                                mt-4
+                                flex
                                 w-full
+                                items-center
+                                justify-center
                                 rounded-xl
                                 bg-emerald-600
-                                px-4
                                 py-2.5
-                                text-xs
+                                text-sm
                                 font-semibold
                                 text-white
                                 transition
@@ -445,23 +441,10 @@ export default function BuyModal({
                                 : "Я оплатил"}
                         </button>
 
-                        <button
-                            type="button"
-                            onClick={closeModal}
-                            disabled={loading}
-                            className="
-                                mt-1.5
-                                w-full
-                                py-1.5
-                                text-[10px]
-                                text-slate-600
-                                transition
-                                hover:text-slate-300
-                                disabled:opacity-50
-                            "
-                        >
-                            Отмена
-                        </button>
+                        <p className="mt-2 text-center text-[9px] leading-4 text-slate-700">
+                            После подтверждения оплаты заказ будет обработан
+                            администратором.
+                        </p>
                     </div>
                 </div>
             )}
