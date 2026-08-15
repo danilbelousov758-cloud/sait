@@ -6,12 +6,12 @@ import {
     ChangeEvent,
     FormEvent,
     useEffect,
-    useMemo,
     useState,
 } from "react";
 
-import Header from "@/components/Header";
+import JSZip from "jszip";
 
+import Header from "@/components/Header";
 
 
 type User = {
@@ -22,12 +22,10 @@ type User = {
 };
 
 
-
 type CatalogItem = {
     name: string;
     children?: CatalogItem[];
 };
-
 
 
 const expandableCategories: CatalogItem[] = [
@@ -36,205 +34,83 @@ const expandableCategories: CatalogItem[] = [
         name: "Скины",
 
         children: [
-
-            {
-                name: "Государственные",
-            },
-
-            {
-                name: "Мафии",
-            },
-
-            {
-                name: "Банды",
-            },
-
-            {
-                name: "Гражданские",
-            },
-
+            { name: "Государственные" },
+            { name: "Мафии" },
+            { name: "Банды" },
+            { name: "Гражданские" },
         ],
     },
-
-
 
     {
         name: "Оружие",
 
         children: [
-
-            {
-                name: "Ганпак",
-            },
-
-            {
-                name: "Дигл",
-            },
-
-            {
-                name: "ЮСП",
-            },
-
-            {
-                name: "Револьвер",
-            },
-
-            {
-                name: "АПС",
-            },
-
-            {
-                name: "СВД ПСО",
-            },
-
-            {
-                name: "СВД",
-            },
-
-            {
-                name: "M4A4",
-            },
-
-            {
-                name: "Абакан",
-            },
-
-            {
-                name: "АС ВАЛ",
-            },
-
-            {
-                name: "Гроза",
-            },
-
-            {
-                name: "Дробовик",
-            },
-
+            { name: "Ганпак" },
+            { name: "Дигл" },
+            { name: "ЮСП" },
+            { name: "Револьвер" },
+            { name: "АПС" },
+            { name: "СВД ПСО" },
+            { name: "СВД" },
+            { name: "M4A4" },
+            { name: "Абакан" },
+            { name: "АС ВАЛ" },
+            { name: "Гроза" },
+            { name: "Дробовик" },
         ],
     },
-
-
 
     {
         name: "Интерьеры",
 
         children: [
-
-            {
-                name: "24/7",
-            },
-
-            {
-                name: "ДПС / ППС / ФСБ",
-            },
-
-            {
-                name: "Оружейка",
-            },
-
-            {
-                name: "Ашан",
-            },
-
-            {
-                name: "Аптека",
-            },
-
-            {
-                name: "ПК клуб",
-            },
-
-            {
-                name: "Особа",
-            },
-
-            {
-                name: "Банк",
-            },
-
+            { name: "24/7" },
+            { name: "ДПС / ППС / ФСБ" },
+            { name: "Оружейка" },
+            { name: "Ашан" },
+            { name: "Аптека" },
+            { name: "ПК клуб" },
+            { name: "Особа" },
+            { name: "Банк" },
         ],
     },
-
-
 
     {
         name: "Заменные территории",
 
         children: [
-
-            {
-                name: "24/7",
-            },
-
-            {
-                name: "ЦР",
-            },
-
-            {
-                name: "ФСИН",
-            },
-
-            {
-                name: "Арзамас",
-            },
-
-            {
-                name: "Батырево",
-            },
-
-            {
-                name: "Южный",
-            },
-
-            {
-                name: "Бизвар локации",
-            },
-
-            {
-                name: "Вокзалы",
-            },
-
+            { name: "24/7" },
+            { name: "ЦР" },
+            { name: "ФСИН" },
+            { name: "Арзамас" },
+            { name: "Батырево" },
+            { name: "Южный" },
+            { name: "Бизвар локации" },
+            { name: "Вокзалы" },
         ],
     },
-
-
 
     {
         name: "Эффекты",
 
         children: [
-
-            {
-                name: "Кровь",
-            },
-
-            {
-                name: "Эффект при попадании",
-            },
+            { name: "Кровь" },
+            { name: "Эффект при попадании" },
 
             {
                 name: "Эффект при убийстве и ноке",
 
                 children: [
-
-                    {
-                        name: "ld_bum",
-                    },
-
+                    { name: "ld_bum" },
                 ],
             },
-
         ],
     },
-
-
 
     {
         name: "Звуки",
 
         children: [
-
             {
                 name: "Попадание",
 
@@ -244,90 +120,51 @@ const expandableCategories: CatalogItem[] = [
                         name: "Пистолеты",
 
                         children: [
-
-                            {
-                                name: "M4A4",
-                            },
-
-                            {
-                                name: "Абакан",
-                            },
-
-                            {
-                                name: "Гроза",
-                            },
-
-                            {
-                                name: "СВД",
-                            },
-
+                            { name: "M4A4" },
+                            { name: "Абакан" },
+                            { name: "Гроза" },
+                            { name: "СВД" },
                         ],
                     },
 
                 ],
             },
-
         ],
     },
 
 ];
 
 
-
 const simpleCategories = [
 
     "Дороги",
-
     "Карты",
-
     "Арзамас",
-
     "Казино",
-
     "Порт",
-
     "Инвентарь",
-
     "Скайбоксы",
-
     "Нефтевышки",
-
     "Прицелы",
-
     "Курсор мыши",
-
     "Фисты",
-
     "Таймциклы",
-
     "Пикапы",
-
     "АХК",
-
     "ASI плагины",
-
     "Деревья",
-
     "Графика",
-
     "Загрузочный экран",
-
     "Подсказки для гос. сотрудников",
 
 ];
 
 
-
 const allowedRoles = [
-
     "SELLER",
-
     "ADMIN",
-
     "FOUNDER",
-
 ];
-
 
 
 export default function CreateCatalogProductPage() {
@@ -338,12 +175,10 @@ export default function CreateCatalogProductPage() {
     ] = useState<User | null>(null);
 
 
-
     const [
         loaded,
         setLoaded,
     ] = useState(false);
-
 
 
     const [
@@ -354,12 +189,10 @@ export default function CreateCatalogProductPage() {
     ]);
 
 
-
     const [
         categoryPath,
         setCategoryPath,
     ] = useState<string[]>([]);
-
 
 
     const [
@@ -368,12 +201,10 @@ export default function CreateCatalogProductPage() {
     ] = useState("");
 
 
-
     const [
         price,
         setPrice,
     ] = useState("");
-
 
 
     const [
@@ -382,12 +213,10 @@ export default function CreateCatalogProductPage() {
     ] = useState("");
 
 
-
     const [
         dffFile,
         setDffFile,
     ] = useState<File | null>(null);
-
 
 
     const [
@@ -396,12 +225,10 @@ export default function CreateCatalogProductPage() {
     ] = useState<File | null>(null);
 
 
-
     const [
         images,
         setImages,
     ] = useState<File[]>([]);
-
 
 
     const [
@@ -410,12 +237,10 @@ export default function CreateCatalogProductPage() {
     ] = useState<string[]>([]);
 
 
-
     const [
         pinned,
         setPinned,
     ] = useState(false);
-
 
 
     const [
@@ -424,19 +249,16 @@ export default function CreateCatalogProductPage() {
     ] = useState("");
 
 
-
     const [
         saving,
         setSaving,
     ] = useState(false);
 
 
-
     const [
         uploadProgress,
         setUploadProgress,
     ] = useState(0);
-
 
 
     useEffect(() => {
@@ -449,7 +271,6 @@ export default function CreateCatalogProductPage() {
                     localStorage.getItem(
                         "user"
                     );
-
 
 
                 if (saved) {
@@ -479,16 +300,13 @@ export default function CreateCatalogProductPage() {
         };
 
 
-
         loadUser();
-
 
 
         window.addEventListener(
             "userUpdated",
             loadUser
         );
-
 
 
         return () => {
@@ -503,11 +321,9 @@ export default function CreateCatalogProductPage() {
     }, []);
 
 
-
     const role =
         user?.role?.toUpperCase() ||
         "USER";
-
 
 
     const hasAccess =
@@ -516,17 +332,14 @@ export default function CreateCatalogProductPage() {
         );
 
 
-
     const categorySavePath =
         categoryPath.join("/");
-
 
 
     const categoryText =
         categoryPath.length > 0
             ? categoryPath.join(" / ")
             : "Категория не выбрана";
-
 
 
     const canCreate =
@@ -538,10 +351,8 @@ export default function CreateCatalogProductPage() {
         );
 
 
-
     const selectedCategoryIsLeaf =
         categoryPath.length > 0;
-
 
 
     function toggleCategory(
@@ -569,27 +380,16 @@ export default function CreateCatalogProductPage() {
     }
 
 
-
     function selectCategory(
-        name: string,
+        categoryName: string,
         parents: string[],
         hasChildren: boolean
     ) {
 
-        /*
-         * ВАЖНО:
-         *
-         * Родительскую категорию
-         * выбрать нельзя.
-         *
-         * Если есть children —
-         * только открываем её.
-         */
-
         if (hasChildren) {
 
             toggleCategory(
-                name
+                categoryName
             );
 
             return;
@@ -597,14 +397,12 @@ export default function CreateCatalogProductPage() {
         }
 
 
-
         setCategoryPath([
             ...parents,
-            name,
+            categoryName,
         ]);
 
     }
-
 
 
     function selectSimpleCategory(
@@ -618,7 +416,6 @@ export default function CreateCatalogProductPage() {
     }
 
 
-
     function changeImages(
         e: ChangeEvent<HTMLInputElement>
     ) {
@@ -627,7 +424,6 @@ export default function CreateCatalogProductPage() {
             Array.from(
                 e.target.files || []
             );
-
 
 
         const onlyImages =
@@ -639,7 +435,6 @@ export default function CreateCatalogProductPage() {
             );
 
 
-
         const limited =
             onlyImages.slice(
                 0,
@@ -647,11 +442,9 @@ export default function CreateCatalogProductPage() {
             );
 
 
-
         setImages(
             limited
         );
-
 
 
         const urls =
@@ -663,13 +456,11 @@ export default function CreateCatalogProductPage() {
             );
 
 
-
         setPreviewImages(
             urls
         );
 
     }
-
 
 
     async function getUploadUrl(
@@ -710,10 +501,8 @@ export default function CreateCatalogProductPage() {
             );
 
 
-
         const text =
             await response.text();
-
 
 
         let data: {
@@ -723,7 +512,6 @@ export default function CreateCatalogProductPage() {
             key?: string;
             message?: string;
         } = {};
-
 
 
         try {
@@ -742,7 +530,6 @@ export default function CreateCatalogProductPage() {
         }
 
 
-
         if (!response.ok) {
 
             throw new Error(
@@ -751,7 +538,6 @@ export default function CreateCatalogProductPage() {
             );
 
         }
-
 
 
         if (
@@ -764,7 +550,6 @@ export default function CreateCatalogProductPage() {
             );
 
         }
-
 
 
         return {
@@ -783,7 +568,6 @@ export default function CreateCatalogProductPage() {
     }
 
 
-
     async function uploadFileToS3(
         file: File,
         folder: string
@@ -797,7 +581,6 @@ export default function CreateCatalogProductPage() {
                 file,
                 folder
             );
-
 
 
         const response =
@@ -823,7 +606,6 @@ export default function CreateCatalogProductPage() {
             );
 
 
-
         if (!response.ok) {
 
             throw new Error(
@@ -833,11 +615,78 @@ export default function CreateCatalogProductPage() {
         }
 
 
-
         return url;
 
     }
 
+
+    /*
+     * Создаём ZIP только один раз
+     * при создании товара.
+     *
+     * В ZIP попадут оригинальные
+     * имена DFF и TXD файлов.
+     */
+
+    async function createZipFile(
+        dff: File,
+        txd: File,
+        productName: string
+    ) {
+
+        const zip =
+            new JSZip();
+
+
+        zip.file(
+            dff.name,
+            await dff.arrayBuffer()
+        );
+
+
+        zip.file(
+            txd.name,
+            await txd.arrayBuffer()
+        );
+
+
+        const zipBlob =
+            await zip.generateAsync({
+
+                type:
+                    "blob",
+
+                compression:
+                    "DEFLATE",
+
+                compressionOptions: {
+
+                    level:
+                        6,
+
+                },
+
+            });
+
+
+        return new File(
+
+            [
+                zipBlob,
+            ],
+
+            `${productName}.zip`,
+
+            {
+
+                type:
+                    "application/zip",
+
+            }
+
+        );
+
+    }
 
 
     async function handleSubmit(
@@ -847,7 +696,6 @@ export default function CreateCatalogProductPage() {
         e.preventDefault();
 
 
-
         if (saving) {
 
             return;
@@ -855,11 +703,8 @@ export default function CreateCatalogProductPage() {
         }
 
 
-
         setError("");
-
         setUploadProgress(0);
-
 
 
         if (!user) {
@@ -873,7 +718,6 @@ export default function CreateCatalogProductPage() {
         }
 
 
-
         if (!categoryPath.length) {
 
             setError(
@@ -883,7 +727,6 @@ export default function CreateCatalogProductPage() {
             return;
 
         }
-
 
 
         if (!name.trim()) {
@@ -897,7 +740,6 @@ export default function CreateCatalogProductPage() {
         }
 
 
-
         if (!dffFile) {
 
             setError(
@@ -907,7 +749,6 @@ export default function CreateCatalogProductPage() {
             return;
 
         }
-
 
 
         if (!txdFile) {
@@ -921,7 +762,6 @@ export default function CreateCatalogProductPage() {
         }
 
 
-
         const numberPrice =
             price.trim()
                 ? Number(
@@ -931,7 +771,6 @@ export default function CreateCatalogProductPage() {
                     )
                 )
                 : 0;
-
 
 
         if (
@@ -950,41 +789,32 @@ export default function CreateCatalogProductPage() {
         }
 
 
-
         setSaving(true);
-
 
 
         try {
 
-            const folder =
-                `products/${user.id}/${Date.now()}`;
-
-
-
             /*
-             * Всего будет:
+             * В S3 будут загружены:
              *
-             * DFF
-             * TXD
-             * картинки
+             * 1. DFF
+             * 2. TXD
+             * 3. ZIP
+             * 4. изображения
              */
 
             const totalFiles =
-                2 +
+                3 +
                 images.length;
-
 
 
             let completedFiles =
                 0;
 
 
-
             const updateProgress = () => {
 
                 completedFiles += 1;
-
 
 
                 setUploadProgress(
@@ -999,9 +829,12 @@ export default function CreateCatalogProductPage() {
             };
 
 
+            const folder =
+                `products/${user.id}/${Date.now()}`;
+
 
             /*
-             * Загружаем DFF
+             * DFF
              */
 
             const dffUrl =
@@ -1011,13 +844,11 @@ export default function CreateCatalogProductPage() {
                 );
 
 
-
             updateProgress();
 
 
-
             /*
-             * Загружаем TXD
+             * TXD
              */
 
             const txdUrl =
@@ -1027,18 +858,55 @@ export default function CreateCatalogProductPage() {
                 );
 
 
+            updateProgress();
+
+
+            /*
+             * Создаём ZIP
+             *
+             * Важно:
+             * ZIP создаётся здесь только
+             * один раз.
+             */
+
+            setUploadProgress(
+                Math.round(
+                    (
+                        completedFiles /
+                        totalFiles
+                    ) * 100
+                )
+            );
+
+
+            const zipFile =
+                await createZipFile(
+                    dffFile,
+                    txdFile,
+                    name.trim()
+                );
+
+
+            /*
+             * Загружаем готовый ZIP в S3.
+             */
+
+            const zipUrl =
+                await uploadFileToS3(
+                    zipFile,
+                    `${folder}/archive`
+                );
+
 
             updateProgress();
 
 
-
             /*
-             * Загружаем изображения
+             * Изображения
              */
 
             const imageUrls:
                 string[] = [];
-
 
 
             for (
@@ -1052,11 +920,9 @@ export default function CreateCatalogProductPage() {
                     );
 
 
-
                 imageUrls.push(
                     imageUrl
                 );
-
 
 
                 updateProgress();
@@ -1064,12 +930,9 @@ export default function CreateCatalogProductPage() {
             }
 
 
-
             /*
-             * Теперь на Vercel
-             * отправляем только JSON.
-             *
-             * Никаких файлов здесь нет.
+             * Теперь отправляем в API
+             * только ссылки S3.
              */
 
             const response =
@@ -1114,6 +977,9 @@ export default function CreateCatalogProductPage() {
                                 txd_file:
                                     txdUrl,
 
+                                zip_file:
+                                    zipUrl,
+
                                 images:
                                     imageUrls,
 
@@ -1123,17 +989,14 @@ export default function CreateCatalogProductPage() {
                 );
 
 
-
             const text =
                 await response.text();
-
 
 
             let data: {
                 success?: boolean;
                 message?: string;
             } = {};
-
 
 
             try {
@@ -1152,7 +1015,6 @@ export default function CreateCatalogProductPage() {
             }
 
 
-
             if (!response.ok) {
 
                 throw new Error(
@@ -1161,7 +1023,6 @@ export default function CreateCatalogProductPage() {
                 );
 
             }
-
 
 
             if (!data.success) {
@@ -1174,9 +1035,9 @@ export default function CreateCatalogProductPage() {
             }
 
 
-
-            setUploadProgress(100);
-
+            setUploadProgress(
+                100
+            );
 
 
             alert(
@@ -1184,10 +1045,8 @@ export default function CreateCatalogProductPage() {
             );
 
 
-
             window.location.href =
                 "/catalog";
-
 
 
         } catch (error) {
@@ -1196,7 +1055,6 @@ export default function CreateCatalogProductPage() {
                 "CREATE PRODUCT FRONTEND ERROR:",
                 error
             );
-
 
 
             if (
@@ -1224,13 +1082,11 @@ export default function CreateCatalogProductPage() {
     }
 
 
-
     if (!loaded) {
 
         return null;
 
     }
-
 
 
     if (
@@ -1243,8 +1099,6 @@ export default function CreateCatalogProductPage() {
             <>
 
                 <Header />
-
-
 
                 <main
                     className="
@@ -1271,7 +1125,6 @@ export default function CreateCatalogProductPage() {
                         >
                             Доступ запрещён
                         </h1>
-
 
 
                         <Link
@@ -1301,13 +1154,11 @@ export default function CreateCatalogProductPage() {
     }
 
 
-
     return (
 
         <>
 
             <Header />
-
 
 
             <main
@@ -1352,7 +1203,6 @@ export default function CreateCatalogProductPage() {
                             </p>
 
 
-
                             <h1
                                 className="
                                     mt-2
@@ -1362,7 +1212,6 @@ export default function CreateCatalogProductPage() {
                             >
                                 Создание товара
                             </h1>
-
 
 
                             <p
@@ -1376,7 +1225,6 @@ export default function CreateCatalogProductPage() {
                             </p>
 
                         </div>
-
 
 
                         <Link
@@ -1396,7 +1244,6 @@ export default function CreateCatalogProductPage() {
                         </Link>
 
                     </div>
-
 
 
                     <div
@@ -1431,7 +1278,6 @@ export default function CreateCatalogProductPage() {
                             >
                                 Категория
                             </div>
-
 
 
                             {
@@ -1475,7 +1321,6 @@ export default function CreateCatalogProductPage() {
                             }
 
 
-
                             <div
                                 className="
                                     my-4
@@ -1483,7 +1328,6 @@ export default function CreateCatalogProductPage() {
                                     bg-white/5
                                 "
                             />
-
 
 
                             {
@@ -1504,6 +1348,7 @@ export default function CreateCatalogProductPage() {
                                             }
 
                                             className={`
+
                                                 mb-1
                                                 w-full
                                                 rounded-xl
@@ -1521,6 +1366,7 @@ export default function CreateCatalogProductPage() {
 
                                                         : "text-slate-400 hover:bg-white/5 hover:text-white"
                                                 }
+
                                             `}
                                         >
 
@@ -1533,7 +1379,6 @@ export default function CreateCatalogProductPage() {
                             }
 
                         </aside>
-
 
 
                         <form
@@ -1558,6 +1403,7 @@ export default function CreateCatalogProductPage() {
 
                                 <div
                                     className={`
+
                                         rounded-xl
                                         border
                                         p-4
@@ -1570,6 +1416,7 @@ export default function CreateCatalogProductPage() {
 
                                                 : "border-yellow-500/20 bg-yellow-500/10"
                                         }
+
                                     `}
                                 >
 
@@ -1585,9 +1432,9 @@ export default function CreateCatalogProductPage() {
                                     </div>
 
 
-
                                     <div
                                         className={`
+
                                             mt-1
                                             font-semibold
 
@@ -1596,11 +1443,11 @@ export default function CreateCatalogProductPage() {
                                                     ? "text-white"
                                                     : "text-yellow-400"
                                             }
+
                                         `}
                                     >
                                         {categoryText}
                                     </div>
-
 
 
                                     {
@@ -1622,7 +1469,6 @@ export default function CreateCatalogProductPage() {
                                 </div>
 
 
-
                                 <input
                                     value={
                                         name
@@ -1635,9 +1481,7 @@ export default function CreateCatalogProductPage() {
                                             )
                                     }
 
-                                    placeholder="
-                                        Название товара
-                                    "
+                                    placeholder="Название товара"
 
                                     className="
                                         mt-5
@@ -1658,7 +1502,6 @@ export default function CreateCatalogProductPage() {
                                 />
 
 
-
                                 <input
                                     value={
                                         price
@@ -1674,9 +1517,7 @@ export default function CreateCatalogProductPage() {
                                             )
                                     }
 
-                                    placeholder="
-                                        Цена ₽
-                                    "
+                                    placeholder="Цена ₽"
 
                                     inputMode="decimal"
 
@@ -1697,7 +1538,6 @@ export default function CreateCatalogProductPage() {
                                 />
 
 
-
                                 <textarea
                                     value={
                                         description
@@ -1710,9 +1550,7 @@ export default function CreateCatalogProductPage() {
                                             )
                                     }
 
-                                    placeholder="
-                                        Описание товара
-                                    "
+                                    placeholder="Описание товара"
 
                                     rows={5}
 
@@ -1733,7 +1571,6 @@ export default function CreateCatalogProductPage() {
                                 />
 
                             </section>
-
 
 
                             <section
@@ -1765,7 +1602,6 @@ export default function CreateCatalogProductPage() {
                                         </h2>
 
 
-
                                         <p
                                             className="
                                                 mt-1
@@ -1779,7 +1615,6 @@ export default function CreateCatalogProductPage() {
                                     </div>
 
 
-
                                     <button
                                         type="button"
 
@@ -1791,6 +1626,7 @@ export default function CreateCatalogProductPage() {
                                         }
 
                                         className={`
+
                                             relative
                                             h-7
                                             w-12
@@ -1802,11 +1638,13 @@ export default function CreateCatalogProductPage() {
                                                     ? "bg-blue-600"
                                                     : "bg-white/10"
                                             }
+
                                         `}
                                     >
 
                                         <div
                                             className={`
+
                                                 absolute
                                                 top-1
                                                 h-5
@@ -1821,6 +1659,7 @@ export default function CreateCatalogProductPage() {
                                                         ? "left-6"
                                                         : "left-1"
                                                 }
+
                                             `}
                                         />
 
@@ -1829,7 +1668,6 @@ export default function CreateCatalogProductPage() {
                                 </div>
 
                             </section>
-
 
 
                             <section
@@ -1853,7 +1691,6 @@ export default function CreateCatalogProductPage() {
                                     </h2>
 
 
-
                                     <p
                                         className="
                                             mt-1
@@ -1861,11 +1698,10 @@ export default function CreateCatalogProductPage() {
                                             text-slate-500
                                         "
                                     >
-                                        Файлы загружаются напрямую в S3
+                                        DFF и TXD загружаются в S3. ZIP создаётся автоматически.
                                     </p>
 
                                 </div>
-
 
 
                                 <div
@@ -1896,7 +1732,6 @@ export default function CreateCatalogProductPage() {
                                     />
 
 
-
                                     <UploadBox
 
                                         title="TXD"
@@ -1917,8 +1752,28 @@ export default function CreateCatalogProductPage() {
 
                                 </div>
 
-                            </section>
 
+                                <div
+                                    className="
+                                        mt-4
+                                        rounded-xl
+                                        border
+                                        border-blue-500/10
+                                        bg-blue-500/5
+                                        p-4
+                                        text-xs
+                                        text-slate-500
+                                    "
+                                >
+
+                                    После загрузки DFF и TXD сайт автоматически
+                                    создаст один ZIP-архив и сохранит его в S3.
+                                    При последующих скачиваниях архив заново
+                                    создаваться не будет.
+
+                                </div>
+
+                            </section>
 
 
                             <section
@@ -1942,7 +1797,6 @@ export default function CreateCatalogProductPage() {
                                     </h2>
 
 
-
                                     <p
                                         className="
                                             mt-1
@@ -1954,7 +1808,6 @@ export default function CreateCatalogProductPage() {
                                     </p>
 
                                 </div>
-
 
 
                                 <label
@@ -1992,7 +1845,6 @@ export default function CreateCatalogProductPage() {
                                     />
 
 
-
                                     <div
                                         className="
                                             text-sm
@@ -2002,7 +1854,6 @@ export default function CreateCatalogProductPage() {
                                     >
                                         Выбрать изображения
                                     </div>
-
 
 
                                     <div
@@ -2016,7 +1867,6 @@ export default function CreateCatalogProductPage() {
                                     </div>
 
                                 </label>
-
 
 
                                 {
@@ -2069,7 +1919,6 @@ export default function CreateCatalogProductPage() {
                             </section>
 
 
-
                             {
                                 error && (
 
@@ -2089,7 +1938,6 @@ export default function CreateCatalogProductPage() {
 
                                 )
                             }
-
 
 
                             {
@@ -2123,7 +1971,6 @@ export default function CreateCatalogProductPage() {
                                             </span>
 
 
-
                                             <span
                                                 className="
                                                     font-semibold
@@ -2134,7 +1981,6 @@ export default function CreateCatalogProductPage() {
                                             </span>
 
                                         </div>
-
 
 
                                         <div
@@ -2169,7 +2015,6 @@ export default function CreateCatalogProductPage() {
                             }
 
 
-
                             <button
                                 type="submit"
 
@@ -2201,7 +2046,6 @@ export default function CreateCatalogProductPage() {
                                 }
 
                             </button>
-
 
 
                             {
@@ -2238,7 +2082,6 @@ export default function CreateCatalogProductPage() {
 }
 
 
-
 type CategoryTreeProps = {
 
     item: CatalogItem;
@@ -2260,7 +2103,6 @@ type CategoryTreeProps = {
     ) => void;
 
 };
-
 
 
 function CategoryTree({
@@ -2285,18 +2127,15 @@ function CategoryTree({
         );
 
 
-
     const isOpen =
         open.includes(
             item.name
         );
 
 
-
     const selected =
         path[path.length - 1] ===
         item.name;
-
 
 
     return (
@@ -2317,6 +2156,7 @@ function CategoryTree({
                 }}
 
                 className={`
+
                     mb-1
                     flex
                     w-full
@@ -2336,6 +2176,7 @@ function CategoryTree({
 
                             : "text-slate-400 hover:bg-white/5 hover:text-white"
                     }
+
                 `}
             >
 
@@ -2353,6 +2194,7 @@ function CategoryTree({
 
                             <span
                                 className={`
+
                                     text-xs
                                     text-slate-600
                                     transition
@@ -2362,6 +2204,7 @@ function CategoryTree({
                                             ? "rotate-90"
                                             : ""
                                     }
+
                                 `}
                             >
                                 ›
@@ -2371,13 +2214,11 @@ function CategoryTree({
                     }
 
 
-
                     <span>
                         {item.name}
                     </span>
 
                 </span>
-
 
 
                 {
@@ -2396,7 +2237,6 @@ function CategoryTree({
                 }
 
             </button>
-
 
 
             {
@@ -2465,7 +2305,6 @@ function CategoryTree({
 }
 
 
-
 type UploadBoxProps = {
 
     title: string;
@@ -2481,7 +2320,6 @@ type UploadBoxProps = {
     ) => void;
 
 };
-
 
 
 function UploadBox({
@@ -2535,7 +2373,6 @@ function UploadBox({
             />
 
 
-
             <div
                 className="
                     text-lg
@@ -2547,7 +2384,6 @@ function UploadBox({
             </div>
 
 
-
             <div
                 className="
                     mt-1
@@ -2557,7 +2393,6 @@ function UploadBox({
             >
                 {description}
             </div>
-
 
 
             <p
@@ -2574,7 +2409,6 @@ function UploadBox({
                         : "Нажмите, чтобы выбрать"
                 }
             </p>
-
 
 
             {
