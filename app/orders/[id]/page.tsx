@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import Header from "@/components/Header";
+import OrderChat from "@/components/OrderChat";
 
 import { db } from "@/lib/mysql";
 
@@ -28,63 +29,64 @@ type OrderData = {
 
 
 
+
+
 async function getOrder(
     id:number
-) {
-
+){
 
     const [
         rows
-    ] =
-        await db.execute(
+    ] = await db.execute(
 
-            `
-            SELECT
+        `
+        SELECT
 
-                o.id,
-                o.price,
-                o.status,
-                o.created_at,
-
-
-                p.name AS product_name,
+            o.id,
+            o.price,
+            o.status,
+            o.created_at,
 
 
-                seller.username AS seller_name,
+            p.name AS product_name,
 
 
-                buyer.username AS buyer_name
+            seller.username AS seller_name,
 
 
-            FROM orders o
+            buyer.username AS buyer_name
 
 
-            JOIN products p
-
-                ON p.id = o.product_id
+        FROM orders o
 
 
-            JOIN users seller
+        JOIN products p
 
-                ON seller.id = o.seller_id
-
-
-            JOIN users buyer
-
-                ON buyer.id = o.buyer_id
+            ON p.id = o.product_id
 
 
-            WHERE o.id = ?
+        JOIN users seller
+
+            ON seller.id = o.seller_id
 
 
-            LIMIT 1
-            `,
+        JOIN users buyer
 
-            [
-                id
-            ]
+            ON buyer.id = o.buyer_id
 
-        );
+
+        WHERE o.id = ?
+
+
+        LIMIT 1
+
+        `,
+
+        [
+            id
+        ]
+
+    );
 
 
 
@@ -103,8 +105,8 @@ async function getOrder(
 
     return result[0] as OrderData;
 
-
 }
+
 
 
 
@@ -127,8 +129,7 @@ export default async function OrderPage({
 
     const {
         id
-    } =
-        await params;
+    } = await params;
 
 
 
@@ -138,9 +139,7 @@ export default async function OrderPage({
 
 
     if(
-        !Number.isInteger(
-            orderId
-        )
+        !Number.isInteger(orderId)
     ){
 
         notFound();
@@ -149,11 +148,8 @@ export default async function OrderPage({
 
 
 
-
     const order =
-        await getOrder(
-            orderId
-        );
+        await getOrder(orderId);
 
 
 
@@ -171,24 +167,35 @@ export default async function OrderPage({
 
         order.status === "WAIT_PAYMENT"
 
-            ? "Ожидает подтверждения оплаты"
+        ?
 
-            :
+        "Ожидает подтверждения оплаты"
+
+
+        :
+
 
         order.status === "PAID"
 
-            ? "Оплата подтверждена"
+        ?
 
-            :
+        "Оплата подтверждена"
+
+
+        :
+
 
         order.status === "COMPLETED"
 
-            ? "Заказ завершён"
+        ?
 
-            :
+        "Заказ завершён"
+
+
+        :
+
 
         "Проверка заказа";
-
 
 
 
@@ -199,335 +206,387 @@ export default async function OrderPage({
         <>
 
 
-            <Header />
+        <Header />
 
 
 
-            <main
+        <main
 
-                className="
-                    min-h-screen
-                    bg-[#080B10]
-                    px-4
-                    pb-20
-                    pt-[120px]
-                    text-white
-                "
+        className="
+            min-h-screen
+            bg-[#080B10]
+            px-4
+            pb-20
+            pt-[120px]
+            text-white
+        "
 
-            >
+        >
 
 
-                <div
 
-                    className="
-                        mx-auto
-                        max-w-5xl
-                    "
+        <div
 
-                >
+        className="
+            mx-auto
+            max-w-5xl
+        "
 
+        >
 
 
-                    <Link
 
-                        href="/catalog"
+        <Link
 
-                        className="
-                            text-sm
-                            text-slate-500
-                            hover:text-white
-                        "
+        href="/catalog"
 
-                    >
+        className="
+            text-sm
+            text-slate-500
+            transition
+            hover:text-white
+        "
 
-                        ← Каталог
+        >
 
+            ← Вернуться в каталог
 
-                    </Link>
 
+        </Link>
 
 
 
 
-                    <div
 
-                        className="
-                            mt-6
-                            rounded-3xl
-                            border
-                            border-white/10
-                            bg-[#0D1117]
-                            p-6
-                        "
 
-                    >
+        <div
 
+        className="
+            mt-6
+            rounded-3xl
+            border
+            border-white/10
+            bg-[#0D1117]
+            p-6
+        "
 
+        >
 
 
-                        <h1
 
-                            className="
-                                text-3xl
-                                font-bold
-                            "
+        <div
 
-                        >
+        className="
+            flex
+            flex-col
+            gap-4
+            sm:flex-row
+            sm:items-start
+            sm:justify-between
+        "
 
-                            {
-                                order.product_name
-                            }
+        >
 
 
-                        </h1>
 
+        <div>
 
 
-                        <div
+        <h1
 
-                            className="
-                                mt-2
-                                text-sm
-                                text-slate-500
-                            "
+        className="
+            text-3xl
+            font-bold
+        "
 
-                        >
+        >
 
-                            Заказ #{order.id}
+            {order.product_name}
 
-                            {" · "}
 
-                            Продавец:
+        </h1>
 
-                            {" "}
 
-                            {
-                                order.seller_name
-                            }
 
+        <p
 
-                        </div>
+        className="
+            mt-2
+            text-sm
+            text-slate-500
+        "
 
+        >
 
+            Заказ #{order.id}
 
+            {" · "}
 
+            Продавец:
 
+            {" "}
 
+            {order.seller_name}
 
-                        <div
 
-                            className="
-                                mt-6
-                                rounded-2xl
-                                border
-                                border-yellow-500/20
-                                bg-yellow-500/10
-                                p-5
-                            "
+        </p>
 
-                        >
 
+        </div>
 
-                            <div
 
-                                className="
-                                    text-xs
-                                    uppercase
-                                    tracking-widest
-                                    text-yellow-400
-                                "
 
-                            >
 
-                                Статус
 
+        <div
 
-                            </div>
+        className="
+            rounded-xl
+            bg-blue-500/10
+            px-4
+            py-2
+            text-sm
+            font-semibold
+            text-blue-400
+        "
 
+        >
 
+            {order.price} ₽
 
 
-                            <div
+        </div>
 
-                                className="
-                                    mt-2
-                                    text-lg
-                                    font-semibold
-                                "
 
-                            >
 
-                                {
-                                    statusText
-                                }
+        </div>
 
 
-                            </div>
 
 
-                        </div>
 
 
 
 
 
+        <div
 
-                        <section
+        className="
+            mt-6
+            rounded-2xl
+            border
+            border-yellow-500/20
+            bg-yellow-500/[0.08]
+            p-5
+        "
 
-                            className="
-                                mt-6
-                                rounded-2xl
-                                border
-                                border-white/10
-                                bg-[#11161D]
-                                p-5
-                            "
+        >
 
-                        >
 
+        <div
 
+        className="
+            text-[10px]
+            font-semibold
+            uppercase
+            tracking-widest
+            text-yellow-400
+        "
 
-                            <h2
+        >
 
-                                className="
-                                    font-semibold
-                                "
+            Статус заказа
 
-                            >
 
-                                💬 Чат заказа
+        </div>
 
 
-                            </h2>
 
+        <div
 
+        className="
+            mt-2
+            text-lg
+            font-semibold
+        "
 
+        >
 
-                            <p
+            {statusText}
 
-                                className="
-                                    mt-2
-                                    text-sm
-                                    text-slate-500
-                                "
 
-                            >
+        </div>
 
-                                Сообщения обновляются автоматически
 
+        </div>
 
-                            </p>
 
 
 
 
 
-                            <div
 
-                                className="
-                                    mt-5
-                                    rounded-xl
-                                    bg-black/20
-                                    p-4
-                                    text-sm
-                                    text-slate-400
-                                "
 
-                            >
 
-                                ℹ️ Заказ создан.
-                                Ожидайте подтверждения оплаты
-                                администратором.
+        <div
 
+        className="
+            mt-6
+            grid
+            gap-4
+            sm:grid-cols-2
+        "
 
-                            </div>
+        >
 
 
 
+        <div
 
+        className="
+            rounded-2xl
+            border
+            border-white/10
+            bg-black/20
+            p-4
+        "
 
-                        </section>
+        >
 
+        <div className="text-xs text-slate-600">
 
+            Покупатель
 
+        </div>
 
 
+        <div className="mt-2 font-semibold">
 
+            {order.buyer_name}
 
-                        <div
+        </div>
 
-                            className="
-                                mt-6
-                                flex
-                                justify-between
-                                border-t
-                                border-white/10
-                                pt-5
-                            "
 
-                        >
+        </div>
 
 
 
-                            <span
 
-                                className="
-                                    text-slate-500
-                                "
 
-                            >
+        <div
 
-                                К оплате
+        className="
+            rounded-2xl
+            border
+            border-white/10
+            bg-black/20
+            p-4
+        "
 
+        >
 
-                            </span>
+        <div className="text-xs text-slate-600">
 
+            Создан
 
+        </div>
 
 
-                            <b
+        <div className="mt-2 font-semibold">
 
-                                className="
-                                    text-xl
-                                "
+            {new Date(order.created_at)
+                .toLocaleDateString("ru-RU")}
 
-                            >
+        </div>
 
-                                {
-                                    order.price
-                                }
 
-                                ₽
+        </div>
 
 
-                            </b>
 
+        </div>
 
 
 
-                        </div>
 
 
 
 
 
-                    </div>
+        <OrderChat
 
+            orderId={order.id}
 
+        />
 
 
 
-                </div>
 
 
-            </main>
 
+
+
+        <div
+
+        className="
+            mt-6
+            flex
+            items-center
+            justify-between
+            border-t
+            border-white/10
+            pt-5
+        "
+
+        >
+
+
+        <span className="text-slate-500">
+
+            К оплате
+
+        </span>
+
+
+
+        <b
+
+        className="
+            text-2xl
+            font-bold
+        "
+
+        >
+
+            {order.price} ₽
+
+
+        </b>
+
+
+        </div>
+
+
+
+
+
+
+
+        </div>
+
+
+
+
+
+        </div>
+
+
+
+        </main>
 
 
         </>
 
-
     );
-
 
 }
