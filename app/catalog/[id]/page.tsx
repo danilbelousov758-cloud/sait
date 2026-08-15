@@ -39,13 +39,14 @@ type Seller = {
 
 
 
+
 async function getProduct(
     id: number
 ) {
 
 
     const [
-        rows,
+        rows
     ] =
         await db.execute(
 
@@ -59,6 +60,7 @@ async function getProduct(
                 p.description,
                 p.images,
                 p.author_id,
+
 
                 u.id AS seller_id,
                 u.username,
@@ -80,7 +82,7 @@ async function getProduct(
             `,
 
             [
-                id,
+                id
             ]
 
         );
@@ -105,33 +107,30 @@ async function getProduct(
 
 
 
-    let images: string[] = [];
+    let images:string[] = [];
 
 
 
     try {
 
-        if (
+
+        images =
             Array.isArray(
                 item.images
             )
-        ) {
 
-            images =
-                item.images;
+                ? item.images
 
-        } else {
-
-            images =
-                JSON.parse(
+                : JSON.parse(
                     item.images || "[]"
                 );
 
-        }
 
     } catch {
 
+
         images = [];
+
 
     }
 
@@ -162,6 +161,7 @@ async function getProduct(
             author_id:
                 item.author_id,
 
+
         } as Product,
 
 
@@ -176,6 +176,7 @@ async function getProduct(
 
             avatar:
                 item.avatar,
+
 
         } as Seller,
 
@@ -196,14 +197,14 @@ export default async function ProductPage({
 }: {
 
     params: Promise<{
-        id: string;
+        id:string;
     }>;
 
 }) {
 
 
     const {
-        id,
+        id
     } =
         await params;
 
@@ -244,18 +245,16 @@ export default async function ProductPage({
 
 
     const {
-
         product,
-
-        seller,
-
+        seller
     } =
         data;
 
 
 
-    const image =
+    const previewImage =
         product.images?.[0] || null;
+
 
 
 
@@ -307,10 +306,12 @@ export default async function ProductPage({
 
                     >
 
-                        ← Назад
+                        ← Назад в каталог
 
 
                     </Link>
+
+
 
 
 
@@ -325,6 +326,7 @@ export default async function ProductPage({
                         "
 
                     >
+
 
 
 
@@ -344,13 +346,13 @@ export default async function ProductPage({
 
 
                             {
-                                image && (
+                                previewImage && (
 
 
                                     <img
 
                                         src={
-                                            image
+                                            previewImage
                                         }
 
                                         alt={
@@ -368,7 +370,9 @@ export default async function ProductPage({
 
 
                                 )
+
                             }
+
 
 
 
@@ -380,6 +384,7 @@ export default async function ProductPage({
                                 "
 
                             >
+
 
 
                                 <div
@@ -401,6 +406,7 @@ export default async function ProductPage({
 
 
 
+
                                 <h1
 
                                     className="
@@ -417,6 +423,7 @@ export default async function ProductPage({
 
 
                                 </h1>
+
 
 
 
@@ -446,10 +453,12 @@ export default async function ProductPage({
 
 
 
+
                                 <p
 
                                     className="
                                         mt-5
+                                        whitespace-pre-line
                                         leading-7
                                         text-slate-300
                                     "
@@ -472,6 +481,7 @@ export default async function ProductPage({
 
 
                         </section>
+
 
 
 
@@ -506,10 +516,9 @@ export default async function ProductPage({
                             >
 
 
-
                                 {
-
                                     seller.avatar && (
+
 
                                         <img
 
@@ -518,7 +527,7 @@ export default async function ProductPage({
                                             }
 
                                             alt=""
-                                            
+
                                             className="
                                                 h-12
                                                 w-12
@@ -528,10 +537,9 @@ export default async function ProductPage({
 
                                         />
 
+
                                     )
-
                                 }
-
 
 
 
@@ -555,6 +563,7 @@ export default async function ProductPage({
 
 
 
+
                                     <div
 
                                         className="
@@ -571,9 +580,7 @@ export default async function ProductPage({
                                     </div>
 
 
-
                                 </div>
-
 
 
                             </div>
@@ -614,6 +621,7 @@ export default async function ProductPage({
 
 
 
+
                                 <div
 
                                     className="
@@ -625,15 +633,15 @@ export default async function ProductPage({
                                 >
 
                                     {
-                                        product.price
-                                    }
+                                        product.price > 0
 
-                                    ₽
+                                            ? `${product.price} ₽`
+
+                                            : "Бесплатно"
+                                    }
 
 
                                 </div>
-
-
 
 
                             </div>
@@ -643,30 +651,70 @@ export default async function ProductPage({
 
 
 
-                            <BuyModal
+
+                            {
+                                product.price > 0 ? (
 
 
-                                productId={
-                                    product.id
-                                }
+                                    <BuyModal
 
 
-                                productName={
-                                    product.name
-                                }
+                                        productId={
+                                            product.id
+                                        }
 
 
-                                sellerName={
-                                    seller.username
-                                }
+                                        productName={
+                                            product.name
+                                        }
 
 
-                                price={
-                                    product.price
-                                }
+                                        sellerName={
+                                            seller.username
+                                        }
 
 
-                            />
+                                        price={
+                                            product.price
+                                        }
+
+
+                                    />
+
+
+                                ) : (
+
+
+                                    <Link
+
+                                        href={`/api/products/download/${product.id}`}
+
+
+                                        className="
+                                            mt-5
+                                            flex
+                                            w-full
+                                            justify-center
+                                            rounded-xl
+                                            bg-green-600
+                                            py-3
+                                            font-semibold
+                                            transition
+                                            hover:bg-green-500
+                                        "
+
+                                    >
+
+                                        Скачать
+
+
+                                    </Link>
+
+
+                                )
+
+                            }
+
 
 
 
@@ -677,7 +725,9 @@ export default async function ProductPage({
 
 
 
+
                     </div>
+
 
 
 
@@ -689,8 +739,8 @@ export default async function ProductPage({
             </main>
 
 
-
         </>
+
 
     );
 

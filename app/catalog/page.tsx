@@ -7,7 +7,7 @@ import {
 } from "react";
 
 import Header from "@/components/Header";
-
+import Link from "next/link";
 
 
 type User = {
@@ -1664,15 +1664,17 @@ function ProductCard({
                 "
             >
 
-                <ProductImage
-                    src={
-                        image ||
-                        undefined
-                    }
-                    alt={
-                        product.name
-                    }
-                />
+<Link href={`/catalog/${product.id}`}>
+    <ProductImage
+        src={
+            image ||
+            undefined
+        }
+        alt={
+            product.name
+        }
+    />
+</Link>
 
 
 
@@ -1911,11 +1913,13 @@ function ProductCard({
 
 
 
-                    <button
-                        type="button"
-                        onClick={
-                            downloadProduct
-                        }
+<button
+    type="button"
+    onClick={
+        Number(product.price) > 0
+            ? undefined
+            : downloadProduct
+    }
                         disabled={
                             downloading ||
                             !hasFiles
@@ -1977,52 +1981,65 @@ function ProductCard({
 
                         ) : (
 
-                            <>
+<>
 
-                                <svg
-                                    width="13"
-                                    height="13"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                >
+    {Number(product.price) > 0 ? (
 
-                                    <path
-                                        d="
-                                            M21 15
-                                            v4
-                                            a2 2 0 0 1-2 2
-                                            H5
-                                            a2 2 0 0 1-2-2
-                                            v-4
-                                        "
-                                    />
+        <>
+            Купить
+        </>
 
-                                    <polyline
-                                        points="
-                                            7 10
-                                            12 15
-                                            17 10
-                                        "
-                                    />
+    ) : (
 
-                                    <line
-                                        x1="12"
-                                        y1="15"
-                                        x2="12"
-                                        y2="3"
-                                    />
+        <>
 
-                                </svg>
+            <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            >
+
+                <path
+                    d="
+                        M21 15
+                        v4
+                        a2 2 0 0 1-2 2
+                        H5
+                        a2 2 0 0 1-2-2
+                        v-4
+                    "
+                />
+
+                <polyline
+                    points="
+                        7 10
+                        12 15
+                        17 10
+                    "
+                />
+
+                <line
+                    x1="12"
+                    y1="15"
+                    x2="12"
+                    y2="3"
+                />
+
+            </svg>
 
 
+            Скачать
 
-                                Скачать
+        </>
 
-                            </>
+    )}
+
+</>
 
                         )}
 
