@@ -32,7 +32,7 @@ type Product = {
     author_id?: number | null;
     status?: string | null;
     pinned?: boolean;
-    created_at?: string;
+    created_at?: string | null;
 };
 
 
@@ -235,6 +235,7 @@ const simpleCategories = [
 
 
 export default function CatalogPage() {
+
     const [user, setUser] =
         useState<User | null>(null);
 
@@ -261,67 +262,104 @@ export default function CatalogPage() {
 
 
     useEffect(() => {
+
         loadUser();
         loadProducts();
+
+
 
         const handleUserUpdated = () => {
             loadUser();
         };
 
+
+
         const handleProductsUpdated = () => {
             loadProducts();
         };
+
+
 
         window.addEventListener(
             "userUpdated",
             handleUserUpdated
         );
 
+
+
         window.addEventListener(
             "productsUpdated",
             handleProductsUpdated
         );
 
+
+
         return () => {
+
             window.removeEventListener(
                 "userUpdated",
                 handleUserUpdated
             );
 
+
+
             window.removeEventListener(
                 "productsUpdated",
                 handleProductsUpdated
             );
+
         };
+
     }, []);
 
 
 
     function loadUser() {
+
         try {
+
             const saved =
-                localStorage.getItem("user");
+                localStorage.getItem(
+                    "user"
+                );
+
+
 
             if (!saved) {
+
                 setUser(null);
+
                 return;
+
             }
+
+
 
             const parsed =
                 JSON.parse(saved);
 
+
+
             setUser(parsed);
+
         } catch {
+
             setUser(null);
+
         }
+
     }
 
 
 
     async function loadProducts() {
+
         try {
+
             setLoading(true);
             setError("");
+
+
 
             const response =
                 await fetch(
@@ -332,35 +370,49 @@ export default function CatalogPage() {
                     }
                 );
 
-            const data =
-                await response.json();
 
-            if (!response.ok) {
+
+            const text =
+                await response.text();
+
+
+
+            let data: any = null;
+
+
+
+            try {
+
+                data =
+                    text
+                        ? JSON.parse(text)
+                        : null;
+
+            } catch {
+
                 throw new Error(
-                    data?.message ||
-                    "Ошибка загрузки товаров"
+                    "Сервер вернул некорректный ответ"
                 );
+
             }
 
 
 
-            /*
-             * API возвращает:
-             *
-             * {
-             *     success: true,
-             *     products: [...]
-             * }
-             *
-             * Поэтому раньше здесь была ошибка:
-             *
-             * if (Array.isArray(data))
-             *
-             * Теперь забираем именно data.products.
-             */
+            if (!response.ok) {
+
+                throw new Error(
+                    data?.message ||
+                    "Ошибка загрузки товаров"
+                );
+
+            }
+
+
 
             const apiProducts =
-                Array.isArray(data?.products)
+                Array.isArray(
+                    data?.products
+                )
                     ? data.products
                     : [];
 
@@ -368,30 +420,42 @@ export default function CatalogPage() {
 
             const normalizedProducts =
                 apiProducts.map(
-                    (product: Partial<Product>) => {
+                    (
+                        product: Partial<Product>
+                    ) => {
+
                         let images: string[] = [];
+
+
 
                         if (
                             Array.isArray(
                                 product.images
                             )
                         ) {
+
                             images =
                                 product.images.filter(
                                     (
                                         image
                                     ): image is string =>
                                         typeof image ===
-                                        "string" &&
+                                            "string" &&
                                         image.length > 0
                                 );
+
                         }
 
+
+
                         return {
+
                             id:
                                 Number(
                                     product.id
                                 ),
+
+
 
                             name:
                                 String(
@@ -399,11 +463,15 @@ export default function CatalogPage() {
                                     "Без названия"
                                 ),
 
+
+
                             category:
                                 String(
                                     product.category ||
                                     ""
                                 ),
+
+
 
                             price:
                                 Number(
@@ -411,41 +479,63 @@ export default function CatalogPage() {
                                     0
                                 ),
 
+
+
                             description:
                                 String(
                                     product.description ||
                                     ""
                                 ),
 
+
+
                             images,
+
+
 
                             dff_file:
                                 product.dff_file ||
                                 null,
 
+
+
                             txd_file:
                                 product.txd_file ||
                                 null,
 
+
+
                             author_id:
-                                product.author_id
+                                product.author_id !==
+                                    null &&
+                                product.author_id !==
+                                    undefined
                                     ? Number(
-                                          product.author_id
-                                      )
+                                        product.author_id
+                                    )
                                     : null,
+
+
 
                             status:
                                 product.status ||
                                 "ACTIVE",
+
+
 
                             pinned:
                                 Boolean(
                                     product.pinned
                                 ),
 
+
+
                             created_at:
-                                product.created_at,
+                                product.created_at ||
+                                null,
+
                         };
+
                     }
                 );
 
@@ -461,11 +551,15 @@ export default function CatalogPage() {
             setProducts(
                 normalizedProducts
             );
+
         } catch (err) {
+
             console.error(
                 "CATALOG LOAD ERROR:",
                 err
             );
+
+
 
             setError(
                 err instanceof Error
@@ -473,10 +567,16 @@ export default function CatalogPage() {
                     : "Ошибка загрузки товаров"
             );
 
+
+
             setProducts([]);
+
         } finally {
+
             setLoading(false);
+
         }
+
     }
 
 
@@ -494,102 +594,42 @@ export default function CatalogPage() {
 
 
 
-    function toggleCategory(
+    const toggleCategory = (
         name: string
-    ) {
+    ) => {
+
         setOpenCategories(
             current =>
                 current.includes(name)
                     ? current.filter(
-                          item =>
-                              item !== name
-                      )
+                        item =>
+                            item !== name
+                    )
                     : [
-                          ...current,
-                          name,
-                      ]
+                        ...current,
+                        name,
+                    ]
         );
-    }
+
+    };
 
 
 
     function selectCategory(
         name: string
     ) {
-        setSelectedCategory(name);
+
+        setSelectedCategory(
+            name
+        );
+
     }
-
-
-
-    /*
-     * Определяем конечные категории.
-     *
-     * Например:
-     *
-     * Скины
-     *   ├ Государственные
-     *   ├ Мафии
-     *   ├ Банды
-     *
-     * У товара должна быть категория:
-     *
-     * Скины/Государственные
-     *
-     * или
-     *
-     * Скины > Государственные
-     *
-     * Родитель "Скины" НЕ должен показывать товар.
-     */
-
-    const leafCategories =
-        useMemo(() => {
-            const result: string[] = [];
-
-            function walk(
-                items: CatalogItem[],
-                parents: string[]
-            ) {
-                items.forEach(item => {
-                    const path = [
-                        ...parents,
-                        item.name,
-                    ];
-
-                    if (
-                        item.children &&
-                        item.children.length > 0
-                    ) {
-                        walk(
-                            item.children,
-                            path
-                        );
-                    } else {
-                        result.push(
-                            path.join("/")
-                        );
-                    }
-                });
-            }
-
-            walk(
-                expandableCategories,
-                []
-            );
-
-            simpleCategories.forEach(
-                category => {
-                    result.push(category);
-                }
-            );
-
-            return result;
-        }, []);
 
 
 
     const filteredProducts =
         useMemo(() => {
+
             const normalizedSearch =
                 search
                     .trim()
@@ -599,9 +639,6 @@ export default function CatalogPage() {
 
             return products.filter(
                 product => {
-                    /*
-                     * Поиск.
-                     */
 
                     if (
                         normalizedSearch &&
@@ -616,37 +653,23 @@ export default function CatalogPage() {
                                 normalizedSearch
                             )
                     ) {
+
                         return false;
+
                     }
 
 
-
-                    /*
-                     * Все моды.
-                     */
 
                     if (
                         selectedCategory ===
                         "Все моды"
                     ) {
+
                         return true;
+
                     }
 
 
-
-                    /*
-                     * Родительские категории
-                     * специально НЕ показываем.
-                     *
-                     * Например:
-                     *
-                     * selectedCategory = "Скины"
-                     *
-                     * товар:
-                     * "Скины/Государственные"
-                     *
-                     * НЕ попадёт сюда.
-                     */
 
                     const isParentCategory =
                         expandableCategories.some(
@@ -660,15 +683,12 @@ export default function CatalogPage() {
                     if (
                         isParentCategory
                     ) {
+
                         return false;
+
                     }
 
 
-
-                    /*
-                     * Нормализуем разные варианты
-                     * разделителей.
-                     */
 
                     const productCategory =
                         product.category
@@ -700,30 +720,19 @@ export default function CatalogPage() {
 
 
 
-                    /*
-                     * Точное совпадение.
-                     *
-                     * Это важно:
-                     *
-                     * "Скины/Государственные"
-                     *
-                     * покажется только
-                     * в "Государственные".
-                     */
-
                     return (
                         productCategory ===
                         selected
                     );
+
                 }
             );
+
         }, [
             products,
             selectedCategory,
             search,
         ]);
-
-
 
 
 
@@ -733,8 +742,7 @@ export default function CatalogPage() {
                 item.name
                     .toLowerCase()
                     .includes(
-                        search
-                            .toLowerCase()
+                        search.toLowerCase()
                     )
         );
 
@@ -745,8 +753,7 @@ export default function CatalogPage() {
             item =>
                 item.toLowerCase()
                     .includes(
-                        search
-                            .toLowerCase()
+                        search.toLowerCase()
                     )
         );
 
@@ -754,6 +761,7 @@ export default function CatalogPage() {
 
     return (
         <>
+
             <Header />
 
 
@@ -768,6 +776,7 @@ export default function CatalogPage() {
                     text-white
                 "
             >
+
                 <div
                     className="
                         pointer-events-none
@@ -776,6 +785,7 @@ export default function CatalogPage() {
                         overflow-hidden
                     "
                 >
+
                     <div
                         className="
                             absolute
@@ -790,6 +800,8 @@ export default function CatalogPage() {
                         "
                     />
 
+
+
                     <div
                         className="
                             absolute
@@ -802,6 +814,7 @@ export default function CatalogPage() {
                             blur-[150px]
                         "
                     />
+
                 </div>
 
 
@@ -813,6 +826,7 @@ export default function CatalogPage() {
                         max-w-7xl
                     "
                 >
+
                     <div
                         className="
                             mb-7
@@ -824,7 +838,9 @@ export default function CatalogPage() {
                             sm:justify-between
                         "
                     >
+
                         <div>
+
                             <h1
                                 className="
                                     text-3xl
@@ -836,6 +852,8 @@ export default function CatalogPage() {
                                 Каталог
                             </h1>
 
+
+
                             <p
                                 className="
                                     mt-2
@@ -845,11 +863,13 @@ export default function CatalogPage() {
                             >
                                 Моды MAZEPOV CONNEXTION
                             </p>
+
                         </div>
 
 
 
                         {canCreateProduct && (
+
                             <Link
                                 href="/catalog/create"
                                 className="
@@ -868,13 +888,21 @@ export default function CatalogPage() {
                                     hover:bg-blue-500
                                 "
                             >
-                                <span className="mr-2">
+
+                                <span
+                                    className="
+                                        mr-2
+                                    "
+                                >
                                     +
                                 </span>
 
                                 Создать товар
+
                             </Link>
+
                         )}
+
                     </div>
 
 
@@ -885,6 +913,7 @@ export default function CatalogPage() {
                             max-w-xl
                         "
                     >
+
                         <input
                             value={search}
                             onChange={event =>
@@ -910,6 +939,7 @@ export default function CatalogPage() {
                                 focus:bg-[#11161D]
                             "
                         />
+
                     </div>
 
 
@@ -921,6 +951,7 @@ export default function CatalogPage() {
                             lg:grid-cols-[270px_1fr]
                         "
                     >
+
                         <aside
                             className="
                                 h-fit
@@ -931,6 +962,7 @@ export default function CatalogPage() {
                                 p-3
                             "
                         >
+
                             <button
                                 type="button"
                                 onClick={() =>
@@ -947,6 +979,7 @@ export default function CatalogPage() {
                                     text-left
                                     text-sm
                                     transition
+
                                     ${
                                         selectedCategory ===
                                         "Все моды"
@@ -980,8 +1013,10 @@ export default function CatalogPage() {
                                     space-y-1
                                 "
                             >
+
                                 {filteredMainCategories.map(
                                     category => (
+
                                         <CategoryTree
                                             key={
                                                 category.name
@@ -1003,8 +1038,10 @@ export default function CatalogPage() {
                                                 setOpenCategories
                                             }
                                         />
+
                                     )
                                 )}
+
                             </div>
 
 
@@ -1033,9 +1070,15 @@ export default function CatalogPage() {
 
 
 
-                            <div className="space-y-1">
+                            <div
+                                className="
+                                    space-y-1
+                                "
+                            >
+
                                 {filteredSimple.map(
                                     category => (
+
                                         <button
                                             key={
                                                 category
@@ -1054,6 +1097,7 @@ export default function CatalogPage() {
                                                 text-left
                                                 text-sm
                                                 transition
+
                                                 ${
                                                     selectedCategory ===
                                                     category
@@ -1064,14 +1108,22 @@ export default function CatalogPage() {
                                         >
                                             {category}
                                         </button>
+
                                     )
                                 )}
+
                             </div>
+
                         </aside>
 
 
 
-                        <section className="min-w-0">
+                        <section
+                            className="
+                                min-w-0
+                            "
+                        >
+
                             <div
                                 className="
                                     rounded-2xl
@@ -1081,6 +1133,7 @@ export default function CatalogPage() {
                                     p-6
                                 "
                             >
+
                                 <div
                                     className="
                                         mb-6
@@ -1095,7 +1148,9 @@ export default function CatalogPage() {
                                         sm:justify-between
                                     "
                                 >
+
                                     <div>
+
                                         <p
                                             className="
                                                 text-xs
@@ -1107,6 +1162,8 @@ export default function CatalogPage() {
                                             Каталог
                                         </p>
 
+
+
                                         <h2
                                             className="
                                                 mt-2
@@ -1116,6 +1173,8 @@ export default function CatalogPage() {
                                         >
                                             {selectedCategory}
                                         </h2>
+
+
 
                                         <p
                                             className="
@@ -1129,6 +1188,7 @@ export default function CatalogPage() {
                                                 ? "Все доступные моды"
                                                 : "Моды выбранной категории"}
                                         </p>
+
                                     </div>
 
 
@@ -1144,16 +1204,23 @@ export default function CatalogPage() {
                                             text-slate-500
                                         "
                                     >
-                                        {filteredProducts.length}{" "}
-                                        {getProductWord(
+                                        {
                                             filteredProducts.length
-                                        )}
+                                        }{" "}
+
+                                        {
+                                            getProductWord(
+                                                filteredProducts.length
+                                            )
+                                        }
                                     </div>
+
                                 </div>
 
 
 
                                 {loading ? (
+
                                     <div
                                         className="
                                             flex
@@ -1162,6 +1229,7 @@ export default function CatalogPage() {
                                             justify-center
                                         "
                                     >
+
                                         <div
                                             className="
                                                 text-sm
@@ -1170,8 +1238,11 @@ export default function CatalogPage() {
                                         >
                                             Загрузка каталога...
                                         </div>
+
                                     </div>
+
                                 ) : error ? (
+
                                     <div
                                         className="
                                             flex
@@ -1181,7 +1252,9 @@ export default function CatalogPage() {
                                             text-center
                                         "
                                     >
+
                                         <div>
+
                                             <div
                                                 className="
                                                     mx-auto
@@ -1199,6 +1272,8 @@ export default function CatalogPage() {
                                                 !
                                             </div>
 
+
+
                                             <h3
                                                 className="
                                                     mt-5
@@ -1209,15 +1284,20 @@ export default function CatalogPage() {
                                                 Ошибка загрузки
                                             </h3>
 
+
+
                                             <p
                                                 className="
                                                     mt-2
+                                                    max-w-md
                                                     text-sm
                                                     text-slate-600
                                                 "
                                             >
                                                 {error}
                                             </p>
+
+
 
                                             <button
                                                 type="button"
@@ -1237,10 +1317,13 @@ export default function CatalogPage() {
                                             >
                                                 Повторить
                                             </button>
+
                                         </div>
+
                                     </div>
-                                ) : filteredProducts.length ===
-                                  0 ? (
+
+                                ) : filteredProducts.length === 0 ? (
+
                                     <div
                                         className="
                                             flex
@@ -1250,7 +1333,9 @@ export default function CatalogPage() {
                                             text-center
                                         "
                                     >
+
                                         <div>
+
                                             <div
                                                 className="
                                                     mx-auto
@@ -1267,6 +1352,8 @@ export default function CatalogPage() {
                                                 ◈
                                             </div>
 
+
+
                                             <h3
                                                 className="
                                                     mt-5
@@ -1277,6 +1364,8 @@ export default function CatalogPage() {
                                                 Модов нет
                                             </h3>
 
+
+
                                             <p
                                                 className="
                                                     mt-2
@@ -1286,19 +1375,25 @@ export default function CatalogPage() {
                                             >
                                                 В данном разделе пока ничего нет
                                             </p>
+
                                         </div>
+
                                     </div>
+
                                 ) : (
+
                                     <div
                                         className="
                                             grid
-                                            gap-5
+                                            gap-4
                                             sm:grid-cols-2
                                             xl:grid-cols-3
                                         "
                                     >
+
                                         {filteredProducts.map(
                                             product => (
+
                                                 <ProductCard
                                                     key={
                                                         product.id
@@ -1307,18 +1402,29 @@ export default function CatalogPage() {
                                                         product
                                                     }
                                                 />
+
                                             )
                                         )}
+
                                     </div>
+
                                 )}
+
                             </div>
+
                         </section>
+
                     </div>
+
                 </div>
+
             </main>
+
         </>
     );
 }
+
+
 
 
 
@@ -1337,6 +1443,8 @@ type CategoryTreeProps = {
 
 
 
+
+
 function CategoryTree({
     item,
     parentPath,
@@ -1345,6 +1453,7 @@ function CategoryTree({
     openCategories,
     setOpenCategories,
 }: CategoryTreeProps) {
+
     const hasChildren =
         Boolean(
             item.children &&
@@ -1367,50 +1476,36 @@ function CategoryTree({
 
 
 
-    /*
-     * Родительские категории:
-     *
-     * Скины
-     * Оружие
-     * Интерьеры
-     *
-     * не являются конечными категориями.
-     *
-     * Поэтому на них не устанавливаем
-     * выбор товаров.
-     */
-
     function click() {
+
         if (hasChildren) {
+
             setOpenCategories(
                 current =>
                     current.includes(
                         currentPath
                     )
                         ? current.filter(
-                              item =>
-                                  item !==
-                                  currentPath
-                          )
+                            item =>
+                                item !==
+                                currentPath
+                        )
                         : [
-                              ...current,
-                              currentPath,
-                          ]
+                            ...current,
+                            currentPath,
+                        ]
             );
 
             return;
+
         }
 
 
 
-        /*
-         * Только конечная категория
-         * выбирается для отображения товаров.
-         */
-
         setSelectedCategory(
             currentPath
         );
+
     }
 
 
@@ -1422,7 +1517,9 @@ function CategoryTree({
 
 
     return (
+
         <div>
+
             <button
                 type="button"
                 onClick={click}
@@ -1437,6 +1534,7 @@ function CategoryTree({
                     text-left
                     text-sm
                     transition
+
                     ${
                         active
                             ? "bg-blue-600 text-white"
@@ -1444,15 +1542,20 @@ function CategoryTree({
                     }
                 `}
             >
+
                 <span>
                     {item.name}
                 </span>
 
+
+
                 {hasChildren && (
+
                     <span
                         className={`
                             text-xs
                             transition-transform
+
                             ${
                                 open
                                     ? "rotate-90"
@@ -1462,7 +1565,9 @@ function CategoryTree({
                     >
                         ›
                     </span>
+
                 )}
+
             </button>
 
 
@@ -1470,6 +1575,7 @@ function CategoryTree({
             {hasChildren &&
                 open &&
                 item.children && (
+
                     <div
                         className="
                             ml-3
@@ -1479,8 +1585,10 @@ function CategoryTree({
                             pl-2
                         "
                     >
+
                         {item.children.map(
                             child => (
+
                                 <CategoryTree
                                     key={
                                         `${currentPath}/${child.name}`
@@ -1504,13 +1612,21 @@ function CategoryTree({
                                         setOpenCategories
                                     }
                                 />
+
                             )
                         )}
+
                     </div>
+
                 )}
+
         </div>
+
     );
+
 }
+
+
 
 
 
@@ -1520,9 +1636,12 @@ type ProductCardProps = {
 
 
 
+
+
 function ProductCard({
     product,
 }: ProductCardProps) {
+
     const image =
         product.images &&
         product.images.length > 0
@@ -1531,63 +1650,200 @@ function ProductCard({
 
 
 
+    const hasPrice =
+        Number(product.price) > 0;
+
+
+
     return (
+
         <div
             className="
+                group
                 overflow-hidden
                 rounded-2xl
                 border
                 border-white/10
                 bg-[#11161D]
-                transition
+                transition-all
+                duration-300
+                hover:-translate-y-0.5
                 hover:border-white/15
                 hover:bg-[#131920]
             "
         >
-            <ProductImage
-                src={image || undefined}
-                alt={product.name}
-            />
+
+            <div
+                className="
+                    relative
+                    aspect-video
+                    w-full
+                    overflow-hidden
+                    bg-[#0D1117]
+                "
+            >
+
+                <ProductImage
+                    src={
+                        image ||
+                        undefined
+                    }
+                    alt={
+                        product.name
+                    }
+                />
 
 
 
-            <div className="p-4">
+                {product.category && (
+
+                    <div
+                        className="
+                            absolute
+                            left-3
+                            top-3
+                            flex
+                            max-w-[75%]
+                            items-center
+                            gap-1.5
+                            rounded-lg
+                            border
+                            border-white/10
+                            bg-black/70
+                            px-2.5
+                            py-1.5
+                            text-[10px]
+                            font-medium
+                            text-slate-300
+                            backdrop-blur-md
+                        "
+                    >
+
+                        <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="
+                                shrink-0
+                                text-blue-400
+                            "
+                        >
+
+                            <path
+                                d="
+                                    M3 7
+                                    h6
+                                    l2 2
+                                    h10
+                                    v10
+                                    a2 2
+                                    0 0 1-2 2
+                                    H5
+                                    a2 2
+                                    0 0 1-2-2
+                                    Z
+                                "
+                            />
+
+                            <path
+                                d="
+                                    M3 7
+                                    a2 2
+                                    0 0 1 2-2
+                                    h5
+                                    l2 2
+                                "
+                            />
+
+                        </svg>
+
+
+
+                        <span
+                            className="
+                                truncate
+                            "
+                            title={
+                                product.category
+                            }
+                        >
+                            {product.category}
+                        </span>
+
+                    </div>
+
+                )}
+
+
+
+                {hasPrice && (
+
+                    <div
+                        className="
+                            absolute
+                            right-3
+                            top-3
+                            rounded-lg
+                            border
+                            border-white/10
+                            bg-black/70
+                            px-2.5
+                            py-1.5
+                            text-xs
+                            font-bold
+                            text-white
+                            backdrop-blur-md
+                        "
+                    >
+                        {product.price} ₽
+                    </div>
+
+                )}
+
+            </div>
+
+
+
+            <div
+                className="
+                    p-4
+                "
+            >
+
                 <h3
                     className="
-                        line-clamp-1
+                        truncate
+                        text-[15px]
                         font-semibold
+                        leading-5
                         text-white
                     "
+                    title={
+                        product.name
+                    }
                 >
                     {product.name}
                 </h3>
 
 
 
-                {product.category && (
-                    <div
-                        className="
-                            mt-2
-                            text-[10px]
-                            uppercase
-                            tracking-wider
-                            text-blue-500
-                        "
-                    >
-                        {product.category}
-                    </div>
-                )}
-
-
-
                 <p
                     className="
-                        mt-2
-                        line-clamp-3
-                        text-sm
-                        leading-6
+                        mt-1.5
+                        line-clamp-2
+                        min-h-[36px]
+                        text-xs
+                        leading-[18px]
                         text-slate-500
                     "
+                    title={
+                        product.description
+                    }
                 >
                     {product.description ||
                         "Описание отсутствует"}
@@ -1597,27 +1853,51 @@ function ProductCard({
 
                 <div
                     className="
-                        mt-4
+                        mt-3
                         flex
                         items-center
                         justify-between
                         gap-3
+                        border-t
+                        border-white/[0.06]
+                        pt-3
                     "
                 >
-                    <span
-                        className="
-                            font-bold
-                            text-blue-400
-                        "
-                    >
-                        {product.price} ₽
-                    </span>
+
+                    {hasPrice ? (
+
+                        <span
+                            className="
+                                text-xs
+                                font-medium
+                                text-slate-500
+                            "
+                        >
+                            Платный мод
+                        </span>
+
+                    ) : (
+
+                        <span
+                            className="
+                                text-xs
+                                font-medium
+                                text-emerald-400/80
+                            "
+                        >
+                            Бесплатно
+                        </span>
+
+                    )}
 
 
 
                     <Link
                         href={`/catalog/${product.id}`}
                         className="
+                            inline-flex
+                            items-center
+                            gap-1.5
                             rounded-lg
                             bg-blue-600
                             px-3
@@ -1629,13 +1909,65 @@ function ProductCard({
                             hover:bg-blue-500
                         "
                     >
-                        Подробнее
+
+                        <svg
+                            width="13"
+                            height="13"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        >
+
+                            <path
+                                d="
+                                    M21 15
+                                    v4
+                                    a2 2
+                                    0 0 1-2 2
+                                    H5
+                                    a2 2
+                                    0 0 1-2-2
+                                    v-4
+                                "
+                            />
+
+                            <polyline
+                                points="
+                                    7 10
+                                    12 15
+                                    17 10
+                                "
+                            />
+
+                            <line
+                                x1="12"
+                                y1="15"
+                                x2="12"
+                                y2="3"
+                            />
+
+                        </svg>
+
+
+
+                        Скачать
+
                     </Link>
+
                 </div>
+
             </div>
+
         </div>
+
     );
+
 }
+
+
 
 
 
@@ -1646,66 +1978,71 @@ type ProductImageProps = {
 
 
 
+
+
 function ProductImage({
     src,
     alt,
 }: ProductImageProps) {
+
     if (!src) {
+
         return (
+
             <div
                 className="
                     flex
-                    h-44
+                    h-full
+                    w-full
                     items-center
                     justify-center
                     bg-[#0D1117]
-                    text-sm
+                    text-xs
                     text-slate-600
                 "
             >
                 Нет изображения
             </div>
+
         );
+
     }
 
 
 
     return (
-        <div
+
+        <img
+            src={src}
+            alt={alt}
             className="
-                h-44
+                h-full
                 w-full
-                overflow-hidden
+                object-contain
                 bg-[#0D1117]
+                transition
+                duration-300
+                group-hover:scale-[1.015]
             "
-        >
-            <img
-                src={src}
-                alt={alt}
-                className="
-                    h-full
-                    w-full
-                    object-cover
-                    transition
-                    duration-300
-                    hover:scale-105
-                "
-                onError={event => {
-                    event.currentTarget.style.display =
-                        "none";
-                }}
-            />
-        </div>
+            loading="lazy"
+        />
+
     );
+
 }
+
+
 
 
 
 function getProductWord(
     count: number
 ) {
+
     const lastTwo =
         count % 100;
+
+
 
     const last =
         count % 10;
@@ -1716,13 +2053,19 @@ function getProductWord(
         lastTwo >= 11 &&
         lastTwo <= 19
     ) {
+
         return "модов";
+
     }
 
 
 
-    if (last === 1) {
+    if (
+        last === 1
+    ) {
+
         return "мод";
+
     }
 
 
@@ -1731,10 +2074,13 @@ function getProductWord(
         last >= 2 &&
         last <= 4
     ) {
+
         return "мода";
+
     }
 
 
 
     return "модов";
+
 }
