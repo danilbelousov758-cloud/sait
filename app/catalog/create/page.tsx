@@ -1106,7 +1106,7 @@ export default function CreateCatalogProductPage() {
                         min-h-screen
                         items-center
                         justify-center
-                        bg-[#080B10]
+                        
                         text-white
                     "
                 >
@@ -1164,7 +1164,7 @@ export default function CreateCatalogProductPage() {
             <main
                 className="
                     min-h-screen
-                    bg-[#080B10]
+                    
                     px-4
                     pb-20
                     pt-[120px]
@@ -2432,3 +2432,4 @@ function UploadBox({
     );
 
 }
+

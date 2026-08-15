@@ -404,7 +404,7 @@ export default async function ProductPage({
             <main
                 className="
                     min-h-screen
-                    bg-[#080B10]
+                    
                     px-4
                     pb-20
                     pt-[120px]

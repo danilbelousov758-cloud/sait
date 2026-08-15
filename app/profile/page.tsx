@@ -178,7 +178,7 @@ export default function ProfilePage() {
 
     if (!loaded) {
         return (
-            <main className="min-h-screen bg-[#080B10]" />
+            <main className="min-h-screen " />
         );
     }
 
@@ -187,7 +187,7 @@ export default function ProfilePage() {
             <>
                 <Header />
 
-                <main className="flex min-h-screen items-center justify-center bg-[#080B10] px-5 pt-24 text-white">
+                <main className="flex min-h-screen items-center justify-center  px-5 pt-24 text-white">
                     <div className="text-center">
                         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-white/[0.07] bg-[#11161D] text-2xl">
                             🔒
@@ -217,7 +217,7 @@ export default function ProfilePage() {
         <>
             <Header />
 
-            <main className="min-h-screen bg-[#080B10] px-4 pb-20 pt-[125px] text-slate-100 sm:px-6">
+            <main className="min-h-screen  px-4 pb-20 pt-[125px] text-slate-100 sm:px-6">
 
                 {/* Фоновое свечение */}
                 <div className="pointer-events-none fixed inset-0 overflow-hidden">
@@ -709,3 +709,4 @@ export default function ProfilePage() {
         </>
     );
 }
+

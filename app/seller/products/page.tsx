@@ -59,7 +59,7 @@ export default function ProductsPage() {
 
     if (!loaded) {
         return (
-            <main className="min-h-screen bg-[#080B10]" />
+            <main className="min-h-screen " />
         );
     }
 
@@ -68,7 +68,7 @@ export default function ProductsPage() {
             <>
                 <Header />
 
-                <main className="flex min-h-screen items-center justify-center bg-[#080B10] px-5 pt-24 text-white">
+                <main className="flex min-h-screen items-center justify-center  px-5 pt-24 text-white">
                     <div className="w-full max-w-md text-center">
                         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-white/[0.07] bg-[#11161D] text-2xl">
                             🔒
@@ -106,7 +106,7 @@ export default function ProductsPage() {
         <>
             <Header />
 
-            <main className="min-h-screen bg-[#080B10] pt-[95px] text-slate-100">
+            <main className="min-h-screen  pt-[95px] text-slate-100">
                 {/* Фон */}
                 <div className="pointer-events-none fixed inset-0 overflow-hidden">
                     <div className="absolute left-1/2 top-[-300px] h-[550px] w-[750px] -translate-x-1/2 rounded-full bg-blue-600/[0.055] blur-[160px]" />
@@ -417,3 +417,4 @@ function ProductRow({
         </div>
     );
 }
+

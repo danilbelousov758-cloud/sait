@@ -60,7 +60,7 @@ export default function RegisterPage() {
     };
 
     return (
-        <main className="flex min-h-screen items-center justify-center bg-[#080B10] px-5 py-10 text-slate-100">
+        <main className="flex min-h-screen items-center justify-center  px-5 py-10 text-slate-100">
             {/* Фоновое свечение */}
             <div className="pointer-events-none fixed inset-0 overflow-hidden">
                 <div className="absolute left-1/2 top-[-250px] h-[500px] w-[600px] -translate-x-1/2 rounded-full bg-blue-600/[0.06] blur-[150px]" />
@@ -274,3 +274,4 @@ export default function RegisterPage() {
         </main>
     );
 }
+

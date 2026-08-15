@@ -26,7 +26,7 @@ export default function DashboardLayout({
     const pathname = usePathname();
 
     return (
-        <main className="min-h-screen bg-[#080B10] text-slate-100">
+        <main className="min-h-screen  text-slate-100">
             {/* Фоновое свечение */}
             <div className="pointer-events-none fixed inset-0 overflow-hidden">
                 <div className="absolute left-1/2 top-[-300px] h-[550px] w-[750px] -translate-x-1/2 rounded-full bg-blue-600/[0.055] blur-[160px]" />
@@ -163,3 +163,4 @@ export default function DashboardLayout({
         </main>
     );
 }
+
