@@ -40,3 +40,66 @@ body {
     }
 
 }
+
+@keyframes background-one {
+    0% {
+        transform: translate(0,0) scale(1);
+    }
+
+    50% {
+        transform: translate(120px,80px) scale(1.15);
+    }
+
+    100% {
+        transform: translate(0,0) scale(1);
+    }
+}
+
+
+@keyframes background-two {
+
+    0% {
+        transform: translate(0,0);
+    }
+
+    50% {
+        transform: translate(-120px,100px);
+    }
+
+    100% {
+        transform: translate(0,0);
+    }
+
+}
+
+
+@keyframes background-three {
+
+    0% {
+        transform: translate(0,0) scale(1);
+    }
+
+    50% {
+        transform: translate(80px,-100px) scale(1.2);
+    }
+
+    100% {
+        transform: translate(0,0) scale(1);
+    }
+
+}
+
+
+.animate-background-one {
+    animation: background-one 18s ease-in-out infinite;
+}
+
+
+.animate-background-two {
+    animation: background-two 22s ease-in-out infinite;
+}
+
+
+.animate-background-three {
+    animation: background-three 25s ease-in-out infinite;
+}
