@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { db } from "@/lib/mysql";
 
-
-
 export async function POST(
     request: NextRequest
 ) {
@@ -14,12 +12,10 @@ export async function POST(
             await request.json();
 
 
-
         const name =
             String(
                 body.name || ""
             ).trim();
-
 
 
         const category =
@@ -28,19 +24,16 @@ export async function POST(
             ).trim();
 
 
-
         const price =
             Number(
-                body.price ?? 0
+                body.price || 0
             );
-
 
 
         const description =
             String(
                 body.description || ""
-            ).trim();
-
+            );
 
 
         const pinned =
@@ -49,29 +42,16 @@ export async function POST(
             );
 
 
-
         const authorId =
             Number(
                 body.author_id
             );
 
 
-
-        /*
-         * ВАЖНО:
-         *
-         * Здесь сохраняются именно
-         * пути / URL файлов S3.
-         *
-         * Сам файл через этот API
-         * не проходит.
-         */
-
         const dffFile =
             String(
                 body.dff_file || ""
             ).trim();
-
 
 
         const txdFile =
@@ -80,11 +60,17 @@ export async function POST(
             ).trim();
 
 
+        const zipFile =
+            String(
+                body.zip_file || ""
+            ).trim();
+
 
         const images =
             Array.isArray(
                 body.images
             )
+
                 ? body.images.filter(
                     (
                         image: unknown
@@ -92,74 +78,50 @@ export async function POST(
                         typeof image === "string" &&
                         image.trim().length > 0
                 )
+
                 : [];
 
-
-
-        /*
-         * Проверка названия.
-         */
 
         if (!name) {
 
             return NextResponse.json(
-
                 {
                     success: false,
                     message:
                         "Введите название товара",
                 },
-
                 {
                     status: 400,
                 }
-
             );
 
         }
 
 
-
-        /*
-         * Проверка категории.
-         */
-
         if (!category) {
 
             return NextResponse.json(
-
                 {
                     success: false,
                     message:
                         "Выберите категорию товара",
                 },
-
                 {
                     status: 400,
                 }
-
             );
 
         }
 
 
-
-        /*
-         * Запрещаем выбирать
-         * родительскую категорию.
-         */
-
         const forbiddenCategories = [
-
             "Скины",
             "Оружие",
             "Интерьеры",
             "Заменные территории",
             "Эффекты",
             "Звуки",
-
         ];
-
 
 
         if (
@@ -169,227 +131,179 @@ export async function POST(
         ) {
 
             return NextResponse.json(
-
                 {
                     success: false,
-
                     message:
                         "Нельзя выбрать основную категорию. Выберите подраздел.",
                 },
-
                 {
                     status: 400,
                 }
-
             );
 
         }
 
 
-
-        /*
-         * Проверка цены.
-         */
-
         if (
-            !Number.isFinite(price) ||
+            Number.isNaN(price) ||
             price < 0
         ) {
 
             return NextResponse.json(
-
                 {
                     success: false,
                     message:
                         "Некорректная цена",
                 },
-
                 {
                     status: 400,
                 }
-
             );
 
         }
 
 
-
-        /*
-         * Проверка автора.
-         */
-
         if (
-            !Number.isInteger(authorId) ||
+            !Number.isInteger(
+                authorId
+            ) ||
             authorId <= 0
         ) {
 
             return NextResponse.json(
-
                 {
                     success: false,
                     message:
                         "Не найден автор товара",
                 },
-
                 {
                     status: 400,
                 }
-
             );
 
         }
 
 
-
-        /*
-         * Обязательные файлы мода.
-         */
-
         if (!dffFile) {
 
             return NextResponse.json(
-
                 {
                     success: false,
                     message:
                         "DFF файл не загружен",
                 },
-
                 {
                     status: 400,
                 }
-
             );
 
         }
-
 
 
         if (!txdFile) {
 
             return NextResponse.json(
-
                 {
                     success: false,
                     message:
                         "TXD файл не загружен",
                 },
-
                 {
                     status: 400,
                 }
-
             );
 
         }
 
 
+        if (!zipFile) {
 
-        /*
-         * Сохраняем товар.
-         *
-         * Никаких файлов через MySQL
-         * не передаём.
-         *
-         * В БД лежат только ссылки
-         * на S3.
-         */
-
-        const [result] =
-            await db.execute(
-
-                `
-                INSERT INTO products
-                (
-                    name,
-                    category,
-                    price,
-                    description,
-                    pinned,
-                    dff_file,
-                    txd_file,
-                    images,
-                    author_id,
-                    status,
-                    created_at
-                )
-
-                VALUES
-                (
-                    ?,
-                    ?,
-                    ?,
-                    ?,
-                    ?,
-                    ?,
-                    ?,
-                    ?,
-                    ?,
-                    ?,
-                    NOW()
-                )
-                `,
-
-                [
-
-                    name,
-
-                    category,
-
-                    price,
-
-                    description,
-
-                    pinned
-                        ? 1
-                        : 0,
-
-                    dffFile,
-
-                    txdFile,
-
-                    JSON.stringify(
-                        images
-                    ),
-
-                    authorId,
-
-                    "ACTIVE",
-
-                ]
-
+            return NextResponse.json(
+                {
+                    success: false,
+                    message:
+                        "ZIP файл не загружен",
+                },
+                {
+                    status: 400,
+                }
             );
 
+        }
 
 
-        console.log(
-            "PRODUCT CREATED:",
-            {
+        await db.execute(
+            `
+            INSERT INTO products
+            (
                 name,
                 category,
                 price,
+                description,
+                pinned,
+                dff_file,
+                txd_file,
+                zip_file,
+                images,
+                author_id,
+                status,
+                created_at
+            )
+
+            VALUES
+            (
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                NOW()
+            )
+            `,
+            [
+                name,
+
+                category,
+
+                price,
+
+                description,
+
+                pinned
+                    ? 1
+                    : 0,
+
+                dffFile,
+
+                txdFile,
+
+                zipFile,
+
+                JSON.stringify(
+                    images
+                ),
+
                 authorId,
-            }
+
+                "ACTIVE",
+            ]
         );
 
 
+        return NextResponse.json({
 
-        return NextResponse.json(
+            success: true,
 
-            {
-                success: true,
+            message:
+                "Товар успешно создан",
 
-                message:
-                    "Товар успешно создан",
-
-            },
-
-            {
-                status: 201,
-            }
-
-        );
-
+        });
 
 
     } catch (error) {
@@ -400,9 +314,7 @@ export async function POST(
         );
 
 
-
         return NextResponse.json(
-
             {
                 success: false,
 
@@ -411,11 +323,9 @@ export async function POST(
                         ? error.message
                         : "Ошибка создания товара",
             },
-
             {
                 status: 500,
             }
-
         );
 
     }
