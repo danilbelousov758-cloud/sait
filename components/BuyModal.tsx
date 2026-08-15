@@ -28,12 +28,12 @@ export default function BuyModal({
     useEffect(() => {
         if (!open) return;
 
-        const originalOverflow = document.body.style.overflow;
+        const oldOverflow = document.body.style.overflow;
 
         document.body.style.overflow = "hidden";
 
         return () => {
-            document.body.style.overflow = originalOverflow;
+            document.body.style.overflow = oldOverflow;
         };
     }, [open]);
 
@@ -120,6 +120,8 @@ export default function BuyModal({
 
     return (
         <>
+            {/* КНОПКА КУПИТЬ */}
+
             <button
                 type="button"
                 onClick={() => {
@@ -132,16 +134,38 @@ export default function BuyModal({
                     w-full
                     items-center
                     justify-center
+                    gap-2
                     rounded-xl
                     bg-blue-600
                     py-3
                     text-sm
                     font-semibold
                     text-white
+                    shadow-lg
+                    shadow-blue-600/10
                     transition
+                    duration-200
                     hover:bg-blue-500
+                    hover:shadow-blue-600/20
+                    active:scale-[0.99]
                 "
             >
+                <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                >
+                    <path d="M6 6h15l-1.5 9H8z" />
+                    <path d="M6 6 5 3H2" />
+                    <circle cx="9" cy="20" r="1" />
+                    <circle cx="18" cy="20" r="1" />
+                </svg>
+
                 Купить
             </button>
 
@@ -155,12 +179,12 @@ export default function BuyModal({
                         items-center
                         justify-center
                         overflow-hidden
-                        bg-black/75
+                        bg-black/80
                         px-3
                         py-3
-                        backdrop-blur-sm
+                        backdrop-blur-md
                         sm:px-4
-                        sm:py-4
+                        sm:py-5
                     "
                     onMouseDown={(e) => {
                         if (e.target === e.currentTarget) {
@@ -168,74 +192,126 @@ export default function BuyModal({
                         }
                     }}
                 >
+                    {/* ОКНО */}
+
                     <div
                         className="
                             flex
                             max-h-[calc(100vh-24px)]
                             w-full
-                            max-w-[430px]
+                            max-w-[440px]
                             flex-col
                             overflow-hidden
                             rounded-2xl
                             border
-                            border-white/10
-                            bg-[#0D1117]
-                            shadow-2xl
-                            sm:max-h-[calc(100vh-32px)]
+                            border-white/[0.10]
+                            bg-[#0B0F15]
+                            shadow-[0_25px_80px_rgba(0,0,0,0.65)]
+                            sm:max-h-[calc(100vh-40px)]
                         "
                     >
-                        {/* HEADER — НЕ ЛИСТАЕТСЯ */}
+                        {/* HEADER */}
 
                         <div
                             className="
-                                flex
+                                relative
                                 shrink-0
-                                items-center
-                                justify-between
-                                gap-3
                                 border-b
                                 border-white/[0.06]
                                 px-4
-                                py-3
+                                py-3.5
                                 sm:px-5
                             "
                         >
-                            <div>
-                                <h2 className="text-base font-bold text-white">
-                                    Оформление заказа
-                                </h2>
-
-                                <p className="mt-0.5 text-[10px] text-slate-600">
-                                    Проверьте данные перед оплатой
-                                </p>
-                            </div>
-
-                            <button
-                                type="button"
-                                onClick={closeModal}
-                                disabled={loading}
+                            <div
                                 className="
-                                    flex
-                                    h-8
-                                    w-8
-                                    shrink-0
-                                    items-center
-                                    justify-center
-                                    rounded-lg
-                                    bg-white/[0.04]
-                                    text-sm
-                                    text-slate-500
-                                    transition
-                                    hover:bg-white/[0.08]
-                                    hover:text-white
-                                    disabled:opacity-50
+                                    absolute
+                                    left-0
+                                    top-0
+                                    h-px
+                                    w-full
+                                    bg-gradient-to-r
+                                    from-transparent
+                                    via-blue-500/50
+                                    to-transparent
                                 "
-                            >
-                                ✕
-                            </button>
+                            />
+
+                            <div className="flex items-center justify-between gap-3">
+                                <div className="flex items-center gap-3">
+                                    <div
+                                        className="
+                                            flex
+                                            h-9
+                                            w-9
+                                            shrink-0
+                                            items-center
+                                            justify-center
+                                            rounded-xl
+                                            border
+                                            border-blue-500/20
+                                            bg-blue-500/10
+                                            text-blue-400
+                                        "
+                                    >
+                                        <svg
+                                            width="17"
+                                            height="17"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        >
+                                            <path d="M6 6h15l-1.5 9H8z" />
+                                            <path d="M6 6 5 3H2" />
+                                            <circle cx="9" cy="20" r="1" />
+                                            <circle cx="18" cy="20" r="1" />
+                                        </svg>
+                                    </div>
+
+                                    <div>
+                                        <h2 className="text-sm font-bold text-white">
+                                            Покупка мода
+                                        </h2>
+
+                                        <p className="mt-0.5 text-[10px] text-slate-600">
+                                            Оформление заказа
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    onClick={closeModal}
+                                    disabled={loading}
+                                    className="
+                                        flex
+                                        h-8
+                                        w-8
+                                        shrink-0
+                                        items-center
+                                        justify-center
+                                        rounded-lg
+                                        border
+                                        border-white/[0.05]
+                                        bg-white/[0.025]
+                                        text-sm
+                                        text-slate-500
+                                        transition
+                                        hover:border-white/10
+                                        hover:bg-white/[0.06]
+                                        hover:text-white
+                                        disabled:opacity-50
+                                    "
+                                >
+                                    ✕
+                                </button>
+                            </div>
                         </div>
 
-                        {/* SCROLL AREA */}
+                        {/* SCROLL */}
 
                         <div
                             className="
@@ -244,33 +320,79 @@ export default function BuyModal({
                                 overflow-y-auto
                                 overscroll-contain
                                 px-4
-                                py-3
+                                py-4
                                 sm:px-5
-                                sm:py-4
                             "
                             style={{
                                 scrollbarWidth: "thin",
                             }}
                         >
-                            {/* PRODUCT */}
+                            {/* PRODUCT CARD */}
 
                             <div
                                 className="
+                                    relative
+                                    overflow-hidden
                                     rounded-xl
                                     border
-                                    border-white/[0.06]
-                                    bg-black/20
-                                    p-3
+                                    border-white/[0.07]
+                                    bg-gradient-to-br
+                                    from-white/[0.045]
+                                    to-white/[0.015]
+                                    p-3.5
                                 "
                             >
-                                <div className="flex items-center justify-between gap-3">
-                                    <div className="min-w-0">
-                                        <div className="truncate text-sm font-semibold text-white">
-                                            {productName}
+                                <div
+                                    className="
+                                        absolute
+                                        right-[-35px]
+                                        top-[-35px]
+                                        h-24
+                                        w-24
+                                        rounded-full
+                                        bg-blue-500/[0.06]
+                                        blur-2xl
+                                    "
+                                />
+
+                                <div className="relative flex items-center justify-between gap-3">
+                                    <div className="flex min-w-0 items-center gap-3">
+                                        <div
+                                            className="
+                                                flex
+                                                h-10
+                                                w-10
+                                                shrink-0
+                                                items-center
+                                                justify-center
+                                                rounded-xl
+                                                bg-blue-500/10
+                                                text-blue-400
+                                            "
+                                        >
+                                            <svg
+                                                width="18"
+                                                height="18"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="1.8"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                            >
+                                                <path d="M4 5h16v14H4z" />
+                                                <path d="m4 8 4 3 4-3 4 3 4-3" />
+                                            </svg>
                                         </div>
 
-                                        <div className="mt-1 truncate text-[11px] text-slate-600">
-                                            Продавец: {sellerName}
+                                        <div className="min-w-0">
+                                            <div className="truncate text-sm font-semibold text-white">
+                                                {productName}
+                                            </div>
+
+                                            <div className="mt-1 truncate text-[10px] text-slate-600">
+                                                Автор: {sellerName}
+                                            </div>
                                         </div>
                                     </div>
 
@@ -279,133 +401,163 @@ export default function BuyModal({
                                             {price} ₽
                                         </div>
 
-                                        <div className="text-[9px] uppercase tracking-wider text-slate-600">
-                                            товар
+                                        <div
+                                            className="
+                                                mt-0.5
+                                                text-[8px]
+                                                font-medium
+                                                uppercase
+                                                tracking-wider
+                                                text-blue-400
+                                            "
+                                        >
+                                            МОД
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* PAYMENT */}
+                            {/* PAYMENT TITLE */}
 
-                            <div className="mt-4">
-                                <div className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-600">
-                                    Способы оплаты
-                                </div>
+                            <div className="mt-5">
+                                <div className="flex items-center gap-2">
+                                    <div className="h-px flex-1 bg-white/[0.05]" />
 
-                                <div
-                                    className="
-                                        rounded-xl
-                                        border
-                                        border-white/[0.06]
-                                        bg-black/20
-                                        p-3
-                                        text-[12px]
-                                        leading-5
-                                        text-slate-400
-                                    "
-                                >
-                                    <div>
-                                        <span className="font-semibold text-slate-300">
-                                            СберБанк
-                                        </span>
+                                    <span className="text-[9px] font-semibold uppercase tracking-[0.18em] text-slate-600">
+                                        Оплата
+                                    </span>
 
-                                        <span className="ml-2 text-slate-500">
-                                            2202 2088 8291 8056
-                                        </span>
-                                    </div>
-
-                                    <div className="my-2 h-px bg-white/[0.05]" />
-
-                                    <div>
-                                        <span className="font-semibold text-slate-300">
-                                            Т-Банк
-                                        </span>
-
-                                        <span className="ml-2 text-slate-500">
-                                            5536 9177 2933 9314
-                                        </span>
-                                    </div>
-
-                                    <div className="my-2 h-px bg-white/[0.05]" />
-
-                                    <div>
-                                        <span className="font-semibold text-slate-300">
-                                            Donation Alerts
-                                        </span>
-
-                                        <div className="mt-0.5 break-all text-[10px] text-slate-600">
-                                            donationalerts.com/r/galbraith1629
-                                        </div>
-                                    </div>
+                                    <div className="h-px flex-1 bg-white/[0.05]" />
                                 </div>
                             </div>
 
-                            {/* WARNING */}
+                            {/* PAYMENT METHODS */}
+
+                            <div className="mt-3 space-y-2">
+                                <PaymentRow
+                                    name="СберБанк"
+                                    value="2202 2088 8291 8056"
+                                    icon="₽"
+                                />
+
+                                <PaymentRow
+                                    name="Т-Банк"
+                                    value="5536 9177 2933 9314"
+                                    icon="₽"
+                                />
+
+                                <PaymentRow
+                                    name="Donation Alerts"
+                                    value="donationalerts.com/r/galbraith1629"
+                                    icon="D"
+                                />
+                            </div>
+
+                            {/* DONATION WARNING */}
 
                             <div
                                 className="
                                     mt-3
-                                    rounded-lg
+                                    rounded-xl
                                     border
                                     border-amber-500/15
-                                    bg-amber-500/[0.05]
-                                    px-3
-                                    py-2
+                                    bg-amber-500/[0.045]
+                                    p-3
                                 "
                             >
-                                <p className="text-[11px] leading-4 text-slate-400">
-                                    ⚠️{" "}
-                                    <b className="text-amber-300">
-                                        Donation Alerts:
-                                    </b>{" "}
-                                    комиссия{" "}
-                                    <b className="text-slate-300">
-                                        15%
-                                    </b>
-                                    . При недостаточной сумме доната потребуется{" "}
-                                    <b className="text-amber-300">
-                                        доплата разницы
-                                    </b>
-                                    .
-                                </p>
+                                <div className="flex items-start gap-2.5">
+                                    <div
+                                        className="
+                                            flex
+                                            h-7
+                                            w-7
+                                            shrink-0
+                                            items-center
+                                            justify-center
+                                            rounded-lg
+                                            bg-amber-500/10
+                                            text-sm
+                                        "
+                                    >
+                                        ⚠️
+                                    </div>
+
+                                    <div className="min-w-0">
+                                        <div className="text-[11px] font-semibold text-amber-300">
+                                            Обратите внимание
+                                        </div>
+
+                                        <p className="mt-1 text-[10px] leading-4 text-slate-500">
+                                            Donation Alerts удерживает{" "}
+                                            <b className="text-slate-300">
+                                                15%
+                                            </b>{" "}
+                                            комиссии. Поэтому необходимо
+                                            отправить{" "}
+                                            <b className="text-amber-300">
+                                                {donationPrice} ₽
+                                            </b>
+                                            . Если сумма будет меньше —
+                                            потребуется доплата разницы.
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
 
                             {/* PROMO */}
 
-                            <div className="mt-4">
-                                <label className="text-[10px] font-semibold uppercase tracking-widest text-slate-600">
-                                    Промокод
+                            <div className="mt-5">
+                                <label
+                                    htmlFor="promo"
+                                    className="
+                                        flex
+                                        items-center
+                                        justify-between
+                                        text-[9px]
+                                        font-semibold
+                                        uppercase
+                                        tracking-widest
+                                        text-slate-600
+                                    "
+                                >
+                                    <span>Промокод</span>
+
+                                    <span className="normal-case tracking-normal text-slate-700">
+                                        Необязательно
+                                    </span>
                                 </label>
 
-                                <input
-                                    value={promo}
-                                    onChange={(e) =>
-                                        setPromo(e.target.value)
-                                    }
-                                    disabled={loading}
-                                    className="
-                                        mt-2
-                                        h-10
-                                        w-full
-                                        rounded-lg
-                                        border
-                                        border-white/10
-                                        bg-black/30
-                                        px-3
-                                        text-sm
-                                        text-white
-                                        outline-none
-                                        transition
-                                        placeholder:text-slate-700
-                                        focus:border-blue-500/50
-                                        disabled:opacity-50
-                                    "
-                                    placeholder="Введите промокод"
-                                />
+                                <div className="relative mt-2">
+                                    <input
+                                        id="promo"
+                                        value={promo}
+                                        onChange={(e) =>
+                                            setPromo(e.target.value)
+                                        }
+                                        disabled={loading}
+                                        className="
+                                            h-10
+                                            w-full
+                                            rounded-xl
+                                            border
+                                            border-white/[0.07]
+                                            bg-black/20
+                                            px-3
+                                            text-xs
+                                            text-white
+                                            outline-none
+                                            transition
+                                            placeholder:text-slate-700
+                                            focus:border-blue-500/40
+                                            focus:bg-blue-500/[0.02]
+                                            disabled:opacity-50
+                                        "
+                                        placeholder="Введите промокод"
+                                    />
+                                </div>
                             </div>
 
-                            {/* TOTAL */}
+                            {/* PRICE */}
 
                             <div
                                 className="
@@ -414,26 +566,38 @@ export default function BuyModal({
                                     border
                                     border-white/[0.06]
                                     bg-black/20
-                                    p-3
+                                    p-3.5
                                 "
                             >
                                 <div className="flex items-center justify-between">
-                                    <span className="text-xs text-slate-500">
-                                        Итого
+                                    <span className="text-[11px] text-slate-500">
+                                        Стоимость товара
                                     </span>
 
-                                    <span className="text-lg font-bold text-white">
+                                    <span className="text-xs font-medium text-slate-300">
                                         {price} ₽
                                     </span>
                                 </div>
 
-                                <div className="mt-1.5 flex items-center justify-between">
-                                    <span className="text-[10px] text-slate-700">
+                                <div className="mt-2 flex items-center justify-between">
+                                    <span className="text-[11px] text-slate-500">
                                         Через Donation Alerts
                                     </span>
 
-                                    <span className="text-[11px] font-medium text-slate-500">
+                                    <span className="text-xs font-medium text-slate-300">
                                         {donationPrice} ₽
+                                    </span>
+                                </div>
+
+                                <div className="my-3 h-px bg-white/[0.06]" />
+
+                                <div className="flex items-center justify-between">
+                                    <span className="text-xs font-semibold text-white">
+                                        Итого
+                                    </span>
+
+                                    <span className="text-lg font-bold text-blue-400">
+                                        {price} ₽
                                     </span>
                                 </div>
                             </div>
@@ -444,36 +608,39 @@ export default function BuyModal({
                                 <div
                                     className="
                                         mt-3
-                                        rounded-lg
+                                        rounded-xl
                                         border
                                         border-red-500/20
-                                        bg-red-500/[0.08]
-                                        px-3
-                                        py-2.5
-                                        text-[11px]
-                                        leading-4
-                                        text-red-300
+                                        bg-red-500/[0.07]
+                                        p-3
                                     "
                                 >
-                                    {error}
+                                    <div className="flex items-start gap-2">
+                                        <span className="text-xs">
+                                            ⚠️
+                                        </span>
+
+                                        <p className="text-[10px] leading-4 text-red-300">
+                                            {error}
+                                        </p>
+                                    </div>
                                 </div>
                             )}
-
-                            {/* EXTRA SPACE */}
 
                             <div className="h-2" />
                         </div>
 
-                        {/* FOOTER — НЕ ЛИСТАЕТСЯ */}
+                        {/* FOOTER */}
 
                         <div
                             className="
                                 shrink-0
                                 border-t
                                 border-white/[0.06]
-                                bg-[#0D1117]
+                                bg-[#0B0F15]/95
                                 px-4
                                 py-3
+                                backdrop-blur-xl
                                 sm:px-5
                             "
                         >
@@ -486,31 +653,162 @@ export default function BuyModal({
                                     w-full
                                     items-center
                                     justify-center
+                                    gap-2
                                     rounded-xl
                                     bg-emerald-600
                                     py-2.5
-                                    text-sm
+                                    text-xs
                                     font-semibold
                                     text-white
+                                    shadow-lg
+                                    shadow-emerald-600/10
                                     transition
                                     hover:bg-emerald-500
+                                    hover:shadow-emerald-500/20
+                                    active:scale-[0.99]
                                     disabled:cursor-not-allowed
                                     disabled:opacity-50
                                 "
                             >
-                                {loading
-                                    ? "Создание заказа..."
-                                    : "Я оплатил"}
+                                {loading ? (
+                                    <>
+                                        <svg
+                                            className="animate-spin"
+                                            width="14"
+                                            height="14"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                        >
+                                            <circle
+                                                cx="12"
+                                                cy="12"
+                                                r="9"
+                                                stroke="currentColor"
+                                                strokeWidth="2"
+                                                opacity="0.25"
+                                            />
+
+                                            <path
+                                                d="M21 12a9 9 0 0 1-9 9"
+                                                stroke="currentColor"
+                                                strokeWidth="2"
+                                                strokeLinecap="round"
+                                            />
+                                        </svg>
+
+                                        Создание заказа...
+                                    </>
+                                ) : (
+                                    <>
+                                        Я оплатил
+
+                                        <svg
+                                            width="14"
+                                            height="14"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        >
+                                            <path d="M5 12h14" />
+                                            <path d="m13 6 6 6-6 6" />
+                                        </svg>
+                                    </>
+                                )}
                             </button>
 
-                            <p className="mt-1.5 text-center text-[9px] leading-4 text-slate-700">
-                                После подтверждения оплаты заказ будет
-                                обработан администратором.
+                            <p className="mt-1.5 text-center text-[9px] text-slate-700">
+                                Заказ поступит на проверку администратору
                             </p>
                         </div>
                     </div>
                 </div>
             )}
         </>
+    );
+}
+
+/* =========================================================
+   PAYMENT ROW
+========================================================= */
+
+function PaymentRow({
+    name,
+    value,
+    icon,
+}: {
+    name: string;
+    value: string;
+    icon: string;
+}) {
+    return (
+        <div
+            className="
+                group
+                flex
+                items-center
+                gap-3
+                rounded-xl
+                border
+                border-white/[0.06]
+                bg-black/20
+                px-3
+                py-2.5
+                transition
+                hover:border-white/[0.10]
+                hover:bg-white/[0.025]
+            "
+        >
+            <div
+                className="
+                    flex
+                    h-8
+                    w-8
+                    shrink-0
+                    items-center
+                    justify-center
+                    rounded-lg
+                    border
+                    border-white/[0.06]
+                    bg-white/[0.025]
+                    text-[11px]
+                    font-bold
+                    text-slate-400
+                "
+            >
+                {icon}
+            </div>
+
+            <div className="min-w-0 flex-1">
+                <div className="text-[10px] font-semibold text-slate-300">
+                    {name}
+                </div>
+
+                <div
+                    className="
+                        mt-0.5
+                        truncate
+                        text-[9px]
+                        text-slate-600
+                    "
+                >
+                    {value}
+                </div>
+            </div>
+
+            <div
+                className="
+                    shrink-0
+                    text-[10px]
+                    text-slate-700
+                    transition
+                    group-hover:text-slate-500
+                "
+            >
+                ✓
+            </div>
+        </div>
     );
 }
