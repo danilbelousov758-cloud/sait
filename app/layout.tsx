@@ -79,6 +79,7 @@ export default function RootLayout({
                     className="
                         relative
                         z-10
+                        min-h-screen
                     "
 
                 >

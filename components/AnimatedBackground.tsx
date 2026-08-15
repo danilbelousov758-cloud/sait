@@ -6,7 +6,7 @@ export default function AnimatedBackground(){
             className="
                 fixed
                 inset-0
-                -z-10
+                z-0
                 overflow-hidden
                 bg-[#05070D]
             "
@@ -16,30 +16,31 @@ export default function AnimatedBackground(){
             <div
                 className="
                     absolute
-                    -left-40
-                    -top-40
-                    h-[600px]
-                    w-[600px]
+                    left-[-150px]
+                    top-[-150px]
+                    h-[500px]
+                    w-[500px]
                     rounded-full
-                    bg-blue-600/30
-                    blur-[140px]
-                    animate-pulse
+                    bg-blue-600
+                    opacity-30
+                    blur-[120px]
+                    animate-[float_10s_ease-in-out_infinite]
                 "
             />
-
 
 
             <div
                 className="
                     absolute
-                    right-[-200px]
+                    right-[-150px]
                     top-[20%]
-                    h-[500px]
-                    w-[500px]
+                    h-[450px]
+                    w-[450px]
                     rounded-full
-                    bg-white/20
-                    blur-[160px]
-                    animate-pulse
+                    bg-white
+                    opacity-20
+                    blur-[120px]
+                    animate-[float_12s_ease-in-out_infinite]
                 "
             />
 
@@ -49,28 +50,17 @@ export default function AnimatedBackground(){
                 className="
                     absolute
                     bottom-[-200px]
-                    left-[30%]
-                    h-[700px]
-                    w-[700px]
+                    left-[35%]
+                    h-[600px]
+                    w-[600px]
                     rounded-full
-                    bg-indigo-900/40
-                    blur-[180px]
-                    animate-pulse
+                    bg-blue-900
+                    opacity-50
+                    blur-[150px]
+                    animate-[float_15s_ease-in-out_infinite]
                 "
             />
 
-
-
-            <div
-                className="
-                    absolute
-                    inset-0
-                    bg-gradient-to-b
-                    from-transparent
-                    via-[#05070D]/40
-                    to-[#05070D]
-                "
-            />
 
 
         </div>
