@@ -28,12 +28,12 @@ export default function BuyModal({
     useEffect(() => {
         if (!open) return;
 
-        const oldOverflow = document.body.style.overflow;
+        const originalOverflow = document.body.style.overflow;
 
         document.body.style.overflow = "hidden";
 
         return () => {
-            document.body.style.overflow = oldOverflow;
+            document.body.style.overflow = originalOverflow;
         };
     }, [open]);
 
@@ -120,6 +120,8 @@ export default function BuyModal({
 
     return (
         <>
+            {/* КНОПКА КУПИТЬ */}
+
             <button
                 type="button"
                 onClick={() => {
@@ -140,11 +142,12 @@ export default function BuyModal({
                     text-white
                     transition
                     hover:bg-blue-500
-                    active:scale-[0.99]
                 "
             >
                 Купить
             </button>
+
+            {/* МОДАЛЬНОЕ ОКНО */}
 
             {open && (
                 <div
@@ -154,7 +157,11 @@ export default function BuyModal({
                         z-[9999]
                         overflow-y-auto
                         bg-black/80
-                        backdrop-blur-md
+                        px-3
+                        py-3
+                        backdrop-blur-sm
+                        sm:px-4
+                        sm:py-5
                     "
                     onMouseDown={(e) => {
                         if (e.target === e.currentTarget) {
@@ -162,533 +169,525 @@ export default function BuyModal({
                         }
                     }}
                 >
-                    {/* КОНТЕЙНЕР */}
+                    {/*
+                        ВАЖНО:
+                        Не используем items-center.
+                        Поэтому верх окна никогда не уезжает
+                        за пределы экрана.
+                    */}
 
                     <div
                         className="
+                            mx-auto
                             flex
-                            min-h-full
-                            items-start
-                            justify-center
-                            px-3
-                            py-3
-                            sm:px-4
-                            sm:py-5
+                            w-full
+                            max-w-[440px]
+                            flex-col
+                            overflow-hidden
+                            rounded-2xl
+                            border
+                            border-white/10
+                            bg-[#0D1117]
+                            shadow-[0_25px_80px_rgba(0,0,0,0.65)]
                         "
+                        style={{
+                            maxHeight: "calc(100vh - 24px)",
+                        }}
                     >
+                        {/* ========================= */}
+                        {/* HEADER */}
+                        {/* ========================= */}
+
                         <div
                             className="
                                 flex
-                                w-full
-                                max-w-[440px]
-                                flex-col
-                                overflow-hidden
-                                rounded-2xl
-                                border
-                                border-white/[0.08]
-                                bg-[#0C1016]
-                                shadow-[0_25px_80px_rgba(0,0,0,0.7)]
+                                shrink-0
+                                items-center
+                                justify-between
+                                gap-3
+                                border-b
+                                border-white/[0.07]
+                                bg-[#0D1117]
+                                px-4
+                                py-3.5
+                                sm:px-5
                             "
-                            onMouseDown={(e) => {
-                                e.stopPropagation();
-                            }}
                         >
-                            {/* ========================= */}
-                            {/* HEADER — ВСЕГДА СВЕРХУ */}
-                            {/* ========================= */}
-
-                            <div
-                                className="
-                                    flex
-                                    shrink-0
-                                    items-center
-                                    justify-between
-                                    border-b
-                                    border-white/[0.06]
-                                    bg-[#0D1117]
-                                    px-4
-                                    py-3
-                                "
-                            >
-                                <div className="min-w-0">
-                                    <div className="flex items-center gap-2">
-                                        <div
-                                            className="
-                                                flex
-                                                h-7
-                                                w-7
-                                                shrink-0
-                                                items-center
-                                                justify-center
-                                                rounded-lg
-                                                bg-blue-500/10
-                                                text-xs
-                                                font-bold
-                                                text-blue-400
-                                            "
-                                        >
-                                            ₽
-                                        </div>
-
-                                        <h2 className="text-sm font-bold text-white">
-                                            Оформление заказа
-                                        </h2>
-                                    </div>
-
-                                    <p className="mt-1 text-[10px] text-slate-600">
-                                        Проверьте данные перед оплатой
-                                    </p>
-                                </div>
-
-                                <button
-                                    type="button"
-                                    onClick={closeModal}
-                                    disabled={loading}
+                            <div className="min-w-0">
+                                <h2
                                     className="
-                                        ml-3
-                                        flex
-                                        h-8
-                                        w-8
-                                        shrink-0
-                                        items-center
-                                        justify-center
-                                        rounded-lg
-                                        border
-                                        border-white/[0.05]
-                                        bg-white/[0.03]
-                                        text-lg
-                                        leading-none
-                                        text-slate-500
-                                        transition
-                                        hover:bg-white/[0.07]
-                                        hover:text-white
-                                        disabled:opacity-40
+                                        text-base
+                                        font-bold
+                                        leading-tight
+                                        text-white
                                     "
                                 >
-                                    ×
-                                </button>
+                                    Оформление заказа
+                                </h2>
+
+                                <p
+                                    className="
+                                        mt-1
+                                        text-[10px]
+                                        leading-4
+                                        text-slate-600
+                                    "
+                                >
+                                    Оплата и подтверждение заказа
+                                </p>
                             </div>
 
-                            {/* ========================= */}
-                            {/* ПРОКРУЧИВАЕМОЕ СОДЕРЖИМОЕ */}
-                            {/* ========================= */}
+                            <button
+                                type="button"
+                                onClick={closeModal}
+                                disabled={loading}
+                                className="
+                                    flex
+                                    h-8
+                                    w-8
+                                    shrink-0
+                                    items-center
+                                    justify-center
+                                    rounded-lg
+                                    border
+                                    border-white/[0.06]
+                                    bg-white/[0.035]
+                                    text-sm
+                                    text-slate-500
+                                    transition
+                                    hover:bg-white/[0.08]
+                                    hover:text-white
+                                    disabled:cursor-not-allowed
+                                    disabled:opacity-40
+                                "
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        {/* ========================= */}
+                        {/* SCROLL CONTENT */}
+                        {/* ========================= */}
+
+                        <div
+                            className="
+                                min-h-0
+                                flex-1
+                                overflow-y-auto
+                                overscroll-contain
+                                px-4
+                                py-3
+                                sm:px-5
+                            "
+                            style={{
+                                scrollbarWidth: "thin",
+                                scrollbarColor:
+                                    "#263242 transparent",
+                            }}
+                        >
+                            {/* ТОВАР */}
 
                             <div
                                 className="
-                                    max-h-[calc(100vh-150px)]
-                                    overflow-y-auto
-                                    px-4
-                                    py-3
-                                    sm:max-h-[calc(100vh-170px)]
-                                    sm:py-4
+                                    rounded-xl
+                                    border
+                                    border-white/[0.06]
+                                    bg-black/20
+                                    p-3
                                 "
-                                style={{
-                                    scrollbarWidth: "thin",
-                                    scrollbarColor:
-                                        "#26303D #0A0E13",
-                                }}
                             >
-                                {/* ТОВАР */}
+                                <div
+                                    className="
+                                        flex
+                                        items-center
+                                        justify-between
+                                        gap-3
+                                    "
+                                >
+                                    <div className="min-w-0">
+                                        <div
+                                            className="
+                                                truncate
+                                                text-sm
+                                                font-semibold
+                                                text-white
+                                            "
+                                        >
+                                            {productName}
+                                        </div>
+
+                                        <div
+                                            className="
+                                                mt-1
+                                                truncate
+                                                text-[10px]
+                                                text-slate-600
+                                            "
+                                        >
+                                            Продавец: {sellerName}
+                                        </div>
+                                    </div>
+
+                                    <div className="shrink-0 text-right">
+                                        <div
+                                            className="
+                                                text-base
+                                                font-bold
+                                                text-white
+                                            "
+                                        >
+                                            {price} ₽
+                                        </div>
+
+                                        <div
+                                            className="
+                                                mt-0.5
+                                                text-[8px]
+                                                uppercase
+                                                tracking-wider
+                                                text-slate-700
+                                            "
+                                        >
+                                            стоимость
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* ОПЛАТА */}
+
+                            <div className="mt-4">
+                                <div
+                                    className="
+                                        mb-2
+                                        text-[9px]
+                                        font-semibold
+                                        uppercase
+                                        tracking-[0.16em]
+                                        text-slate-600
+                                    "
+                                >
+                                    Способы оплаты
+                                </div>
 
                                 <div
                                     className="
+                                        overflow-hidden
                                         rounded-xl
                                         border
                                         border-white/[0.06]
-                                        bg-[#090D12]
-                                        p-3
+                                        bg-black/20
                                     "
                                 >
-                                    <div className="flex items-center gap-3">
+                                    <div className="px-3 py-2.5">
                                         <div
                                             className="
-                                                flex
-                                                h-9
-                                                w-9
-                                                shrink-0
-                                                items-center
-                                                justify-center
-                                                rounded-lg
-                                                bg-blue-500/10
+                                                text-[11px]
+                                                font-semibold
+                                                text-slate-300
+                                            "
+                                        >
+                                            СберБанк
+                                        </div>
+
+                                        <div
+                                            className="
+                                                mt-0.5
+                                                text-[11px]
+                                                tracking-wide
+                                                text-slate-500
+                                            "
+                                        >
+                                            2202 2088 8291 8056
+                                        </div>
+                                    </div>
+
+                                    <div className="h-px bg-white/[0.05]" />
+
+                                    <div className="px-3 py-2.5">
+                                        <div
+                                            className="
+                                                text-[11px]
+                                                font-semibold
+                                                text-slate-300
+                                            "
+                                        >
+                                            Т-Банк
+                                        </div>
+
+                                        <div
+                                            className="
+                                                mt-0.5
+                                                text-[11px]
+                                                tracking-wide
+                                                text-slate-500
+                                            "
+                                        >
+                                            5536 9177 2933 9314
+                                        </div>
+                                    </div>
+
+                                    <div className="h-px bg-white/[0.05]" />
+
+                                    <div className="px-3 py-2.5">
+                                        <div
+                                            className="
+                                                text-[11px]
+                                                font-semibold
+                                                text-slate-300
+                                            "
+                                        >
+                                            Donation Alerts
+                                        </div>
+
+                                        <div
+                                            className="
+                                                mt-0.5
+                                                break-all
                                                 text-[9px]
-                                                font-bold
-                                                text-blue-400
+                                                leading-4
+                                                text-slate-600
                                             "
                                         >
-                                            MOD
-                                        </div>
-
-                                        <div className="min-w-0 flex-1">
-                                            <div className="truncate text-sm font-semibold text-white">
-                                                {productName}
-                                            </div>
-
-                                            <div className="mt-0.5 truncate text-[10px] text-slate-600">
-                                                Автор: {sellerName}
-                                            </div>
-                                        </div>
-
-                                        <div className="shrink-0 text-right">
-                                            <div className="text-base font-bold text-white">
-                                                {price} ₽
-                                            </div>
-
-                                            <div className="text-[9px] uppercase tracking-wider text-slate-700">
-                                                товар
-                                            </div>
+                                            donationalerts.com/r/galbraith1629
                                         </div>
                                     </div>
                                 </div>
-
-                                {/* СПОСОБЫ ОПЛАТЫ */}
-
-                                <div className="mt-3">
-                                    <div
-                                        className="
-                                            mb-2
-                                            flex
-                                            items-center
-                                            gap-2
-                                            text-[10px]
-                                            font-semibold
-                                            uppercase
-                                            tracking-widest
-                                            text-slate-600
-                                        "
-                                    >
-                                        <span>
-                                            Способы оплаты
-                                        </span>
-
-                                        <span className="h-px flex-1 bg-white/[0.05]" />
-                                    </div>
-
-                                    <div
-                                        className="
-                                            overflow-hidden
-                                            rounded-xl
-                                            border
-                                            border-white/[0.06]
-                                            bg-[#090D12]
-                                        "
-                                    >
-                                        {/* СБЕР */}
-
-                                        <div
-                                            className="
-                                                flex
-                                                items-center
-                                                justify-between
-                                                gap-3
-                                                px-3
-                                                py-2.5
-                                            "
-                                        >
-                                            <div>
-                                                <div className="text-xs font-semibold text-white">
-                                                    СберБанк
-                                                </div>
-
-                                                <div className="mt-0.5 text-[10px] text-slate-600">
-                                                    Номер карты
-                                                </div>
-                                            </div>
-
-                                            <div
-                                                className="
-                                                    rounded-lg
-                                                    bg-white/[0.035]
-                                                    px-2
-                                                    py-1.5
-                                                    font-mono
-                                                    text-[10px]
-                                                    text-slate-400
-                                                "
-                                            >
-                                                2202 2088 8291 8056
-                                            </div>
-                                        </div>
-
-                                        <div className="h-px bg-white/[0.05]" />
-
-                                        {/* Т-БАНК */}
-
-                                        <div
-                                            className="
-                                                flex
-                                                items-center
-                                                justify-between
-                                                gap-3
-                                                px-3
-                                                py-2.5
-                                            "
-                                        >
-                                            <div>
-                                                <div className="text-xs font-semibold text-white">
-                                                    Т-Банк
-                                                </div>
-
-                                                <div className="mt-0.5 text-[10px] text-slate-600">
-                                                    Номер карты
-                                                </div>
-                                            </div>
-
-                                            <div
-                                                className="
-                                                    rounded-lg
-                                                    bg-white/[0.035]
-                                                    px-2
-                                                    py-1.5
-                                                    font-mono
-                                                    text-[10px]
-                                                    text-slate-400
-                                                "
-                                            >
-                                                5536 9177 2933 9314
-                                            </div>
-                                        </div>
-
-                                        <div className="h-px bg-white/[0.05]" />
-
-                                        {/* DONATION ALERTS */}
-
-                                        <div className="px-3 py-2.5">
-                                            <div className="flex items-center justify-between gap-3">
-                                                <div>
-                                                    <div className="text-xs font-semibold text-white">
-                                                        Donation Alerts
-                                                    </div>
-
-                                                    <div className="mt-0.5 text-[10px] text-slate-600">
-                                                        С учётом комиссии 15%
-                                                    </div>
-                                                </div>
-
-                                                <div className="text-xs font-semibold text-blue-400">
-                                                    {donationPrice} ₽
-                                                </div>
-                                            </div>
-
-                                            <div
-                                                className="
-                                                    mt-2
-                                                    rounded-lg
-                                                    bg-black/20
-                                                    px-2.5
-                                                    py-2
-                                                    text-[10px]
-                                                    text-slate-600
-                                                "
-                                            >
-                                                donationalerts.com/r/galbraith1629
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* ПРЕДУПРЕЖДЕНИЕ */}
-
-                                <div
-                                    className="
-                                        mt-3
-                                        rounded-xl
-                                        border
-                                        border-amber-500/15
-                                        bg-amber-500/[0.045]
-                                        p-3
-                                    "
-                                >
-                                    <div className="flex gap-2.5">
-                                        <div
-                                            className="
-                                                flex
-                                                h-6
-                                                w-6
-                                                shrink-0
-                                                items-center
-                                                justify-center
-                                                rounded-lg
-                                                bg-amber-400/10
-                                                text-xs
-                                            "
-                                        >
-                                            ⚠️
-                                        </div>
-
-                                        <div>
-                                            <div className="text-[11px] font-semibold text-amber-300">
-                                                Важно
-                                            </div>
-
-                                            <p className="mt-1 text-[10px] leading-4 text-slate-500">
-                                                Donation Alerts удерживает{" "}
-                                                <b className="text-slate-300">
-                                                    15%
-                                                </b>{" "}
-                                                комиссии. Для получения полной
-                                                стоимости товара необходимо
-                                                отправить{" "}
-                                                <b className="text-slate-300">
-                                                    {donationPrice} ₽
-                                                </b>
-                                                .
-                                            </p>
-
-                                            <p className="mt-1 text-[10px] leading-4 text-slate-500">
-                                                Если поступит меньше необходимой
-                                                суммы, потребуется{" "}
-                                                <b className="text-amber-300">
-                                                    доплатить разницу
-                                                </b>
-                                                .
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* ПРОМОКОД */}
-
-                                <div className="mt-3">
-                                    <label
-                                        className="
-                                            text-[10px]
-                                            font-semibold
-                                            uppercase
-                                            tracking-widest
-                                            text-slate-600
-                                        "
-                                    >
-                                        Промокод
-                                    </label>
-
-                                    <input
-                                        value={promo}
-                                        onChange={(e) =>
-                                            setPromo(e.target.value)
-                                        }
-                                        disabled={loading}
-                                        className="
-                                            mt-1.5
-                                            h-10
-                                            w-full
-                                            rounded-xl
-                                            border
-                                            border-white/[0.07]
-                                            bg-[#090D12]
-                                            px-3
-                                            text-xs
-                                            text-white
-                                            outline-none
-                                            transition
-                                            placeholder:text-slate-700
-                                            focus:border-blue-500/40
-                                            disabled:opacity-50
-                                        "
-                                        placeholder="Введите промокод"
-                                    />
-                                </div>
-
-                                {/* ИТОГО */}
-
-                                <div
-                                    className="
-                                        mt-3
-                                        rounded-xl
-                                        border
-                                        border-blue-500/10
-                                        bg-blue-500/[0.035]
-                                        p-3
-                                    "
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-xs text-slate-500">
-                                            К оплате
-                                        </span>
-
-                                        <span className="text-xl font-bold text-white">
-                                            {price} ₽
-                                        </span>
-                                    </div>
-
-                                    <div className="mt-1 flex items-center justify-between">
-                                        <span className="text-[10px] text-slate-700">
-                                            Через Donation Alerts
-                                        </span>
-
-                                        <span className="text-[10px] font-medium text-blue-400">
-                                            {donationPrice} ₽
-                                        </span>
-                                    </div>
-                                </div>
-
-                                {/* ОШИБКА */}
-
-                                {error && (
-                                    <div
-                                        className="
-                                            mt-3
-                                            rounded-xl
-                                            border
-                                            border-red-500/20
-                                            bg-red-500/[0.07]
-                                            px-3
-                                            py-2.5
-                                            text-[10px]
-                                            leading-4
-                                            text-red-300
-                                        "
-                                    >
-                                        {error}
-                                    </div>
-                                )}
                             </div>
 
-                            {/* ========================= */}
-                            {/* НИЖНЯЯ КНОПКА */}
-                            {/* ========================= */}
+                            {/* ПРЕДУПРЕЖДЕНИЕ */}
 
                             <div
                                 className="
-                                    shrink-0
-                                    border-t
-                                    border-white/[0.06]
-                                    bg-[#0D1117]
-                                    px-4
-                                    py-3
+                                    mt-3
+                                    rounded-xl
+                                    border
+                                    border-amber-500/15
+                                    bg-amber-500/[0.045]
+                                    px-3
+                                    py-2.5
                                 "
                             >
-                                <button
-                                    type="button"
-                                    onClick={buy}
-                                    disabled={loading}
+                                <div className="flex gap-2">
+                                    <span className="shrink-0 text-sm">
+                                        ⚠️
+                                    </span>
+
+                                    <p
+                                        className="
+                                            text-[10px]
+                                            leading-4
+                                            text-slate-400
+                                        "
+                                    >
+                                        <span className="font-semibold text-amber-300">
+                                            Donation Alerts
+                                        </span>{" "}
+                                        удерживает комиссию{" "}
+                                        <span className="font-semibold text-slate-300">
+                                            15%
+                                        </span>
+                                        . Поэтому сумма доната должна покрывать
+                                        стоимость товара с учётом комиссии.
+                                        Если сумма будет меньше — потребуется{" "}
+                                        <span className="font-semibold text-amber-300">
+                                            доплата разницы
+                                        </span>
+                                        .
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* ПРОМОКОД */}
+
+                            <div className="mt-4">
+                                <label
                                     className="
-                                        flex
-                                        w-full
-                                        items-center
-                                        justify-center
-                                        rounded-xl
-                                        bg-emerald-600
-                                        py-2.5
-                                        text-xs
+                                        text-[9px]
                                         font-semibold
-                                        text-white
-                                        transition
-                                        hover:bg-emerald-500
-                                        active:scale-[0.99]
-                                        disabled:cursor-not-allowed
-                                        disabled:opacity-50
+                                        uppercase
+                                        tracking-[0.16em]
+                                        text-slate-600
                                     "
                                 >
-                                    {loading
-                                        ? "Создание заказа..."
-                                        : "Я оплатил"}
-                                </button>
+                                    Промокод
+                                </label>
 
-                                <p className="mt-1.5 text-center text-[9px] text-slate-700">
-                                    После оплаты заказ будет проверен
-                                    администратором.
-                                </p>
+                                <input
+                                    value={promo}
+                                    onChange={(e) =>
+                                        setPromo(e.target.value)
+                                    }
+                                    disabled={loading}
+                                    className="
+                                        mt-2
+                                        h-10
+                                        w-full
+                                        rounded-xl
+                                        border
+                                        border-white/[0.08]
+                                        bg-black/25
+                                        px-3
+                                        text-xs
+                                        text-white
+                                        outline-none
+                                        transition
+                                        placeholder:text-slate-700
+                                        focus:border-blue-500/50
+                                        focus:bg-black/35
+                                        disabled:opacity-50
+                                    "
+                                    placeholder="Введите промокод"
+                                />
                             </div>
+
+                            {/* ИТОГО */}
+
+                            <div
+                                className="
+                                    mt-4
+                                    rounded-xl
+                                    border
+                                    border-white/[0.06]
+                                    bg-black/20
+                                    p-3
+                                "
+                            >
+                                <div
+                                    className="
+                                        flex
+                                        items-center
+                                        justify-between
+                                        gap-3
+                                    "
+                                >
+                                    <span
+                                        className="
+                                            text-[11px]
+                                            text-slate-500
+                                        "
+                                    >
+                                        Стоимость товара
+                                    </span>
+
+                                    <span
+                                        className="
+                                            text-base
+                                            font-bold
+                                            text-white
+                                        "
+                                    >
+                                        {price} ₽
+                                    </span>
+                                </div>
+
+                                <div
+                                    className="
+                                        mt-2
+                                        flex
+                                        items-center
+                                        justify-between
+                                        gap-3
+                                    "
+                                >
+                                    <span
+                                        className="
+                                            text-[10px]
+                                            text-slate-700
+                                        "
+                                    >
+                                        Сумма через Donation Alerts
+                                    </span>
+
+                                    <span
+                                        className="
+                                            text-[11px]
+                                            font-medium
+                                            text-slate-500
+                                        "
+                                    >
+                                        {donationPrice} ₽
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* ОШИБКА */}
+
+                            {error && (
+                                <div
+                                    className="
+                                        mt-3
+                                        rounded-xl
+                                        border
+                                        border-red-500/20
+                                        bg-red-500/[0.07]
+                                        px-3
+                                        py-2.5
+                                        text-[10px]
+                                        leading-4
+                                        text-red-300
+                                    "
+                                >
+                                    {error}
+                                </div>
+                            )}
+
+                            <div className="h-1" />
+                        </div>
+
+                        {/* ========================= */}
+                        {/* FOOTER */}
+                        {/* ========================= */}
+
+                        <div
+                            className="
+                                shrink-0
+                                border-t
+                                border-white/[0.07]
+                                bg-[#0D1117]
+                                px-4
+                                py-3
+                                sm:px-5
+                            "
+                        >
+                            <button
+                                type="button"
+                                onClick={buy}
+                                disabled={loading}
+                                className="
+                                    flex
+                                    w-full
+                                    items-center
+                                    justify-center
+                                    rounded-xl
+                                    bg-emerald-600
+                                    py-2.5
+                                    text-xs
+                                    font-semibold
+                                    text-white
+                                    transition
+                                    hover:bg-emerald-500
+                                    disabled:cursor-not-allowed
+                                    disabled:opacity-50
+                                "
+                            >
+                                {loading
+                                    ? "Создание заказа..."
+                                    : "Я оплатил"}
+                            </button>
+
+                            <p
+                                className="
+                                    mt-1.5
+                                    text-center
+                                    text-[8px]
+                                    leading-3
+                                    text-slate-700
+                                "
+                            >
+                                После оплаты заказ поступит на проверку
+                                администратору.
+                            </p>
                         </div>
                     </div>
                 </div>
