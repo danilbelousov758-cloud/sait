@@ -6,8 +6,10 @@ import {
     useState,
 } from "react";
 
-import Header from "@/components/Header";
 import Link from "next/link";
+
+import Header from "@/components/Header";
+
 
 
 type User = {
@@ -21,16 +23,27 @@ type User = {
 
 type Product = {
     id: number;
+
     name: string;
+
     category: string;
+
     price: number;
+
     description: string;
+
     images: string[];
+
     dff_file: string | null;
+
     txd_file: string | null;
+
     author_id?: number | null;
+
     status?: string | null;
+
     pinned?: boolean;
+
     created_at?: string | null;
 };
 
@@ -38,14 +51,17 @@ type Product = {
 
 type CatalogItem = {
     name: string;
+
     children?: CatalogItem[];
 };
 
 
 
 const expandableCategories: CatalogItem[] = [
+
     {
         name: "Скины",
+
         children: [
             { name: "Государственные" },
             { name: "Мафии" },
@@ -54,8 +70,10 @@ const expandableCategories: CatalogItem[] = [
         ],
     },
 
+
     {
         name: "Оружие",
+
         children: [
             { name: "Ганпак" },
             { name: "Дигл" },
@@ -72,8 +90,10 @@ const expandableCategories: CatalogItem[] = [
         ],
     },
 
+
     {
         name: "Интерьеры",
+
         children: [
             { name: "24/7" },
             { name: "ДПС / ППС / ФСБ" },
@@ -86,8 +106,10 @@ const expandableCategories: CatalogItem[] = [
         ],
     },
 
+
     {
         name: "Заменные территории",
+
         children: [
             { name: "ЦР" },
             { name: "ФСИН" },
@@ -99,89 +121,156 @@ const expandableCategories: CatalogItem[] = [
         ],
     },
 
+
     {
         name: "Эффекты",
+
         children: [
             { name: "Кровь" },
+
             { name: "Эффект при попадании" },
+
             {
                 name: "Эффект при убийстве и ноке",
+
                 children: [
-                    { name: "ld_bum" },
+                    {
+                        name: "ld_bum",
+                    },
                 ],
             },
         ],
     },
 
+
     {
         name: "Звуки",
+
         children: [
+
             {
                 name: "Попадание",
+
                 children: [
+
                     {
                         name: "Пистолеты",
+
                         children: [
                             { name: "M4A4" },
                             { name: "Абакан" },
                             { name: "Гроза" },
                         ],
                     },
+
                 ],
             },
+
         ],
     },
+
 ];
 
 
 
 const simpleCategories = [
+
     "Дороги",
+
     "Карты",
+
     "Арзамас",
+
     "Казино",
+
     "Порт",
+
     "Инвентарь",
+
     "Скайбоксы",
+
     "Нефтевышки",
+
     "Прицелы",
+
     "Курсор мыши",
+
     "Фисты",
+
     "Таймциклы",
+
     "Пикапы",
+
     "АХК",
+
     "ASI плагины",
+
     "Деревья",
+
     "Графика",
+
     "Загрузочный экран",
+
     "Подсказки для гос. сотрудников",
+
 ];
+
+
+
+type CatalogTab =
+    "mods"
+    |
+    "builds"
+    |
+    "tips";
 
 
 
 export default function CatalogPage() {
 
-    const [user, setUser] =
+
+    const [user,setUser] =
         useState<User | null>(null);
 
-    const [products, setProducts] =
+
+
+    const [products,setProducts] =
         useState<Product[]>([]);
 
-    const [selectedCategory, setSelectedCategory] =
-        useState("Все моды");
 
-    const [openCategories, setOpenCategories] =
+
+    const [selectedCategory,setSelectedCategory] =
+        useState(
+            "Все моды"
+        );
+
+
+
+    const [openCategories,setOpenCategories] =
         useState<string[]>([
             "Скины",
         ]);
 
-    const [search, setSearch] =
+
+
+    const [search,setSearch] =
         useState("");
 
-    const [loading, setLoading] =
+
+
+    const [catalogTab,setCatalogTab] =
+        useState<CatalogTab>(
+            "mods"
+        );
+
+
+
+    const [loading,setLoading] =
         useState(true);
 
-    const [error, setError] =
+
+
+    const [error,setError] =
         useState("");
 
 
@@ -189,32 +278,30 @@ export default function CatalogPage() {
     useEffect(() => {
 
         loadUser();
+
         loadProducts();
 
 
 
-        const handleUserUpdated = () => {
+        const updateUser = () => {
             loadUser();
         };
 
 
-
-        const handleProductsUpdated = () => {
+        const updateProducts = () => {
             loadProducts();
         };
 
 
-
         window.addEventListener(
             "userUpdated",
-            handleUserUpdated
+            updateUser
         );
-
 
 
         window.addEventListener(
             "productsUpdated",
-            handleProductsUpdated
+            updateProducts
         );
 
 
@@ -223,29 +310,28 @@ export default function CatalogPage() {
 
             window.removeEventListener(
                 "userUpdated",
-                handleUserUpdated
+                updateUser
             );
-
 
 
             window.removeEventListener(
                 "productsUpdated",
-                handleProductsUpdated
+                updateProducts
             );
 
         };
 
+
     }, []);
-
-
 
     function loadUser() {
 
         try {
 
             const saved =
-                localStorage.getItem("user");
-
+                localStorage.getItem(
+                    "user"
+                );
 
 
             if (!saved) {
@@ -257,10 +343,10 @@ export default function CatalogPage() {
             }
 
 
-
             setUser(
                 JSON.parse(saved)
             );
+
 
         } catch {
 
@@ -272,11 +358,14 @@ export default function CatalogPage() {
 
 
 
+
+
     async function loadProducts() {
 
         try {
 
             setLoading(true);
+
             setError("");
 
 
@@ -285,36 +374,14 @@ export default function CatalogPage() {
                 await fetch(
                     "/api/products",
                     {
-                        method: "GET",
                         cache: "no-store",
                     }
                 );
 
 
 
-            const text =
-                await response.text();
-
-
-
-            let data: any = null;
-
-
-
-            try {
-
-                data =
-                    text
-                        ? JSON.parse(text)
-                        : null;
-
-            } catch {
-
-                throw new Error(
-                    "Сервер вернул некорректный ответ"
-                );
-
-            }
+            const data =
+                await response.json();
 
 
 
@@ -329,138 +396,121 @@ export default function CatalogPage() {
 
 
 
-            const apiProducts =
+            const items =
                 Array.isArray(
-                    data?.products
+                    data.products
                 )
                     ? data.products
                     : [];
 
 
 
-            const normalizedProducts =
-                apiProducts.map(
-                    (
-                        product: Partial<Product>
-                    ) => {
+            const normalized =
+                items.map(
+                    (item:any) => ({
 
-                        let images: string[] = [];
+                        id:
+                            Number(
+                                item.id
+                            ),
 
 
+                        name:
+                            String(
+                                item.name ||
+                                "Без названия"
+                            ),
 
-                        if (
+
+                        category:
+                            String(
+                                item.category ||
+                                ""
+                            ),
+
+
+                        price:
+                            Number(
+                                item.price ||
+                                0
+                            ),
+
+
+                        description:
+                            String(
+                                item.description ||
+                                ""
+                            ),
+
+
+                        images:
                             Array.isArray(
-                                product.images
+                                item.images
                             )
-                        ) {
-
-                            images =
-                                product.images.filter(
-                                    (
-                                        image
-                                    ): image is string =>
-                                        typeof image ===
-                                        "string" &&
-                                        image.length > 0
-                                );
-
-                        }
+                                ? item.images
+                                : [],
 
 
+                        dff_file:
+                            item.dff_file ||
+                            null,
 
-                        return {
 
-                            id:
-                                Number(
-                                    product.id
-                                ),
+                        txd_file:
+                            item.txd_file ||
+                            null,
 
-                            name:
-                                String(
-                                    product.name ||
-                                    "Без названия"
-                                ),
 
-                            category:
-                                String(
-                                    product.category ||
-                                    ""
-                                ),
+                        author_id:
+                            item.author_id
+                                ? Number(
+                                    item.author_id
+                                )
+                                : null,
 
-                            price:
-                                Number(
-                                    product.price ||
-                                    0
-                                ),
 
-                            description:
-                                String(
-                                    product.description ||
-                                    ""
-                                ),
+                        status:
+                            item.status ||
+                            "ACTIVE",
 
-                            images,
 
-                            dff_file:
-                                product.dff_file ||
-                                null,
+                        pinned:
+                            Boolean(
+                                item.pinned
+                            ),
 
-                            txd_file:
-                                product.txd_file ||
-                                null,
 
-                            author_id:
-                                product.author_id !==
-                                    null &&
-                                product.author_id !==
-                                    undefined
-                                    ? Number(
-                                        product.author_id
-                                    )
-                                    : null,
+                        created_at:
+                            item.created_at ||
+                            null,
 
-                            status:
-                                product.status ||
-                                "ACTIVE",
-
-                            pinned:
-                                Boolean(
-                                    product.pinned
-                                ),
-
-                            created_at:
-                                product.created_at ||
-                                null,
-
-                        };
-
-                    }
+                    })
                 );
 
 
 
             setProducts(
-                normalizedProducts
+                normalized
             );
 
-        } catch (err) {
+
+        } catch(error) {
+
 
             console.error(
-                "CATALOG LOAD ERROR:",
-                err
+                error
             );
-
-
-
-            setError(
-                err instanceof Error
-                    ? err.message
-                    : "Ошибка загрузки товаров"
-            );
-
 
 
             setProducts([]);
+
+
+            setError(
+                error instanceof Error
+                    ? error.message
+                    : "Ошибка загрузки"
+            );
+
 
         } finally {
 
@@ -472,23 +522,33 @@ export default function CatalogPage() {
 
 
 
+
+
     const role =
-        user?.role?.toUpperCase() ||
+        user?.role?.toUpperCase()
+        ||
         "USER";
 
 
 
     const canCreateProduct =
-        role === "SELLER" ||
-        role === "ADMIN" ||
-        role === "FOUNDER";
+        role === "ADMIN"
+        ||
+        role === "FOUNDER"
+        ||
+        role === "SELLER";
+
+
+
+
 
 
 
     const filteredProducts =
         useMemo(() => {
 
-            const normalizedSearch =
+
+            const text =
                 search
                     .trim()
                     .toLowerCase();
@@ -498,23 +558,47 @@ export default function CatalogPage() {
             return products.filter(
                 product => {
 
+
+
                     if (
-                        normalizedSearch &&
-                        !product.name
-                            .toLowerCase()
-                            .includes(
-                                normalizedSearch
-                            ) &&
-                        !product.description
-                            .toLowerCase()
-                            .includes(
-                                normalizedSearch
-                            )
+                        catalogTab === "builds"
                     ) {
 
                         return false;
 
                     }
+
+
+
+                    if (
+                        catalogTab === "tips"
+                    ) {
+
+                        return false;
+
+                    }
+
+
+
+
+
+                    if (
+                        text
+                        &&
+                        !product.name
+                            .toLowerCase()
+                            .includes(text)
+                        &&
+                        !product.description
+                            .toLowerCase()
+                            .includes(text)
+                    ) {
+
+                        return false;
+
+                    }
+
+
 
 
 
@@ -529,68 +613,39 @@ export default function CatalogPage() {
 
 
 
-                    const isParentCategory =
-                        expandableCategories.some(
-                            category =>
-                                category.name ===
-                                selectedCategory
+
+                    const category =
+                        normalizeCategory(
+                            product.category
+                        );
+
+
+                    const selected =
+                        normalizeCategory(
+                            selectedCategory
                         );
 
 
 
-                    if (
-                        isParentCategory
-                    ) {
-
-                        return false;
-
-                    }
-
-
-
-                    const productCategory =
-                        product.category
-                            .toLowerCase()
-                            .replace(
-                                /\s*>\s*/g,
-                                "/"
-                            )
-                            .replace(
-                                /\s*\/\s*/g,
-                                "/"
-                            )
-                            .trim();
-
-
-
-                    const selected =
-                        selectedCategory
-                            .toLowerCase()
-                            .replace(
-                                /\s*>\s*/g,
-                                "/"
-                            )
-                            .replace(
-                                /\s*\/\s*/g,
-                                "/"
-                            )
-                            .trim();
-
-
-
                     return (
-                        productCategory ===
-                        selected
+                        category === selected
                     );
+
 
                 }
             );
 
-        }, [
+
+        },[
             products,
-            selectedCategory,
             search,
+            selectedCategory,
+            catalogTab,
         ]);
+
+
+
+
 
 
 
@@ -606,10 +661,13 @@ export default function CatalogPage() {
 
 
 
+
+
     const filteredSimple =
         simpleCategories.filter(
             item =>
-                item.toLowerCase()
+                item
+                    .toLowerCase()
                     .includes(
                         search.toLowerCase()
                     )
@@ -617,7 +675,12 @@ export default function CatalogPage() {
 
 
 
+
+
+
+
     return (
+
         <>
 
             <Header />
@@ -629,51 +692,10 @@ export default function CatalogPage() {
                     min-h-screen
                     px-4
                     pb-20
-                    pt-[125px]
+                    pt-[120px]
                     text-white
                 "
             >
-
-                <div
-                    className="
-                        pointer-events-none
-                        fixed
-                        inset-0
-                        overflow-hidden
-                    "
-                >
-
-                    <div
-                        className="
-                            absolute
-                            left-1/2
-                            top-[-260px]
-                            h-[520px]
-                            w-[720px]
-                            -translate-x-1/2
-                            rounded-full
-                            bg-blue-600/[0.055]
-                            blur-[150px]
-                        "
-                    />
-
-
-
-                    <div
-                        className="
-                            absolute
-                            bottom-[-250px]
-                            right-[-150px]
-                            h-[450px]
-                            w-[450px]
-                            rounded-full
-                            bg-blue-500/[0.025]
-                            blur-[150px]
-                        "
-                    />
-
-                </div>
-
 
 
                 <div
@@ -684,17 +706,18 @@ export default function CatalogPage() {
                     "
                 >
 
+
+
                     <div
                         className="
-                            mb-7
+                            mb-8
                             flex
-                            flex-col
+                            items-center
+                            justify-between
                             gap-4
-                            sm:flex-row
-                            sm:items-end
-                            sm:justify-between
                         "
                     >
+
 
                         <div>
 
@@ -702,12 +725,10 @@ export default function CatalogPage() {
                                 className="
                                     text-3xl
                                     font-bold
-                                    tracking-tight
                                 "
                             >
                                 Каталог
                             </h1>
-
 
 
                             <p
@@ -717,22 +738,20 @@ export default function CatalogPage() {
                                     text-slate-500
                                 "
                             >
-                                Моды MAZEPOV CONNEXTION
+                                MAZEPOV CONNEXTION
                             </p>
+
 
                         </div>
 
 
 
+
                         {canCreateProduct && (
 
-                            <a
+                            <Link
                                 href="/catalog/create"
                                 className="
-                                    inline-flex
-                                    w-fit
-                                    items-center
-                                    justify-center
                                     rounded-xl
                                     bg-blue-600
                                     px-4
@@ -744,38 +763,110 @@ export default function CatalogPage() {
                                 "
                             >
 
-                                <span className="mr-2">
-                                    +
-                                </span>
+                                + Создать товар
 
-                                Создать товар
-
-                            </a>
+                            </Link>
 
                         )}
 
+
+
                     </div>
 
-
-
-                    <div
+                                        <div
                         className="
-                            mb-5
-                            max-w-xl
+                            mb-6
+                            flex
+                            flex-col
+                            gap-4
                         "
                     >
 
+
+                        {/* Вкладки каталога */}
+
+                        <div
+                            className="
+                                flex
+                                w-fit
+                                items-center
+                                gap-1
+                                rounded-xl
+                                border
+                                border-white/10
+                                bg-[#0D1117]
+                                p-1
+                            "
+                        >
+
+
+                            {[
+                                {
+                                    id:"mods",
+                                    title:"Моды",
+                                },
+                                {
+                                    id:"builds",
+                                    title:"Сборки",
+                                },
+                                {
+                                    id:"tips",
+                                    title:"Подсказки",
+                                },
+
+                            ].map(tab => (
+
+                                <button
+                                    key={tab.id}
+                                    type="button"
+                                    onClick={() =>
+                                        setCatalogTab(
+                                            tab.id as CatalogTab
+                                        )
+                                    }
+                                    className={`
+                                        rounded-lg
+                                        px-5
+                                        py-2
+                                        text-sm
+                                        transition
+                                        ${
+                                            catalogTab === tab.id
+                                            ?
+                                            "bg-blue-600 text-white"
+                                            :
+                                            "text-slate-400 hover:bg-white/5 hover:text-white"
+                                        }
+                                    `}
+                                >
+
+                                    {tab.title}
+
+                                </button>
+
+                            ))}
+
+
+                        </div>
+
+
+
+
+
+                        {/* Поиск */}
+
                         <input
                             value={search}
-                            onChange={event =>
-                                setSearch(
-                                    event.target.value
-                                )
+                            onChange={
+                                event =>
+                                    setSearch(
+                                        event.target.value
+                                    )
                             }
                             placeholder="Поиск по каталогу..."
                             className="
                                 h-12
-                                w-full
+                                max-w-xl
                                 rounded-xl
                                 border
                                 border-white/10
@@ -787,11 +878,14 @@ export default function CatalogPage() {
                                 transition
                                 placeholder:text-slate-700
                                 focus:border-blue-500
-                                focus:bg-[#11161D]
                             "
                         />
 
+
                     </div>
+
+
+
 
 
 
@@ -799,9 +893,15 @@ export default function CatalogPage() {
                         className="
                             grid
                             gap-5
-                            lg:grid-cols-[270px_1fr]
+                            lg:grid-cols-[250px_1fr]
                         "
                     >
+
+
+
+
+                        {/* Сайдбар категорий */}
+
 
                         <aside
                             className="
@@ -814,6 +914,23 @@ export default function CatalogPage() {
                             "
                         >
 
+
+
+                            <p
+                                className="
+                                    mb-3
+                                    px-3
+                                    text-[10px]
+                                    uppercase
+                                    tracking-widest
+                                    text-slate-600
+                                "
+                            >
+                                Категории
+                            </p>
+
+
+
                             <button
                                 type="button"
                                 onClick={() =>
@@ -822,7 +939,7 @@ export default function CatalogPage() {
                                     )
                                 }
                                 className={`
-                                    mb-2
+                                    mb-1
                                     w-full
                                     rounded-xl
                                     px-3
@@ -833,19 +950,25 @@ export default function CatalogPage() {
                                     ${
                                         selectedCategory ===
                                         "Все моды"
-                                            ? "bg-blue-600 text-white"
-                                            : "text-slate-400 hover:bg-white/5"
+                                        ?
+                                        "bg-blue-600 text-white"
+                                        :
+                                        "text-slate-400 hover:bg-white/5 hover:text-white"
                                     }
                                 `}
                             >
+
                                 Все моды
+
                             </button>
+
+
 
 
 
                             <div
                                 className="
-                                    mb-3
+                                    mb-2
                                     mt-5
                                     text-[10px]
                                     uppercase
@@ -853,42 +976,59 @@ export default function CatalogPage() {
                                     text-slate-600
                                 "
                             >
+
                                 Разделы
+
                             </div>
 
 
 
-                            <div className="space-y-1">
+
+                            <div
+                                className="
+                                    space-y-1
+                                "
+                            >
 
                                 {filteredMainCategories.map(
                                     category => (
 
                                         <CategoryTree
+
                                             key={
                                                 category.name
                                             }
+
                                             item={
                                                 category
                                             }
+
                                             parentPath=""
+
                                             selectedCategory={
                                                 selectedCategory
                                             }
+
                                             setSelectedCategory={
                                                 setSelectedCategory
                                             }
+
                                             openCategories={
                                                 openCategories
                                             }
+
                                             setOpenCategories={
                                                 setOpenCategories
                                             }
+
                                         />
 
                                     )
                                 )}
 
                             </div>
+
+
 
 
 
@@ -902,6 +1042,8 @@ export default function CatalogPage() {
 
 
 
+
+
                             <div
                                 className="
                                     mb-2
@@ -911,20 +1053,26 @@ export default function CatalogPage() {
                                     text-slate-600
                                 "
                             >
-                                Категории
+
+                                Другое
+
                             </div>
 
 
 
-                            <div className="space-y-1">
+
+
+                            <div
+                                className="
+                                    space-y-1
+                                "
+                            >
 
                                 {filteredSimple.map(
                                     category => (
 
                                         <button
-                                            key={
-                                                category
-                                            }
+                                            key={category}
                                             type="button"
                                             onClick={() =>
                                                 setSelectedCategory(
@@ -940,14 +1088,17 @@ export default function CatalogPage() {
                                                 text-sm
                                                 transition
                                                 ${
-                                                    selectedCategory ===
-                                                    category
-                                                        ? "bg-blue-600 text-white"
-                                                        : "text-slate-400 hover:bg-white/5 hover:text-white"
+                                                    selectedCategory === category
+                                                    ?
+                                                    "bg-blue-600 text-white"
+                                                    :
+                                                    "text-slate-400 hover:bg-white/5 hover:text-white"
                                                 }
                                             `}
                                         >
+
                                             {category}
+
                                         </button>
 
                                     )
@@ -955,11 +1106,25 @@ export default function CatalogPage() {
 
                             </div>
 
+
                         </aside>
 
 
 
-                        <section className="min-w-0">
+
+
+
+
+                        {/* Контент каталога */}
+
+
+
+                        <section
+                            className="
+                                min-w-0
+                            "
+                        >
+
 
                             <div
                                 className="
@@ -971,46 +1136,43 @@ export default function CatalogPage() {
                                 "
                             >
 
+
+
                                 <div
                                     className="
                                         mb-6
                                         flex
-                                        flex-col
-                                        gap-3
+                                        items-center
+                                        justify-between
                                         border-b
                                         border-white/10
                                         pb-5
-                                        sm:flex-row
-                                        sm:items-center
-                                        sm:justify-between
                                     "
                                 >
 
+
                                     <div>
-
-                                        <p
-                                            className="
-                                                text-xs
-                                                uppercase
-                                                tracking-widest
-                                                text-blue-500
-                                            "
-                                        >
-                                            Каталог
-                                        </p>
-
-
 
                                         <h2
                                             className="
-                                                mt-2
                                                 text-2xl
                                                 font-bold
                                             "
                                         >
-                                            {selectedCategory}
-                                        </h2>
 
+                                            {
+                                                catalogTab === "mods"
+                                                ?
+                                                selectedCategory
+                                                :
+                                                catalogTab === "builds"
+                                                ?
+                                                "Сборки"
+                                                :
+                                                "Подсказки"
+                                            }
+
+                                        </h2>
 
 
                                         <p
@@ -1020,19 +1182,19 @@ export default function CatalogPage() {
                                                 text-slate-600
                                             "
                                         >
-                                            {selectedCategory ===
-                                            "Все моды"
-                                                ? "Все доступные моды"
-                                                : "Моды выбранной категории"}
+
+                                            MAZEPOV CONNEXTION
+
                                         </p>
+
 
                                     </div>
 
 
 
+
                                     <div
                                         className="
-                                            w-fit
                                             rounded-lg
                                             bg-white/5
                                             px-3
@@ -1041,20 +1203,23 @@ export default function CatalogPage() {
                                             text-slate-500
                                         "
                                     >
+
                                         {
                                             filteredProducts.length
                                         }{" "}
+
                                         {
                                             getProductWord(
                                                 filteredProducts.length
                                             )
                                         }
+
                                     </div>
+
 
                                 </div>
 
-
-
+                                
                                 {loading ? (
 
                                     <div
@@ -1063,160 +1228,96 @@ export default function CatalogPage() {
                                             min-h-[350px]
                                             items-center
                                             justify-center
+                                            text-sm
+                                            text-slate-600
+                                        "
+                                    >
+                                        Загрузка каталога...
+                                    </div>
+
+
+                                ) : error ? (
+
+
+                                    <div
+                                        className="
+                                            flex
+                                            min-h-[350px]
+                                            flex-col
+                                            items-center
+                                            justify-center
+                                            text-center
                                         "
                                     >
 
                                         <div
                                             className="
-                                                text-sm
-                                                text-slate-600
+                                                text-red-400
                                             "
                                         >
-                                            Загрузка каталога...
+                                            {error}
                                         </div>
+
+
+                                        <button
+                                            onClick={loadProducts}
+                                            className="
+                                                mt-4
+                                                rounded-xl
+                                                bg-blue-600
+                                                px-4
+                                                py-2
+                                                text-sm
+                                            "
+                                        >
+                                            Повторить
+                                        </button>
+
 
                                     </div>
 
-                                ) : error ? (
+
+                                ) : catalogTab !== "mods" ? (
+
 
                                     <div
                                         className="
                                             flex
-                                            min-h-[350px]
+                                            min-h-[300px]
                                             items-center
                                             justify-center
                                             text-center
+                                            text-sm
+                                            text-slate-600
                                         "
                                     >
 
-                                        <div>
-
-                                            <div
-                                                className="
-                                                    mx-auto
-                                                    flex
-                                                    h-16
-                                                    w-16
-                                                    items-center
-                                                    justify-center
-                                                    rounded-2xl
-                                                    bg-red-500/10
-                                                    text-xl
-                                                    text-red-400
-                                                "
-                                            >
-                                                !
-                                            </div>
-
-
-
-                                            <h3
-                                                className="
-                                                    mt-5
-                                                    text-lg
-                                                    font-semibold
-                                                "
-                                            >
-                                                Ошибка загрузки
-                                            </h3>
-
-
-
-                                            <p
-                                                className="
-                                                    mt-2
-                                                    max-w-md
-                                                    text-sm
-                                                    text-slate-600
-                                                "
-                                            >
-                                                {error}
-                                            </p>
-
-
-
-                                            <button
-                                                type="button"
-                                                onClick={
-                                                    loadProducts
-                                                }
-                                                className="
-                                                    mt-5
-                                                    rounded-xl
-                                                    bg-blue-600
-                                                    px-4
-                                                    py-2
-                                                    text-sm
-                                                    font-semibold
-                                                    hover:bg-blue-500
-                                                "
-                                            >
-                                                Повторить
-                                            </button>
-
-                                        </div>
+                                        Раздел пока пуст
 
                                     </div>
+
 
                                 ) : filteredProducts.length === 0 ? (
 
+
                                     <div
                                         className="
                                             flex
-                                            min-h-[350px]
+                                            min-h-[300px]
                                             items-center
                                             justify-center
                                             text-center
+                                            text-slate-600
                                         "
                                     >
 
-                                        <div>
-
-                                            <div
-                                                className="
-                                                    mx-auto
-                                                    flex
-                                                    h-16
-                                                    w-16
-                                                    items-center
-                                                    justify-center
-                                                    rounded-2xl
-                                                    bg-[#11161D]
-                                                    text-2xl
-                                                "
-                                            >
-                                                ◈
-                                            </div>
-
-
-
-                                            <h3
-                                                className="
-                                                    mt-5
-                                                    text-lg
-                                                    font-semibold
-                                                "
-                                            >
-                                                Модов нет
-                                            </h3>
-
-
-
-                                            <p
-                                                className="
-                                                    mt-2
-                                                    text-sm
-                                                    text-slate-600
-                                                "
-                                            >
-                                                В данном разделе пока ничего нет
-                                            </p>
-
-                                        </div>
+                                        Модов нет
 
                                     </div>
 
+
                                 ) : (
+
 
                                     <div
                                         className="
@@ -1227,106 +1328,142 @@ export default function CatalogPage() {
                                         "
                                     >
 
-                                        {filteredProducts.map(
-                                            product => (
+                                        {
+                                            filteredProducts.map(
+                                                product => (
 
-                                                <ProductCard
-                                                    key={
-                                                        product.id
-                                                    }
-                                                    product={
-                                                        product
-                                                    }
-                                                />
+                                                    <ProductCard
+                                                        key={
+                                                            product.id
+                                                        }
+                                                        product={
+                                                            product
+                                                        }
+                                                    />
 
+                                                )
                                             )
-                                        )}
+                                        }
+
 
                                     </div>
 
+
                                 )}
+
 
                             </div>
 
+
                         </section>
+
 
                     </div>
 
+
                 </div>
+
 
             </main>
 
+
         </>
+
     );
+
 }
 
 
 
+
+
 type CategoryTreeProps = {
+
     item: CatalogItem;
-    parentPath: string;
-    selectedCategory: string;
-    setSelectedCategory: (
-        name: string
-    ) => void;
-    openCategories: string[];
-    setOpenCategories: React.Dispatch<
-        React.SetStateAction<string[]>
-    >;
+
+    parentPath:string;
+
+    selectedCategory:string;
+
+    setSelectedCategory:
+        (
+            value:string
+        ) => void;
+
+    openCategories:string[];
+
+    setOpenCategories:
+        React.Dispatch<
+            React.SetStateAction<string[]>
+        >;
+
 };
 
 
 
+
+
 function CategoryTree({
+
     item,
+
     parentPath,
+
     selectedCategory,
+
     setSelectedCategory,
+
     openCategories,
+
     setOpenCategories,
-}: CategoryTreeProps) {
+
+}:CategoryTreeProps){
+
+
+
+    const path =
+        parentPath
+            ?
+            `${parentPath}/${item.name}`
+            :
+            item.name;
+
+
 
     const hasChildren =
         Boolean(
-            item.children &&
-            item.children.length > 0
+            item.children?.length
         );
-
-
-
-    const currentPath =
-        parentPath
-            ? `${parentPath}/${item.name}`
-            : item.name;
 
 
 
     const open =
         openCategories.includes(
-            currentPath
+            path
         );
 
 
 
-    function click() {
+    function click(){
 
-        if (hasChildren) {
+
+        if(hasChildren){
 
             setOpenCategories(
                 current =>
-                    current.includes(
-                        currentPath
+                    current.includes(path)
+                    ?
+                    current.filter(
+                        item =>
+                            item !== path
                     )
-                        ? current.filter(
-                            item =>
-                                item !==
-                                currentPath
-                        )
-                        : [
-                            ...current,
-                            currentPath,
-                        ]
+                    :
+                    [
+                        ...current,
+                        path,
+                    ]
             );
+
 
             return;
 
@@ -1335,16 +1472,10 @@ function CategoryTree({
 
 
         setSelectedCategory(
-            currentPath
+            path
         );
 
     }
-
-
-
-    const active =
-        selectedCategory ===
-        currentPath;
 
 
 
@@ -1352,8 +1483,8 @@ function CategoryTree({
 
         <div>
 
+
             <button
-                type="button"
                 onClick={click}
                 className={`
                     flex
@@ -1367,45 +1498,37 @@ function CategoryTree({
                     text-sm
                     transition
                     ${
-                        active
-                            ? "bg-blue-600 text-white"
-                            : "text-slate-400 hover:bg-white/5 hover:text-white"
+                        selectedCategory === path
+                        ?
+                        "bg-blue-600 text-white"
+                        :
+                        "text-slate-400 hover:bg-white/5 hover:text-white"
                     }
                 `}
             >
 
-                <span>
-                    {item.name}
-                </span>
+                {item.name}
 
 
+                {
+                    hasChildren &&
+                    (
+                        <span>
+                            {open ? "⌄" : "›"}
+                        </span>
+                    )
+                }
 
-                {hasChildren && (
-
-                    <span
-                        className={`
-                            text-xs
-                            transition-transform
-                            ${
-                                open
-                                    ? "rotate-90"
-                                    : ""
-                            }
-                        `}
-                    >
-                        ›
-                    </span>
-
-                )}
 
             </button>
 
 
 
-            {hasChildren &&
-                open &&
-                item.children && (
 
+            {
+                hasChildren &&
+                open &&
+                (
                     <div
                         className="
                             ml-3
@@ -1416,39 +1539,52 @@ function CategoryTree({
                         "
                     >
 
-                        {item.children.map(
-                            child => (
+                        {
+                            item.children?.map(
+                                child => (
 
-                                <CategoryTree
-                                    key={
-                                        `${currentPath}/${child.name}`
-                                    }
-                                    item={
-                                        child
-                                    }
-                                    parentPath={
-                                        currentPath
-                                    }
-                                    selectedCategory={
-                                        selectedCategory
-                                    }
-                                    setSelectedCategory={
-                                        setSelectedCategory
-                                    }
-                                    openCategories={
-                                        openCategories
-                                    }
-                                    setOpenCategories={
-                                        setOpenCategories
-                                    }
-                                />
+                                    <CategoryTree
 
+                                        key={
+                                            `${path}/${child.name}`
+                                        }
+
+                                        item={
+                                            child
+                                        }
+
+                                        parentPath={
+                                            path
+                                        }
+
+                                        selectedCategory={
+                                            selectedCategory
+                                        }
+
+                                        setSelectedCategory={
+                                            setSelectedCategory
+                                        }
+
+                                        openCategories={
+                                            openCategories
+                                        }
+
+                                        setOpenCategories={
+                                            setOpenCategories
+                                        }
+
+                                    />
+
+                                )
                             )
-                        )}
+                        }
+
 
                     </div>
+                )
+            }
 
-                )}
+
 
         </div>
 
@@ -1458,180 +1594,18 @@ function CategoryTree({
 
 
 
-type ProductCardProps = {
-    product: Product;
-};
 
 
 
 function ProductCard({
     product,
-}: ProductCardProps) {
+}:{
+    product:Product;
+}){
+
 
     const image =
-        product.images &&
-        product.images.length > 0
-            ? product.images[0]
-            : null;
-
-
-
-    const hasPrice =
-        Number(product.price) > 0;
-
-
-
-    const hasFiles =
-        Boolean(
-            product.dff_file ||
-            product.txd_file
-        );
-
-
-
-    const [downloading, setDownloading] =
-        useState(false);
-
-    const [downloadError, setDownloadError] =
-        useState("");
-
-
-
-    async function downloadProduct() {
-
-        try {
-
-            setDownloading(true);
-            setDownloadError("");
-
-
-
-            const response =
-                await fetch(
-                    `/api/products/${product.id}/download`,
-                    {
-                        method: "GET",
-                    }
-                );
-
-
-
-            const contentType =
-                response.headers.get(
-                    "content-type"
-                ) || "";
-
-
-
-            if (!response.ok) {
-
-                let message =
-                    "Не удалось скачать мод";
-
-
-
-                if (
-                    contentType.includes(
-                        "application/json"
-                    )
-                ) {
-
-                    const data =
-                        await response.json();
-
-                    message =
-                        data?.message ||
-                        message;
-
-                } else {
-
-                    const text =
-                        await response.text();
-
-                    if (text) {
-                        message = text;
-                    }
-
-                }
-
-
-
-                throw new Error(
-                    message
-                );
-
-            }
-
-
-
-            const blob =
-                await response.blob();
-
-
-
-            const url =
-                window.URL.createObjectURL(
-                    blob
-                );
-
-
-
-            const link =
-                document.createElement(
-                    "a"
-                );
-
-
-
-            link.href = url;
-
-
-
-            link.download =
-                `${sanitizeZipName(product.name)}.zip`;
-
-
-
-            document.body.appendChild(
-                link
-            );
-
-
-
-            link.click();
-
-
-
-            link.remove();
-
-
-
-            window.URL.revokeObjectURL(
-                url
-            );
-
-        } catch (error) {
-
-            console.error(
-                "DOWNLOAD ERROR:",
-                error
-            );
-
-
-
-            setDownloadError(
-                error instanceof Error
-                    ? error.message
-                    : "Ошибка скачивания"
-            );
-
-        } finally {
-
-            setDownloading(false);
-
-        }
-
-    }
+        product.images?.[0];
 
 
 
@@ -1639,155 +1613,59 @@ function ProductCard({
 
         <div
             className="
-                group
                 overflow-hidden
                 rounded-2xl
                 border
                 border-white/10
                 bg-[#11161D]
-                transition-all
-                duration-300
-                hover:-translate-y-0.5
-                hover:border-white/15
-                hover:bg-[#131920]
             "
         >
 
-            <div
-                className="
-                    relative
-                    aspect-video
-                    w-full
-                    overflow-hidden
-                    bg-[#0D1117]
-                "
+
+            <Link
+                href={`/catalog/${product.id}`}
             >
 
-<Link href={`/catalog/${product.id}`}>
-    <ProductImage
-        src={
-            image ||
-            undefined
-        }
-        alt={
-            product.name
-        }
-    />
-</Link>
+                <div
+                    className="
+                        aspect-video
+                        bg-[#0D1117]
+                    "
+                >
 
-
-
-                {product.category && (
-
-                    <div
-                        className="
-                            absolute
-                            left-3
-                            top-3
-                            flex
-                            max-w-[72%]
-                            items-center
-                            gap-1.5
-                            rounded-lg
-                            border
-                            border-white/10
-                            bg-black/65
-                            px-2.5
-                            py-1.5
-                            text-[10px]
-                            font-medium
-                            text-slate-300
-                            backdrop-blur-md
-                        "
-                    >
-
-                        <svg
-                            width="12"
-                            height="12"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
+                    {
+                        image
+                        ?
+                        <img
+                            src={image}
+                            alt={product.name}
                             className="
-                                shrink-0
-                                text-blue-400
+                                h-full
+                                w-full
+                                object-cover
+                            "
+                        />
+                        :
+                        <div
+                            className="
+                                flex
+                                h-full
+                                items-center
+                                justify-center
+                                text-xs
+                                text-slate-600
                             "
                         >
-
-                            <path
-                                d="
-                                    M3 7
-                                    h6
-                                    l2 2
-                                    h10
-                                    v10
-                                    a2 2
-                                    0 0 1-2 2
-                                    H5
-                                    a2 2
-                                    0 0 1-2-2
-                                    Z
-                                "
-                            />
-
-                            <path
-                                d="
-                                    M3 7
-                                    a2 2
-                                    0 0 1 2-2
-                                    h5
-                                    l2 2
-                                "
-                            />
-
-                        </svg>
+                            Нет изображения
+                        </div>
+                    }
 
 
-
-                        <span
-                            className="
-                                truncate
-                            "
-                            title={
-                                product.category
-                            }
-                        >
-                            {product.category}
-                        </span>
-
-                    </div>
-
-                )}
+                </div>
 
 
+            </Link>
 
-                {hasPrice && (
-
-                    <div
-                        className="
-                            absolute
-                            right-3
-                            top-3
-                            rounded-lg
-                            border
-                            border-white/10
-                            bg-black/65
-                            px-2.5
-                            py-1.5
-                            text-xs
-                            font-bold
-                            text-white
-                            backdrop-blur-md
-                        "
-                    >
-                        {product.price} ₽
-                    </div>
-
-                )}
-
-            </div>
 
 
 
@@ -1797,259 +1675,91 @@ function ProductCard({
                 "
             >
 
-                <div
+                <h3
                     className="
-                        flex
-                        min-w-0
-                        items-center
-                        justify-between
-                        gap-3
+                        truncate
+                        font-semibold
                     "
                 >
 
-                    <h3
-                        className="
-                            min-w-0
-                            truncate
-                            text-[15px]
-                            font-semibold
-                            leading-5
-                            text-white
-                        "
-                        title={
-                            product.name
-                        }
-                    >
-                        {product.name}
-                    </h3>
+                    {product.name}
 
-                </div>
-
+                </h3>
 
 
                 <p
                     className="
-                        mt-1.5
+                        mt-2
                         line-clamp-2
                         text-xs
-                        leading-[18px]
                         text-slate-500
                     "
-                    title={
-                        product.description
-                    }
                 >
-                    {product.description ||
-                        "Описание отсутствует"}
+
+                    {
+                        product.description ||
+                        "Описание отсутствует"
+                    }
+
                 </p>
-
-
-
-                {downloadError && (
-
-                    <p
-                        className="
-                            mt-2
-                            line-clamp-2
-                            text-[11px]
-                            leading-4
-                            text-red-400
-                        "
-                    >
-                        {downloadError}
-                    </p>
-
-                )}
 
 
 
                 <div
                     className="
-                        mt-3
+                        mt-4
                         flex
                         items-center
                         justify-between
-                        gap-3
-                        border-t
-                        border-white/[0.06]
-                        pt-3
                     "
                 >
 
-                    <div
+                    <span
                         className="
-                            min-w-0
+                            text-sm
+                            text-slate-400
                         "
                     >
 
-                        {hasPrice ? (
-
-                            <span
-                                className="
-                                    text-xs
-                                    font-medium
-                                    text-slate-500
-                                "
-                            >
-                                Платный мод
-                            </span>
-
-                        ) : (
-
-                            <span
-                                className="
-                                    text-xs
-                                    font-medium
-                                    text-emerald-400/80
-                                "
-                            >
-                                Бесплатно
-                            </span>
-
-                        )}
-
-                    </div>
-
-
-
-<button
-    type="button"
-    onClick={() => {
-        if (Number(product.price) > 0) {
-            window.location.href = `/catalog/${product.id}`;
-            return;
-        }
-
-        downloadProduct();
-    }}
-                        disabled={
-                            downloading ||
-                            (Number(product.price) <= 0 && !hasFiles)
+                        {
+                            product.price > 0
+                            ?
+                            `${product.price} ₽`
+                            :
+                            "Бесплатно"
                         }
+
+                    </span>
+
+
+                    <Link
+                        href={`/catalog/${product.id}`}
                         className="
-                            inline-flex
-                            shrink-0
-                            items-center
-                            gap-1.5
                             rounded-lg
                             bg-blue-600
                             px-3
                             py-2
                             text-xs
                             font-semibold
-                            text-white
-                            transition
-                            hover:bg-blue-500
-                            disabled:cursor-not-allowed
-                            disabled:opacity-50
                         "
                     >
 
-                        {downloading ? (
+                        {
+                            product.price > 0
+                            ?
+                            "Купить"
+                            :
+                            "Открыть"
+                        }
 
-                            <>
-                                <svg
-                                    className="
-                                        animate-spin
-                                    "
-                                    width="13"
-                                    height="13"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                >
-                                    <circle
-                                        cx="12"
-                                        cy="12"
-                                        r="9"
-                                        stroke="currentColor"
-                                        strokeWidth="3"
-                                        className="opacity-30"
-                                    />
+                    </Link>
 
-                                    <path
-                                        d="
-                                            M21 12
-                                            a9 9 0 0 0-9-9
-                                        "
-                                        stroke="currentColor"
-                                        strokeWidth="3"
-                                        strokeLinecap="round"
-                                    />
-                                </svg>
-
-                                Сборка...
-
-                            </>
-
-                        ) : (
-
-<>
-
-    {Number(product.price) > 0 ? (
-
-        <>
-            Купить
-        </>
-
-    ) : (
-
-        <>
-
-            <svg
-                width="13"
-                height="13"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-            >
-
-                <path
-                    d="
-                        M21 15
-                        v4
-                        a2 2 0 0 1-2 2
-                        H5
-                        a2 2 0 0 1-2-2
-                        v-4
-                    "
-                />
-
-                <polyline
-                    points="
-                        7 10
-                        12 15
-                        17 10
-                    "
-                />
-
-                <line
-                    x1="12"
-                    y1="15"
-                    x2="12"
-                    y2="3"
-                />
-
-            </svg>
-
-
-            Скачать
-
-        </>
-
-    )}
-
-</>
-
-                        )}
-
-                    </button>
 
                 </div>
 
+
             </div>
+
 
         </div>
 
@@ -2059,142 +1769,64 @@ function ProductCard({
 
 
 
-type ProductImageProps = {
-    src?: string;
-    alt: string;
-};
 
 
+function normalizeCategory(
+    value:string
+){
 
-function ProductImage({
-    src,
-    alt,
-}: ProductImageProps) {
-
-    if (!src) {
-
-        return (
-
-            <div
-                className="
-                    flex
-                    h-full
-                    w-full
-                    items-center
-                    justify-center
-                    bg-[#0D1117]
-                    text-xs
-                    text-slate-600
-                "
-            >
-                Нет изображения
-            </div>
-
-        );
-
-    }
-
-
-
-    return (
-
-        <img
-            src={src}
-            alt={alt}
-            className="
-                h-full
-                w-full
-                object-contain
-                bg-[#0D1117]
-                transition
-                duration-300
-                group-hover:scale-[1.015]
-            "
-            loading="lazy"
-        />
-
-    );
+    return value
+        .toLowerCase()
+        .replace(
+            /\s*>\s*/g,
+            "/"
+        )
+        .replace(
+            /\s*\/\s*/g,
+            "/"
+        )
+        .trim();
 
 }
 
 
-
-function sanitizeZipName(
-    name: string
-) {
-
-    const cleaned =
-        name
-            .trim()
-            .replace(
-                /[<>:"/\\|?*\x00-\x1F]/g,
-                "_"
-            )
-            .replace(
-                /\s+/g,
-                " "
-            )
-            .replace(
-                /\.+$/g,
-                ""
-            );
-
-
-
-    return (
-        cleaned ||
-        "mod"
-    );
-
-}
 
 
 
 function getProductWord(
-    count: number
-) {
+    count:number
+){
 
     const lastTwo =
         count % 100;
+
 
     const last =
         count % 10;
 
 
 
-    if (
+    if(
         lastTwo >= 11 &&
         lastTwo <= 19
-    ) {
-
+    )
         return "модов";
 
-    }
 
 
-
-    if (
-        last === 1
-    ) {
-
+    if(last === 1)
         return "мод";
 
-    }
 
 
-
-    if (
+    if(
         last >= 2 &&
         last <= 4
-    ) {
-
+    )
         return "мода";
-
-    }
 
 
 
     return "модов";
 
 }
-
