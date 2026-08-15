@@ -29,9 +29,15 @@ type OrderData = {
 
 
 
+
+
 async function getOrder(id:number){
 
-    const [rows] = await db.execute(
+
+    const [
+        rows
+    ] = await db.execute(
+
 
         `
         SELECT
@@ -71,22 +77,29 @@ async function getOrder(id:number){
         LIMIT 1
         `,
 
-        [id]
+
+        [
+            id
+        ]
 
     );
 
 
-    const order = rows as any[];
+
+    const result = rows as any[];
 
 
-    if(!order[0]){
+
+    if(!result[0]){
 
         return null;
 
     }
 
 
-    return order[0] as OrderData;
+
+    return result[0] as OrderData;
+
 
 }
 
@@ -94,56 +107,94 @@ async function getOrder(id:number){
 
 
 
-function getStatus(status:string){
+function StatusBadge({
+
+    status
+
+}:{
+
+    status:string
+
+}){
 
 
-    switch(status){
+    const data = {
 
 
-        case "WAIT_PAYMENT":
+        WAIT_PAYMENT:{
 
-            return {
+            text:"Ожидает оплаты",
 
-                text:"Ожидает оплаты",
+            style:
+            "bg-blue-500/10 text-blue-400 border-blue-500/20"
 
-                color:"yellow"
-
-            };
-
-
-        case "PAID":
-
-            return {
-
-                text:"Оплата подтверждена",
-
-                color:"blue"
-
-            };
+        },
 
 
-        case "COMPLETED":
+        PAID:{
 
-            return {
+            text:"Оплата подтверждена",
 
-                text:"Заказ завершён",
+            style:
+            "bg-green-500/10 text-green-400 border-green-500/20"
 
-                color:"green"
-
-            };
+        },
 
 
-        default:
+        COMPLETED:{
 
-            return {
+            text:"Завершён",
 
-                text:"Проверка заказа",
+            style:
+            "bg-purple-500/10 text-purple-400 border-purple-500/20"
 
-                color:"slate"
+        },
 
-            };
 
-    }
+        CANCELLED:{
+
+            text:"Отменён",
+
+            style:
+            "bg-red-500/10 text-red-400 border-red-500/20"
+
+        }
+
+
+    }[status] || {
+
+
+        text:"Проверка",
+
+        style:
+        "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
+
+    };
+
+
+
+    return (
+
+        <div
+
+        className={`
+            rounded-xl
+            border
+            px-4
+            py-2
+            text-sm
+            font-semibold
+            ${data.style}
+        `}
+
+        >
+
+            {data.text}
+
+
+        </div>
+
+    );
 
 }
 
@@ -164,10 +215,14 @@ export default async function OrderPage({
 }){
 
 
-    const {id} = await params;
+    const {
+        id
+    } = await params;
 
 
-    const orderId = Number(id);
+
+    const orderId =
+        Number(id);
 
 
 
@@ -179,7 +234,8 @@ export default async function OrderPage({
 
 
 
-    const order = await getOrder(orderId);
+    const order =
+        await getOrder(orderId);
 
 
 
@@ -188,11 +244,6 @@ export default async function OrderPage({
         notFound();
 
     }
-
-
-
-    const status = getStatus(order.status);
-
 
 
 
@@ -206,38 +257,47 @@ export default async function OrderPage({
 
 
 
-        <main className="
+        <main
+
+        className="
             min-h-screen
-            bg-[#070A0F]
+            bg-[#05070D]
             px-4
-            pt-28
+            pt-[120px]
             pb-20
             text-white
-        ">
+        "
+
+        >
 
 
 
-        <div className="
+        <div
+
+        className="
             mx-auto
-            max-w-5xl
-        ">
+            max-w-6xl
+        "
+
+        >
+
 
 
 
         <Link
 
-            href="/catalog"
+        href="/catalog"
 
-            className="
-                text-sm
-                text-slate-500
-                hover:text-white
-                transition
-            "
+        className="
+            text-sm
+            text-slate-500
+            hover:text-white
+            transition
+        "
 
         >
 
-            ← Назад в каталог
+            ← Вернуться в каталог
 
 
         </Link>
@@ -246,293 +306,340 @@ export default async function OrderPage({
 
 
 
-        <section className="
+
+
+        <div
+
+        className="
             mt-6
+            flex
+            items-center
+            justify-between
+            gap-4
+        "
+
+        >
+
+
+
+            <div>
+
+
+                <h1
+
+                className="
+                    text-3xl
+                    font-bold
+                "
+
+                >
+
+                    {order.product_name}
+
+
+                </h1>
+
+
+                <p
+
+                className="
+                    mt-2
+                    text-sm
+                    text-slate-500
+                "
+
+                >
+
+                    Заказ #{order.id}
+
+                    {" • "}
+
+                    Продавец: {order.seller_name}
+
+
+                </p>
+
+
+            </div>
+
+
+
+            <StatusBadge
+
+                status={order.status}
+
+            />
+
+
+
+        </div>
+
+
+
+
+
+
+
+        <div
+
+        className="
+            mt-6
+            grid
+            gap-5
+            lg:grid-cols-[1fr_350px]
+        "
+
+        >
+
+
+
+
+
+
+        <section
+
+        className="
             overflow-hidden
             rounded-3xl
             border
             border-white/10
             bg-[#0D1117]
-        ">
+            min-h-[600px]
+        "
 
+        >
 
 
-        <div className="
-            p-6
-        ">
 
 
+            <div
 
-        <div className="
-            flex
-            flex-col
-            gap-5
-            md:flex-row
-            md:items-center
-            md:justify-between
-        ">
-
-
-
-        <div>
-
-
-        <h1 className="
-            text-3xl
-            font-bold
-        ">
-
-            {order.product_name}
-
-        </h1>
-
-
-        <p className="
-            mt-2
-            text-sm
-            text-slate-500
-        ">
-
-            Заказ #{order.id}
-
-        </p>
-
-
-        </div>
-
-
-
-
-
-        <div className="
-            rounded-2xl
-            bg-blue-500/10
-            px-6
-            py-4
-            text-right
-        ">
-
-            <div className="
-                text-xs
-                text-slate-400
-            ">
-
-                Сумма заказа
-
-            </div>
-
-
-            <div className="
-                text-3xl
-                font-bold
-                text-blue-400
-            ">
-
-                {order.price} ₽
-
-            </div>
-
-
-        </div>
-
-
-
-        </div>
-
-
-
-
-
-
-
-        <div className={`
-            mt-6
-            rounded-2xl
-            border
-            p-5
-
-            ${
-                status.color==="yellow"
-
-                ?
-
-                "border-yellow-500/30 bg-yellow-500/10"
-
-                :
-
-                status.color==="blue"
-
-                ?
-
-                "border-blue-500/30 bg-blue-500/10"
-
-                :
-
-                status.color==="green"
-
-                ?
-
-                "border-green-500/30 bg-green-500/10"
-
-                :
-
-                "border-white/10 bg-white/5"
-
-            }
-        `}>
-
-
-            <p className="
-                text-xs
-                uppercase
-                tracking-widest
-                text-slate-400
-            ">
-
-                Статус
-
-            </p>
-
-
-            <h2 className="
-                mt-2
-                text-xl
-                font-semibold
-            ">
-
-                {status.text}
-
-            </h2>
-
-
-        </div>
-
-
-
-
-
-
-
-        <div className="
-            mt-6
-            grid
-            gap-4
-            md:grid-cols-2
-        ">
-
-
-
-            <div className="
-                rounded-2xl
-                border
+            className="
+                border-b
                 border-white/10
-                bg-black/20
-                p-5
-            ">
+                px-6
+                py-5
+            "
+
+            >
 
 
-                <p className="
-                    text-xs
+                <h2
+
+                className="
+                    text-xl
+                    font-bold
+                "
+
+                >
+
+                    💬 Чат заказа
+
+                </h2>
+
+
+                <p
+
+                className="
+                    mt-1
+                    text-sm
                     text-slate-500
-                ">
+                "
 
-                    Участники сделки
+                >
+
+                    Сообщения обновляются автоматически
 
                 </p>
 
 
-
-                <div className="
-                    mt-4
-                    space-y-3
-                ">
-
-
-                    <div>
-
-                        <span className="
-                            text-slate-500
-                            text-sm
-                        ">
-
-                            Продавец
-
-                        </span>
-
-
-                        <p className="font-semibold">
-
-                            {order.seller_name}
-
-                        </p>
-
-                    </div>
+            </div>
 
 
 
-                    <div>
 
-                        <span className="
-                            text-slate-500
-                            text-sm
-                        ">
+            <div
 
-                            Покупатель
+            className="
+                p-6
+            "
 
-                        </span>
+            >
 
 
-                        <p className="font-semibold">
+                <OrderChat
 
-                            {order.buyer_name}
+                    orderId={order.id}
 
-                        </p>
+                />
 
-                    </div>
+
+            </div>
+
+
+
+
+        </section>
+
+
+
+
+
+
+
+
+
+        <aside
+
+        className="
+            h-fit
+            rounded-3xl
+            border
+            border-white/10
+            bg-[#0D1117]
+            p-6
+        "
+
+        >
+
+
+
+            <h3
+
+            className="
+                text-sm
+                text-slate-500
+            "
+
+            >
+
+                Цена товара
+
+            </h3>
+
+
+
+
+            <div
+
+            className="
+                mt-2
+                text-2xl
+                font-bold
+            "
+
+            >
+
+                {order.price} ₽
+
+
+            </div>
+
+
+
+
+
+
+            <div
+
+            className="
+                my-6
+                border-t
+                border-white/10
+            "
+
+            />
+
+
+
+
+
+
+            <div
+
+            className="
+                space-y-4
+            "
+
+            >
+
+
+
+                <div>
+
+
+                    <p
+
+                    className="
+                        text-xs
+                        text-slate-500
+                    "
+
+                    >
+
+                        Продавец
+
+                    </p>
+
+
+                    <p className="font-semibold">
+
+                        {order.seller_name}
+
+                    </p>
 
 
                 </div>
 
 
-            </div>
 
 
 
+                <div>
 
 
+                    <p
 
-            <div className="
-                rounded-2xl
-                border
-                border-white/10
-                bg-black/20
-                p-5
-            ">
-
-
-                <p className="
-                    text-xs
-                    text-slate-500
-                ">
-
-                    Информация
-
-                </p>
-
-
-                <div className="
-                    mt-4
-                ">
-
-
-                    <span className="
+                    className="
+                        text-xs
                         text-slate-500
-                        text-sm
-                    ">
+                    "
+
+                    >
+
+                        Покупатель
+
+                    </p>
+
+
+                    <p className="font-semibold">
+
+                        {order.buyer_name}
+
+                    </p>
+
+
+                </div>
+
+
+
+
+
+                <div>
+
+
+                    <p
+
+                    className="
+                        text-xs
+                        text-slate-500
+                    "
+
+                    >
 
                         Создан
 
-                    </span>
+                    </p>
 
 
                     <p className="font-semibold">
@@ -546,80 +653,85 @@ export default async function OrderPage({
                 </div>
 
 
+
             </div>
 
 
 
-        </div>
+
+
+
+            <div
+
+            className="
+                mt-6
+                rounded-2xl
+                bg-blue-500/10
+                p-5
+            "
+
+            >
+
+
+                <p
+
+                className="
+                    text-sm
+                    text-slate-400
+                "
+
+                >
+
+                    К оплате
+
+                </p>
+
+
+
+                <p
+
+                className="
+                    mt-1
+                    text-3xl
+                    font-bold
+                    text-blue-400
+                "
+
+                >
+
+                    {order.price} ₽
+
+
+                </p>
+
+
+
+            </div>
+
+
+
+
+        </aside>
 
 
 
 
 
-
-        <div className="
-            mt-8
-        ">
-
-            <OrderChat
-
-                orderId={order.id}
-
-            />
-
-        </div>
-
-
-
-
-
-
-
-        <div className="
-            mt-8
-            flex
-            items-center
-            justify-between
-            border-t
-            border-white/10
-            pt-6
-        ">
-
-
-            <span className="
-                text-slate-400
-            ">
-
-                К оплате
-
-            </span>
-
-
-
-            <strong className="
-                text-3xl
-            ">
-
-                {order.price} ₽
-
-            </strong>
-
-
-        </div>
-
-
-
-
-        </div>
-
-
-        </section>
 
 
         </div>
+
+
+
+
+
+
+        </div>
+
 
 
         </main>
+
 
 
         </>
