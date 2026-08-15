@@ -2,24 +2,19 @@
 
 import {
     useEffect,
-    useState
+    useState,
 } from "react";
 
 import {
-    useRouter
+    useRouter,
 } from "next/navigation";
 
 
 type Props = {
-
     productId: number;
-
     productName: string;
-
     sellerName: string;
-
     price: number;
-
 };
 
 
@@ -27,11 +22,8 @@ type Props = {
 export default function BuyModal({
 
     productId,
-
     productName,
-
     sellerName,
-
     price,
 
 }: Props) {
@@ -40,12 +32,10 @@ export default function BuyModal({
     const router = useRouter();
 
 
-
     const [
         open,
         setOpen
     ] = useState(false);
-
 
 
     const [
@@ -54,12 +44,10 @@ export default function BuyModal({
     ] = useState("");
 
 
-
     const [
         loading,
         setLoading
     ] = useState(false);
-
 
 
     const [
@@ -76,13 +64,13 @@ export default function BuyModal({
 
 
 
-
     useEffect(() => {
 
-        if (!open) return;
+        if (!open)
+            return;
 
 
-        const oldOverflow =
+        const old =
             document.body.style.overflow;
 
 
@@ -93,7 +81,7 @@ export default function BuyModal({
         return () => {
 
             document.body.style.overflow =
-                oldOverflow;
+                old;
 
         };
 
@@ -104,11 +92,11 @@ export default function BuyModal({
 
 
 
-
     async function buy() {
 
 
-        if (loading) return;
+        if (loading)
+            return;
 
 
 
@@ -130,16 +118,13 @@ export default function BuyModal({
 
             if (!savedUser) {
 
-
                 setError(
                     "Войдите в аккаунт, чтобы оформить заказ."
                 );
 
-
                 return;
 
             }
-
 
 
 
@@ -148,7 +133,6 @@ export default function BuyModal({
                     id?: number | string
                 }
                 | null = null;
-
 
 
 
@@ -165,14 +149,12 @@ export default function BuyModal({
 
 
                 setError(
-                    "Не удалось определить пользователя. Войдите заново."
+                    "Ошибка аккаунта. Войдите заново."
                 );
-
 
                 return;
 
             }
-
 
 
 
@@ -193,14 +175,12 @@ export default function BuyModal({
 
 
                 setError(
-                    "Не удалось определить пользователя. Войдите заново."
+                    "Пользователь не найден."
                 );
-
 
                 return;
 
             }
-
 
 
 
@@ -213,33 +193,31 @@ export default function BuyModal({
                         method:
                             "POST",
 
+
                         headers:
-                            {
+                        {
 
-                                "Content-Type":
-                                    "application/json",
+                            "Content-Type":
+                                "application/json",
 
-                            },
+                        },
 
 
                         body:
-                            JSON.stringify(
-                                {
+                            JSON.stringify({
 
-                                    productId,
+                                productId,
 
-                                    buyerId,
+                                buyerId,
 
-                                    promo:
-                                        promo.trim(),
+                                promo:
+                                    promo.trim(),
 
-                                }
-                            ),
+                            }),
+
 
                     }
                 );
-
-
 
 
 
@@ -252,33 +230,24 @@ export default function BuyModal({
 
 
 
-
-
             if (!response.ok) {
-
 
                 throw new Error(
                     data?.message ||
-                    "Не удалось создать заказ"
+                    "Ошибка создания заказа"
                 );
 
-
             }
-
-
 
 
 
             if (!data?.orderId) {
 
-
                 throw new Error(
-                    "Сервер не вернул номер заказа"
+                    "Заказ не создан"
                 );
 
-
             }
-
 
 
 
@@ -297,20 +266,18 @@ export default function BuyModal({
 
 
 
-
-        } catch (err) {
+        } catch(error) {
 
 
             setError(
 
-                err instanceof Error
-
-                    ? err.message
-
-                    : "Не удалось создать заказ"
+                error instanceof Error
+                    ?
+                    error.message
+                    :
+                    "Ошибка оплаты"
 
             );
-
 
 
         } finally {
@@ -328,8 +295,6 @@ export default function BuyModal({
 
 
 
-
-
     function closeModal() {
 
 
@@ -339,7 +304,6 @@ export default function BuyModal({
 
 
         setOpen(false);
-
 
         setError("");
 
@@ -367,6 +331,7 @@ export default function BuyModal({
                     setOpen(true);
 
                 }}
+
 
                 className="
                     mt-5
@@ -397,28 +362,25 @@ export default function BuyModal({
 
             {open && (
 
-<div
-    className="
-        fixed
-        inset-0
-        z-50
-        flex
-        items-start
-        justify-center
-        overflow-y-auto
-        bg-black/75
-        px-3
-        py-6
-        backdrop-blur-sm
-        sm:px-4
-    "
 
-                    onMouseDown={(e) => {
+                <div
 
-                        if (
+                    className="
+                        fixed
+                        inset-0
+                        z-[100]
+                        overflow-y-auto
+                        bg-black/75
+                        backdrop-blur-sm
+                    "
+
+
+                    onMouseDown={(e)=>{
+
+                        if(
                             e.target ===
                             e.currentTarget
-                        ) {
+                        ){
 
                             closeModal();
 
@@ -426,15 +388,21 @@ export default function BuyModal({
 
                     }}
 
+
                 >
+
 
 
                     <div
 
                         className="
+                            mx-auto
+                            mt-[95px]
+                            mb-6
                             flex
-                            w-full
-                            max-w-[430px]
+                            w-[calc(100%-24px)]
+                            max-w-[390px]
+                            max-h-[calc(100vh-125px)]
                             flex-col
                             overflow-hidden
                             rounded-2xl
@@ -442,49 +410,62 @@ export default function BuyModal({
                             border-white/10
                             bg-[#0D1117]
                             shadow-2xl
-                            max-h-[calc(100vh-48px)]
                         "
 
                     >
 
-                                            {/* HEADER */}
+
 
                         <div
+
                             className="
                                 flex
                                 shrink-0
                                 items-center
                                 justify-between
-                                gap-3
                                 border-b
                                 border-white/[0.06]
                                 px-4
                                 py-3
                             "
+
                         >
 
                             <div>
 
+
                                 <h2
+
                                     className="
-                                        text-base
+                                        text-sm
                                         font-bold
                                         text-white
                                     "
+
                                 >
+
                                     Оформление заказа
+
+
                                 </h2>
 
 
+
                                 <p
+
                                     className="
                                         mt-1
                                         text-[10px]
                                         text-slate-600
                                     "
+
                                 >
-                                    Проверьте данные перед оплатой
+
+                                    Оплата мода
+
+
                                 </p>
+
 
                             </div>
 
@@ -492,11 +473,9 @@ export default function BuyModal({
 
                             <button
 
-                                type="button"
-
-                                onClick={closeModal}
-
-                                disabled={loading}
+                                onClick={
+                                    closeModal
+                                }
 
                                 className="
                                     flex
@@ -505,10 +484,8 @@ export default function BuyModal({
                                     items-center
                                     justify-center
                                     rounded-lg
-                                    bg-white/[0.04]
-                                    text-slate-500
-                                    transition
-                                    hover:bg-white/[0.08]
+                                    bg-white/5
+                                    text-slate-400
                                     hover:text-white
                                 "
 
@@ -516,37 +493,31 @@ export default function BuyModal({
 
                                 ✕
 
+
                             </button>
+
 
                         </div>
 
+                                                <div
 
-
-
-
-                        {/* SCROLL CONTENT */}
-
-
-                        <div
                             className="
+                                min-h-0
                                 flex-1
-                                overflow-y-scroll
+                                overflow-y-auto
                                 px-4
-                                py-4
-                                [&::-webkit-scrollbar]:w-1.5
-                                [&::-webkit-scrollbar-track]:bg-[#080B10]
-                                [&::-webkit-scrollbar-thumb]:rounded-full
-                                [&::-webkit-scrollbar-thumb]:bg-white/10
+                                py-3
+                                scrollbar-thin
+                                scrollbar-track-transparent
+                                scrollbar-thumb-white/10
                             "
+
                         >
 
 
 
-
-                            {/* PRODUCT */}
-
-
                             <div
+
                                 className="
                                     rounded-xl
                                     border
@@ -554,45 +525,55 @@ export default function BuyModal({
                                     bg-black/20
                                     p-3
                                 "
+
                             >
 
+
                                 <div
+
                                     className="
                                         flex
+                                        items-center
                                         justify-between
                                         gap-3
                                     "
+
                                 >
 
-                                    <div
-                                        className="
-                                            min-w-0
-                                        "
-                                    >
+
+                                    <div className="min-w-0">
+
 
                                         <div
+
                                             className="
                                                 truncate
                                                 text-sm
                                                 font-semibold
                                                 text-white
                                             "
+
                                         >
 
                                             {productName}
 
+
                                         </div>
 
 
+
                                         <div
+
                                             className="
                                                 mt-1
                                                 text-[11px]
                                                 text-slate-600
                                             "
+
                                         >
 
                                             Продавец: {sellerName}
+
 
                                         </div>
 
@@ -602,36 +583,45 @@ export default function BuyModal({
 
 
                                     <div
+
                                         className="
                                             shrink-0
                                             text-right
                                         "
+
                                     >
 
                                         <div
+
                                             className="
-                                                text-lg
+                                                text-base
                                                 font-bold
                                                 text-white
                                             "
+
                                         >
 
                                             {price} ₽
+
 
                                         </div>
 
 
                                         <div
+
                                             className="
                                                 text-[9px]
                                                 uppercase
                                                 text-slate-600
                                             "
+
                                         >
 
                                             товар
 
+
                                         </div>
+
 
                                     </div>
 
@@ -645,32 +635,11 @@ export default function BuyModal({
 
 
 
-
-                            {/* PAYMENT */}
-
-
-                            <div className="mt-4">
+                            <div className="mt-3">
 
 
                                 <div
-                                    className="
-                                        mb-2
-                                        text-[10px]
-                                        font-semibold
-                                        uppercase
-                                        tracking-widest
-                                        text-slate-600
-                                    "
-                                >
 
-                                    Оплата
-
-                                </div>
-
-
-
-
-                                <div
                                     className="
                                         rounded-xl
                                         border
@@ -678,13 +647,13 @@ export default function BuyModal({
                                         bg-black/20
                                         p-3
                                         text-xs
-                                        leading-5
                                         text-slate-400
                                     "
+
                                 >
 
 
-                                    <p>
+                                    <div>
 
                                         <b className="text-slate-300">
                                             СберБанк:
@@ -694,22 +663,17 @@ export default function BuyModal({
 
                                         2202 2088 8291 8056
 
-                                    </p>
+
+                                    </div>
 
 
 
-
-                                    <div
-                                        className="
-                                            my-2
-                                            h-px
-                                            bg-white/5
-                                        "
-                                    />
+                                    <div className="my-2 h-px bg-white/5" />
 
 
 
-                                    <p>
+                                    <div>
+
 
                                         <b className="text-slate-300">
                                             Т-Банк:
@@ -719,25 +683,17 @@ export default function BuyModal({
 
                                         5536 9177 2933 9314
 
-                                    </p>
+
+                                    </div>
 
 
 
-
-
-                                    <div
-                                        className="
-                                            my-2
-                                            h-px
-                                            bg-white/5
-                                        "
-                                    />
+                                    <div className="my-2 h-px bg-white/5" />
 
 
 
+                                    <div>
 
-
-                                    <p>
 
                                         <b className="text-slate-300">
                                             Donation Alerts:
@@ -746,20 +702,15 @@ export default function BuyModal({
 
                                         <br />
 
-
-                                        <span
-                                            className="
-                                                text-[10px]
-                                                text-slate-600
-                                            "
-                                        >
+                                        <span className="text-[10px] text-slate-600">
 
                                             donationalerts.com/r/galbraith1629
 
                                         </span>
 
 
-                                    </p>
+                                    </div>
+
 
 
                                 </div>
@@ -771,48 +722,42 @@ export default function BuyModal({
 
 
 
-
-                            {/* WARNING */}
-
-
                             <div
+
                                 className="
                                     mt-3
                                     rounded-xl
                                     border
                                     border-amber-500/20
-                                    bg-amber-500/5
+                                    bg-amber-500/[0.05]
                                     p-3
                                 "
+
                             >
 
+
                                 <p
+
                                     className="
                                         text-[11px]
                                         leading-5
                                         text-slate-400
                                     "
+
                                 >
 
-                                    ⚠️{" "}
-
-                                    <b className="text-amber-300">
+                                    ⚠️ <b className="text-amber-300">
                                         Donation Alerts
-                                    </b>
-
-                                    {" "}имеет комиссию{" "}
-
+                                    </b>{" "}
+                                    удерживает комиссию{" "}
                                     <b className="text-white">
                                         15%
                                     </b>.
-
                                     Если сумма доната меньше стоимости товара,
-
                                     потребуется{" "}
-
                                     <b className="text-amber-300">
-                                        доплата разницы.
-                                    </b>
+                                        доплата разницы
+                                    </b>.
 
 
                                 </p>
@@ -824,24 +769,22 @@ export default function BuyModal({
 
 
 
-
-                            {/* PROMO */}
-
-
-                            <div className="mt-4">
+                            <div className="mt-3">
 
 
                                 <label
+
                                     className="
                                         text-[10px]
-                                        font-semibold
                                         uppercase
                                         tracking-widest
                                         text-slate-600
                                     "
+
                                 >
 
                                     Промокод
+
 
                                 </label>
 
@@ -852,14 +795,14 @@ export default function BuyModal({
                                     value={promo}
 
                                     onChange={(e)=>
-                                        setPromo(
-                                            e.target.value
-                                        )
+                                        setPromo(e.target.value)
                                     }
 
                                     disabled={loading}
 
+
                                     placeholder="Введите промокод"
+
 
                                     className="
                                         mt-2
@@ -885,40 +828,32 @@ export default function BuyModal({
 
 
 
-                            {/* TOTAL */}
-
-
                             <div
+
                                 className="
-                                    mt-4
+                                    mt-3
                                     rounded-xl
                                     border
                                     border-white/[0.06]
                                     bg-black/20
                                     p-3
                                 "
+
                             >
 
-                                <div
-                                    className="
-                                        flex
-                                        justify-between
-                                    "
-                                >
 
-                                    <span
-                                        className="
-                                            text-xs
-                                            text-slate-500
-                                        "
-                                    >
+                                <div className="flex justify-between">
+
+
+                                    <span className="text-xs text-slate-500">
 
                                         Итого
 
                                     </span>
 
 
-                                    <b>
+
+                                    <b className="text-white">
 
                                         {price} ₽
 
@@ -930,16 +865,19 @@ export default function BuyModal({
 
 
                                 <div
+
                                     className="
-                                        mt-2
-                                        text-[11px]
+                                        mt-1
+                                        text-[10px]
                                         text-slate-600
                                     "
+
                                 >
 
                                     Через Donation Alerts:
                                     {" "}
                                     {donationPrice} ₽
+
 
                                 </div>
 
@@ -953,24 +891,27 @@ export default function BuyModal({
                             {error && (
 
                                 <div
+
                                     className="
                                         mt-3
                                         rounded-lg
                                         border
                                         border-red-500/20
                                         bg-red-500/10
-                                        p-3
+                                        p-2
                                         text-xs
                                         text-red-300
                                     "
+
                                 >
 
                                     {error}
 
+
                                 </div>
 
-                            )}
 
+                            )}
 
 
                         </div>
@@ -979,65 +920,49 @@ export default function BuyModal({
 
 
 
-                        {/* FOOTER */}
-
-
                         <div
+
                             className="
                                 shrink-0
                                 border-t
                                 border-white/[0.06]
+                                px-4
+                                py-3
                                 bg-[#0D1117]
-                                p-4
                             "
+
                         >
 
 
                             <button
 
-                                type="button"
-
                                 onClick={buy}
 
                                 disabled={loading}
+
 
                                 className="
                                     w-full
                                     rounded-xl
                                     bg-emerald-600
-                                    py-3
+                                    py-2.5
                                     text-sm
                                     font-semibold
                                     text-white
-                                    transition
                                     hover:bg-emerald-500
                                     disabled:opacity-50
                                 "
 
                             >
 
+
                                 {loading
                                     ? "Создание заказа..."
-                                    : "Я оплатил"
-                                }
+                                    : "Я оплатил"}
 
 
                             </button>
 
-
-
-                            <p
-                                className="
-                                    mt-2
-                                    text-center
-                                    text-[9px]
-                                    text-slate-700
-                                "
-                            >
-
-                                После проверки оплаты заказ будет обработан.
-
-                            </p>
 
 
                         </div>
@@ -1048,6 +973,7 @@ export default function BuyModal({
 
 
                 </div>
+
 
             )}
 
