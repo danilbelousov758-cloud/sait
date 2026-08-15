@@ -217,32 +217,9 @@ export default function Header() {
     const panels = getPanels();
 
     return (
-<header className="
-    fixed
-    left-1/2
-    top-5
-    z-50
-    w-[calc(100%-24px)]
-    max-w-7xl
-    -translate-x-1/2
-    sm:w-[calc(100%-32px)]
-">
+        <header className="fixed left-1/2 top-5 z-50 w-[calc(100%-24px)] max-w-7xl -translate-x-1/2 sm:w-[calc(100%-32px)]">
+            <div className="flex h-[70px] items-center justify-between rounded-[20px] border border-white/[0.07] bg-[#0D1117]/90 px-4 shadow-[0_15px_50px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:px-5 md:px-7">
 
-    <div className="
-        flex
-        h-[70px]
-        items-center
-        justify-between
-        rounded-[20px]
-        border
-        border-white/10
-        bg-black/30
-        px-4
-        shadow-[0_15px_50px_rgba(0,0,0,0.45)]
-        backdrop-blur-2xl
-        sm:px-5
-        md:px-7
-    ">
                 {/* Логотип */}
                 <Link
                     href="/"

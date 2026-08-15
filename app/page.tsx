@@ -3,7 +3,8 @@ import Hero from "@/components/Hero";
 
 export default function Home() {
     return (
-        <main className="min-h-screen bg-[#080B10] text-slate-100">
+        <main className="min-h-screen text-slate-100">
+
             <Header />
 
             <Hero />
@@ -15,6 +16,7 @@ export default function Home() {
                     © 2026 MODSPACE
                 </div>
             </footer>
+
         </main>
     );
 }
