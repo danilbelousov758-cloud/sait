@@ -35,7 +35,9 @@ async function getOrder(id:number){
 
 
     const [
+
         rows
+
     ] = await db.execute(
 
 
@@ -79,7 +81,9 @@ async function getOrder(id:number){
 
 
         [
+
             id
+
         ]
 
     );
@@ -107,7 +111,9 @@ async function getOrder(id:number){
 
 
 
-function StatusBadge({
+
+
+function StatusTag({
 
     status
 
@@ -118,7 +124,7 @@ function StatusBadge({
 }){
 
 
-    const data = {
+    const list:any = {
 
 
         WAIT_PAYMENT:{
@@ -131,9 +137,19 @@ function StatusBadge({
         },
 
 
-        PAID:{
+        REVIEW:{
 
-            text:"Оплата подтверждена",
+            text:"Проверка администратора",
+
+            style:
+            "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
+
+        },
+
+
+        APPROVED:{
+
+            text:"Одобрено",
 
             style:
             "bg-green-500/10 text-green-400 border-green-500/20"
@@ -141,62 +157,63 @@ function StatusBadge({
         },
 
 
-        COMPLETED:{
+        REJECTED:{
 
-            text:"Завершён",
-
-            style:
-            "bg-purple-500/10 text-purple-400 border-purple-500/20"
-
-        },
-
-
-        CANCELLED:{
-
-            text:"Отменён",
+            text:"Отказано",
 
             style:
             "bg-red-500/10 text-red-400 border-red-500/20"
 
-        }
+        },
 
-
-    }[status] || {
-
-
-        text:"Проверка",
-
-        style:
-        "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
 
     };
 
 
 
+    const current = list[status] || {
+
+        text:"Проверка",
+
+        style:
+        "bg-white/5 text-slate-400 border-white/10"
+
+    };
+
+
+
+
     return (
 
-        <div
+        <span
 
         className={`
-            rounded-xl
+            inline-flex
+            items-center
+            rounded-full
             border
-            px-4
-            py-2
-            text-sm
-            font-semibold
-            ${data.style}
+            px-3
+            py-1
+            text-xs
+            font-medium
+            ${current.style}
         `}
 
         >
 
-            {data.text}
+            {current.text}
 
 
-        </div>
+        </span>
 
     );
 
+
 }
+
+
+
+
 
 
 
@@ -216,34 +233,44 @@ export default async function OrderPage({
 
 
     const {
+
         id
+
     } = await params;
 
 
 
-    const orderId =
-        Number(id);
+
+    const orderId = Number(id);
+
 
 
 
     if(!Number.isInteger(orderId)){
 
+
         notFound();
+
 
     }
 
 
 
-    const order =
-        await getOrder(orderId);
+
+    const order = await getOrder(orderId);
+
 
 
 
     if(!order){
 
+
         notFound();
 
+
     }
+
+
 
 
 
@@ -257,18 +284,22 @@ export default async function OrderPage({
 
 
 
+
+
         <main
 
         className="
             min-h-screen
             bg-[#05070D]
             px-4
-            pt-[120px]
             pb-20
+            pt-[120px]
             text-white
         "
 
         >
+
+
 
 
 
@@ -284,6 +315,7 @@ export default async function OrderPage({
 
 
 
+
         <Link
 
         href="/catalog"
@@ -291,13 +323,13 @@ export default async function OrderPage({
         className="
             text-sm
             text-slate-500
-            hover:text-white
             transition
+            hover:text-white
         "
 
         >
 
-            ← Вернуться в каталог
+            ← Каталог
 
 
         </Link>
@@ -308,17 +340,38 @@ export default async function OrderPage({
 
 
 
+
         <div
 
         className="
             mt-6
-            flex
-            items-center
-            justify-between
-            gap-4
+            rounded-2xl
+            border
+            border-white/10
+            bg-[#0B0F16]
+            p-5
         "
 
         >
+
+
+
+
+
+
+        <div
+
+        className="
+            flex
+            flex-col
+            gap-4
+            sm:flex-row
+            sm:items-start
+            sm:justify-between
+        "
+
+        >
+
 
 
 
@@ -328,8 +381,8 @@ export default async function OrderPage({
                 <h1
 
                 className="
-                    text-3xl
-                    font-bold
+                    text-xl
+                    font-semibold
                 "
 
                 >
@@ -339,103 +392,6 @@ export default async function OrderPage({
 
                 </h1>
 
-
-                <p
-
-                className="
-                    mt-2
-                    text-sm
-                    text-slate-500
-                "
-
-                >
-
-                    Заказ #{order.id}
-
-                    {" • "}
-
-                    Продавец: {order.seller_name}
-
-
-                </p>
-
-
-            </div>
-
-
-
-            <StatusBadge
-
-                status={order.status}
-
-            />
-
-
-
-        </div>
-
-
-
-
-
-
-
-        <div
-
-        className="
-            mt-6
-            grid
-            gap-5
-            lg:grid-cols-[1fr_350px]
-        "
-
-        >
-
-
-
-
-
-
-        <section
-
-        className="
-            overflow-hidden
-            rounded-3xl
-            border
-            border-white/10
-            bg-[#0D1117]
-            min-h-[600px]
-        "
-
-        >
-
-
-
-
-            <div
-
-            className="
-                border-b
-                border-white/10
-                px-6
-                py-5
-            "
-
-            >
-
-
-                <h2
-
-                className="
-                    text-xl
-                    font-bold
-                "
-
-                >
-
-                    💬 Чат заказа
-
-                </h2>
 
 
                 <p
@@ -448,7 +404,12 @@ export default async function OrderPage({
 
                 >
 
-                    Сообщения обновляются автоматически
+                    Заказ #{order.id}
+
+                    {" • "}
+
+                    Продавец {order.seller_name}
+
 
                 </p>
 
@@ -458,14 +419,112 @@ export default async function OrderPage({
 
 
 
+
+            <StatusTag
+
+                status={order.status}
+
+            />
+
+
+
+
+        </div>
+
+
+
+
+
+
+
+
+
+        <div
+
+        className="
+            mt-5
+            grid
+            gap-5
+            lg:grid-cols-[1fr_260px]
+        "
+
+        >
+
+
+
+
+
+
+
+        <div
+
+        className="
+            min-h-[520px]
+            overflow-hidden
+            rounded-xl
+            border
+            border-white/10
+            bg-black/20
+        "
+
+        >
+
+
             <div
 
             className="
-                p-6
+                border-b
+                border-white/10
+                px-5
+                py-4
             "
 
             >
 
+                <h2
+
+                className="
+                    text-sm
+                    font-semibold
+                "
+
+                >
+
+                    💬 Чат заказа
+
+
+                </h2>
+
+
+                <p
+
+                className="
+                    mt-1
+                    text-xs
+                    text-slate-500
+                "
+
+                >
+
+                    Сообщения обновляются автоматически
+
+
+                </p>
+
+
+            </div>
+
+
+
+
+
+            <div
+
+            className="
+                p-4
+            "
+
+            >
 
                 <OrderChat
 
@@ -479,7 +538,8 @@ export default async function OrderPage({
 
 
 
-        </section>
+        </div>
+
 
 
 
@@ -493,21 +553,22 @@ export default async function OrderPage({
 
         className="
             h-fit
-            rounded-3xl
+            rounded-xl
             border
             border-white/10
             bg-[#0D1117]
-            p-6
+            p-4
         "
 
         >
 
 
 
-            <h3
+
+            <p
 
             className="
-                text-sm
+                text-xs
                 text-slate-500
             "
 
@@ -515,15 +576,15 @@ export default async function OrderPage({
 
                 Цена товара
 
-            </h3>
+
+            </p>
 
 
 
-
-            <div
+            <p
 
             className="
-                mt-2
+                mt-1
                 text-2xl
                 font-bold
             "
@@ -533,7 +594,8 @@ export default async function OrderPage({
                 {order.price} ₽
 
 
-            </div>
+            </p>
+
 
 
 
@@ -543,7 +605,7 @@ export default async function OrderPage({
             <div
 
             className="
-                my-6
+                my-4
                 border-t
                 border-white/10
             "
@@ -558,7 +620,8 @@ export default async function OrderPage({
             <div
 
             className="
-                space-y-4
+                space-y-3
+                text-sm
             "
 
             >
@@ -567,54 +630,21 @@ export default async function OrderPage({
 
                 <div>
 
-
-                    <p
-
-                    className="
-                        text-xs
+                    <span className="
                         text-slate-500
-                    "
-
-                    >
-
-                        Продавец
-
-                    </p>
-
-
-                    <p className="font-semibold">
-
-                        {order.seller_name}
-
-                    </p>
-
-
-                </div>
-
-
-
-
-
-                <div>
-
-
-                    <p
-
-                    className="
-                        text-xs
-                        text-slate-500
-                    "
-
-                    >
+                    ">
 
                         Покупатель
 
-                    </p>
+                    </span>
 
 
-                    <p className="font-semibold">
+                    <p className="
+                        font-medium
+                    ">
 
                         {order.buyer_name}
+
 
                     </p>
 
@@ -627,25 +657,23 @@ export default async function OrderPage({
 
                 <div>
 
-
-                    <p
-
-                    className="
-                        text-xs
+                    <span className="
                         text-slate-500
-                    "
-
-                    >
+                    ">
 
                         Создан
 
-                    </p>
+
+                    </span>
 
 
-                    <p className="font-semibold">
+                    <p className="
+                        font-medium
+                    ">
 
                         {new Date(order.created_at)
                         .toLocaleString("ru-RU")}
+
 
                     </p>
 
@@ -661,40 +689,40 @@ export default async function OrderPage({
 
 
 
+
+
             <div
 
             className="
-                mt-6
-                rounded-2xl
-                bg-blue-500/10
-                p-5
+                mt-5
+                rounded-lg
+                bg-white/5
+                p-3
             "
 
             >
 
-
                 <p
 
                 className="
-                    text-sm
-                    text-slate-400
+                    text-xs
+                    text-slate-500
                 "
 
                 >
 
                     К оплате
 
-                </p>
 
+                </p>
 
 
                 <p
 
                 className="
                     mt-1
-                    text-3xl
+                    text-xl
                     font-bold
-                    text-blue-400
                 "
 
                 >
@@ -705,8 +733,8 @@ export default async function OrderPage({
                 </p>
 
 
-
             </div>
+
 
 
 
@@ -719,6 +747,14 @@ export default async function OrderPage({
 
 
 
+
+        </div>
+
+
+
+
+
+
         </div>
 
 
@@ -727,6 +763,9 @@ export default async function OrderPage({
 
 
         </div>
+
+
+
 
 
 
@@ -737,5 +776,6 @@ export default async function OrderPage({
         </>
 
     );
+
 
 }
