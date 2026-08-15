@@ -397,23 +397,21 @@ export default function BuyModal({
 
             {open && (
 
-                <div
-
-                    className="
-                        fixed
-                        inset-0
-                        z-50
-                        flex
-                        items-start
-                        justify-center
-                        overflow-y-auto
-                        bg-black/75
-                        px-3
-                        py-6
-                        backdrop-blur-sm
-                        sm:px-4
-                        sm:py-8
-                    "
+<div
+    className="
+        fixed
+        inset-0
+        z-50
+        flex
+        items-start
+        justify-center
+        overflow-y-auto
+        bg-black/75
+        px-3
+        py-6
+        backdrop-blur-sm
+        sm:px-4
+    "
 
                     onMouseDown={(e) => {
 
