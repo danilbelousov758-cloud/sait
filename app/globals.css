@@ -1,105 +1,115 @@
 @import "tailwindcss";
 
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: transparent;
+  --foreground: #ffffff;
 }
+
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
 
 body {
-  background: var(--background);
+  background: transparent;
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
 
-@keyframes float {
+
+
+/* ===== Animated Background ===== */
+
+
+@keyframes bg-1 {
 
     0% {
-        transform: translate(0,0) scale(1);
+        transform: translate(-100px,-50px) scale(1);
     }
 
     50% {
-        transform: translate(80px,40px) scale(1.1);
+        transform: translate(180px,120px) scale(1.25);
     }
 
     100% {
-        transform: translate(0,0) scale(1);
+        transform: translate(-100px,-50px) scale(1);
     }
 
 }
 
-@keyframes background-one {
+
+@keyframes bg-2 {
+
     0% {
-        transform: translate(0,0) scale(1);
+        transform: translate(100px,0);
     }
 
     50% {
-        transform: translate(120px,80px) scale(1.15);
+        transform: translate(-180px,140px);
     }
 
     100% {
-        transform: translate(0,0) scale(1);
+        transform: translate(100px,0);
     }
+
 }
 
 
-@keyframes background-two {
+@keyframes bg-3 {
 
     0% {
-        transform: translate(0,0);
+        transform: scale(0.8);
+        opacity: .4;
     }
 
     50% {
-        transform: translate(-120px,100px);
+        transform: scale(1.3);
+        opacity: .8;
     }
 
     100% {
-        transform: translate(0,0);
+        transform: scale(0.8);
+        opacity: .4;
     }
 
 }
 
 
-@keyframes background-three {
+@keyframes bg-4 {
 
     0% {
-        transform: translate(0,0) scale(1);
+        transform: translate(0,100px);
     }
 
     50% {
-        transform: translate(80px,-100px) scale(1.2);
+        transform: translate(200px,-150px);
     }
 
     100% {
-        transform: translate(0,0) scale(1);
+        transform: translate(0,100px);
     }
 
 }
 
 
-.animate-background-one {
-    animation: background-one 18s ease-in-out infinite;
+.animate-bg-1 {
+    animation: bg-1 12s ease-in-out infinite;
 }
 
 
-.animate-background-two {
-    animation: background-two 22s ease-in-out infinite;
+.animate-bg-2 {
+    animation: bg-2 16s ease-in-out infinite;
 }
 
 
-.animate-background-three {
-    animation: background-three 25s ease-in-out infinite;
+.animate-bg-3 {
+    animation: bg-3 10s ease-in-out infinite;
+}
+
+
+.animate-bg-4 {
+    animation: bg-4 20s ease-in-out infinite;
 }
