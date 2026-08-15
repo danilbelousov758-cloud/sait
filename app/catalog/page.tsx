@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import {
     useEffect,
     useMemo,
@@ -48,135 +47,67 @@ const expandableCategories: CatalogItem[] = [
     {
         name: "Скины",
         children: [
-            {
-                name: "Государственные",
-            },
-            {
-                name: "Мафии",
-            },
-            {
-                name: "Банды",
-            },
-            {
-                name: "Гражданские",
-            },
+            { name: "Государственные" },
+            { name: "Мафии" },
+            { name: "Банды" },
+            { name: "Гражданские" },
         ],
     },
 
     {
         name: "Оружие",
         children: [
-            {
-                name: "Ганпак",
-            },
-            {
-                name: "Дигл",
-            },
-            {
-                name: "ЮСП",
-            },
-            {
-                name: "Револьвер",
-            },
-            {
-                name: "АПС",
-            },
-            {
-                name: "СВД ПСО",
-            },
-            {
-                name: "СВД",
-            },
-            {
-                name: "M4A4",
-            },
-            {
-                name: "Абакан",
-            },
-            {
-                name: "АС ВАЛ",
-            },
-            {
-                name: "Гроза",
-            },
-            {
-                name: "Дробовик",
-            },
+            { name: "Ганпак" },
+            { name: "Дигл" },
+            { name: "ЮСП" },
+            { name: "Револьвер" },
+            { name: "АПС" },
+            { name: "СВД ПСО" },
+            { name: "СВД" },
+            { name: "M4A4" },
+            { name: "Абакан" },
+            { name: "АС ВАЛ" },
+            { name: "Гроза" },
+            { name: "Дробовик" },
         ],
     },
 
     {
         name: "Интерьеры",
         children: [
-            {
-                name: "24/7",
-            },
-            {
-                name: "ДПС / ППС / ФСБ",
-            },
-            {
-                name: "Оружейка",
-            },
-            {
-                name: "Ашан",
-            },
-            {
-                name: "Аптека",
-            },
-            {
-                name: "ПК клуб",
-            },
-            {
-                name: "Особа",
-            },
-            {
-                name: "Банк",
-            },
+            { name: "24/7" },
+            { name: "ДПС / ППС / ФСБ" },
+            { name: "Оружейка" },
+            { name: "Ашан" },
+            { name: "Аптека" },
+            { name: "ПК клуб" },
+            { name: "Особа" },
+            { name: "Банк" },
         ],
     },
 
     {
         name: "Заменные территории",
         children: [
-            {
-                name: "ЦР",
-            },
-            {
-                name: "ФСИН",
-            },
-            {
-                name: "Арзамас",
-            },
-            {
-                name: "Батырево",
-            },
-            {
-                name: "Южный",
-            },
-            {
-                name: "Бизвар локации",
-            },
-            {
-                name: "Вокзалы",
-            },
+            { name: "ЦР" },
+            { name: "ФСИН" },
+            { name: "Арзамас" },
+            { name: "Батырево" },
+            { name: "Южный" },
+            { name: "Бизвар локации" },
+            { name: "Вокзалы" },
         ],
     },
 
     {
         name: "Эффекты",
         children: [
-            {
-                name: "Кровь",
-            },
-            {
-                name: "Эффект при попадании",
-            },
+            { name: "Кровь" },
+            { name: "Эффект при попадании" },
             {
                 name: "Эффект при убийстве и ноке",
                 children: [
-                    {
-                        name: "ld_bum",
-                    },
+                    { name: "ld_bum" },
                 ],
             },
         ],
@@ -191,15 +122,9 @@ const expandableCategories: CatalogItem[] = [
                     {
                         name: "Пистолеты",
                         children: [
-                            {
-                                name: "M4A4",
-                            },
-                            {
-                                name: "Абакан",
-                            },
-                            {
-                                name: "Гроза",
-                            },
+                            { name: "M4A4" },
+                            { name: "Абакан" },
+                            { name: "Гроза" },
                         ],
                     },
                 ],
@@ -319,9 +244,7 @@ export default function CatalogPage() {
         try {
 
             const saved =
-                localStorage.getItem(
-                    "user"
-                );
+                localStorage.getItem("user");
 
 
 
@@ -335,12 +258,9 @@ export default function CatalogPage() {
 
 
 
-            const parsed =
-                JSON.parse(saved);
-
-
-
-            setUser(parsed);
+            setUser(
+                JSON.parse(saved)
+            );
 
         } catch {
 
@@ -440,7 +360,7 @@ export default function CatalogPage() {
                                         image
                                     ): image is string =>
                                         typeof image ===
-                                            "string" &&
+                                        "string" &&
                                         image.length > 0
                                 );
 
@@ -455,15 +375,11 @@ export default function CatalogPage() {
                                     product.id
                                 ),
 
-
-
                             name:
                                 String(
                                     product.name ||
                                     "Без названия"
                                 ),
-
-
 
                             category:
                                 String(
@@ -471,15 +387,11 @@ export default function CatalogPage() {
                                     ""
                                 ),
 
-
-
                             price:
                                 Number(
                                     product.price ||
                                     0
                                 ),
-
-
 
                             description:
                                 String(
@@ -487,23 +399,15 @@ export default function CatalogPage() {
                                     ""
                                 ),
 
-
-
                             images,
-
-
 
                             dff_file:
                                 product.dff_file ||
                                 null,
 
-
-
                             txd_file:
                                 product.txd_file ||
                                 null,
-
-
 
                             author_id:
                                 product.author_id !==
@@ -515,20 +419,14 @@ export default function CatalogPage() {
                                     )
                                     : null,
 
-
-
                             status:
                                 product.status ||
                                 "ACTIVE",
-
-
 
                             pinned:
                                 Boolean(
                                     product.pinned
                                 ),
-
-
 
                             created_at:
                                 product.created_at ||
@@ -538,13 +436,6 @@ export default function CatalogPage() {
 
                     }
                 );
-
-
-
-            console.log(
-                "CATALOG PRODUCTS:",
-                normalizedProducts
-            );
 
 
 
@@ -591,39 +482,6 @@ export default function CatalogPage() {
         role === "SELLER" ||
         role === "ADMIN" ||
         role === "FOUNDER";
-
-
-
-    const toggleCategory = (
-        name: string
-    ) => {
-
-        setOpenCategories(
-            current =>
-                current.includes(name)
-                    ? current.filter(
-                        item =>
-                            item !== name
-                    )
-                    : [
-                        ...current,
-                        name,
-                    ]
-        );
-
-    };
-
-
-
-    function selectCategory(
-        name: string
-    ) {
-
-        setSelectedCategory(
-            name
-        );
-
-    }
 
 
 
@@ -846,7 +704,6 @@ export default function CatalogPage() {
                                     text-3xl
                                     font-bold
                                     tracking-tight
-                                    text-white
                                 "
                             >
                                 Каталог
@@ -870,7 +727,7 @@ export default function CatalogPage() {
 
                         {canCreateProduct && (
 
-                            <Link
+                            <a
                                 href="/catalog/create"
                                 className="
                                     inline-flex
@@ -883,23 +740,18 @@ export default function CatalogPage() {
                                     py-2.5
                                     text-sm
                                     font-semibold
-                                    text-white
                                     transition
                                     hover:bg-blue-500
                                 "
                             >
 
-                                <span
-                                    className="
-                                        mr-2
-                                    "
-                                >
+                                <span className="mr-2">
                                     +
                                 </span>
 
                                 Создать товар
 
-                            </Link>
+                            </a>
 
                         )}
 
@@ -966,7 +818,7 @@ export default function CatalogPage() {
                             <button
                                 type="button"
                                 onClick={() =>
-                                    selectCategory(
+                                    setSelectedCategory(
                                         "Все моды"
                                     )
                                 }
@@ -979,7 +831,6 @@ export default function CatalogPage() {
                                     text-left
                                     text-sm
                                     transition
-
                                     ${
                                         selectedCategory ===
                                         "Все моды"
@@ -1008,11 +859,7 @@ export default function CatalogPage() {
 
 
 
-                            <div
-                                className="
-                                    space-y-1
-                                "
-                            >
+                            <div className="space-y-1">
 
                                 {filteredMainCategories.map(
                                     category => (
@@ -1070,11 +917,7 @@ export default function CatalogPage() {
 
 
 
-                            <div
-                                className="
-                                    space-y-1
-                                "
-                            >
+                            <div className="space-y-1">
 
                                 {filteredSimple.map(
                                     category => (
@@ -1085,7 +928,7 @@ export default function CatalogPage() {
                                             }
                                             type="button"
                                             onClick={() =>
-                                                selectCategory(
+                                                setSelectedCategory(
                                                     category
                                                 )
                                             }
@@ -1097,7 +940,6 @@ export default function CatalogPage() {
                                                 text-left
                                                 text-sm
                                                 transition
-
                                                 ${
                                                     selectedCategory ===
                                                     category
@@ -1118,11 +960,7 @@ export default function CatalogPage() {
 
 
 
-                        <section
-                            className="
-                                min-w-0
-                            "
-                        >
+                        <section className="min-w-0">
 
                             <div
                                 className="
@@ -1207,7 +1045,6 @@ export default function CatalogPage() {
                                         {
                                             filteredProducts.length
                                         }{" "}
-
                                         {
                                             getProductWord(
                                                 filteredProducts.length
@@ -1426,8 +1263,6 @@ export default function CatalogPage() {
 
 
 
-
-
 type CategoryTreeProps = {
     item: CatalogItem;
     parentPath: string;
@@ -1440,8 +1275,6 @@ type CategoryTreeProps = {
         React.SetStateAction<string[]>
     >;
 };
-
-
 
 
 
@@ -1534,7 +1367,6 @@ function CategoryTree({
                     text-left
                     text-sm
                     transition
-
                     ${
                         active
                             ? "bg-blue-600 text-white"
@@ -1555,7 +1387,6 @@ function CategoryTree({
                         className={`
                             text-xs
                             transition-transform
-
                             ${
                                 open
                                     ? "rotate-90"
@@ -1628,13 +1459,9 @@ function CategoryTree({
 
 
 
-
-
 type ProductCardProps = {
     product: Product;
 };
-
-
 
 
 
@@ -1652,6 +1479,160 @@ function ProductCard({
 
     const hasPrice =
         Number(product.price) > 0;
+
+
+
+    const hasFiles =
+        Boolean(
+            product.dff_file ||
+            product.txd_file
+        );
+
+
+
+    const [downloading, setDownloading] =
+        useState(false);
+
+    const [downloadError, setDownloadError] =
+        useState("");
+
+
+
+    async function downloadProduct() {
+
+        try {
+
+            setDownloading(true);
+            setDownloadError("");
+
+
+
+            const response =
+                await fetch(
+                    `/api/products/${product.id}/download`,
+                    {
+                        method: "GET",
+                    }
+                );
+
+
+
+            const contentType =
+                response.headers.get(
+                    "content-type"
+                ) || "";
+
+
+
+            if (!response.ok) {
+
+                let message =
+                    "Не удалось скачать мод";
+
+
+
+                if (
+                    contentType.includes(
+                        "application/json"
+                    )
+                ) {
+
+                    const data =
+                        await response.json();
+
+                    message =
+                        data?.message ||
+                        message;
+
+                } else {
+
+                    const text =
+                        await response.text();
+
+                    if (text) {
+                        message = text;
+                    }
+
+                }
+
+
+
+                throw new Error(
+                    message
+                );
+
+            }
+
+
+
+            const blob =
+                await response.blob();
+
+
+
+            const url =
+                window.URL.createObjectURL(
+                    blob
+                );
+
+
+
+            const link =
+                document.createElement(
+                    "a"
+                );
+
+
+
+            link.href = url;
+
+
+
+            link.download =
+                `${sanitizeZipName(product.name)}.zip`;
+
+
+
+            document.body.appendChild(
+                link
+            );
+
+
+
+            link.click();
+
+
+
+            link.remove();
+
+
+
+            window.URL.revokeObjectURL(
+                url
+            );
+
+        } catch (error) {
+
+            console.error(
+                "DOWNLOAD ERROR:",
+                error
+            );
+
+
+
+            setDownloadError(
+                error instanceof Error
+                    ? error.message
+                    : "Ошибка скачивания"
+            );
+
+        } finally {
+
+            setDownloading(false);
+
+        }
+
+    }
 
 
 
@@ -1703,13 +1684,13 @@ function ProductCard({
                             left-3
                             top-3
                             flex
-                            max-w-[75%]
+                            max-w-[72%]
                             items-center
                             gap-1.5
                             rounded-lg
                             border
                             border-white/10
-                            bg-black/70
+                            bg-black/65
                             px-2.5
                             py-1.5
                             text-[10px]
@@ -1791,7 +1772,7 @@ function ProductCard({
                             rounded-lg
                             border
                             border-white/10
-                            bg-black/70
+                            bg-black/65
                             px-2.5
                             py-1.5
                             text-xs
@@ -1815,20 +1796,33 @@ function ProductCard({
                 "
             >
 
-                <h3
+                <div
                     className="
-                        truncate
-                        text-[15px]
-                        font-semibold
-                        leading-5
-                        text-white
+                        flex
+                        min-w-0
+                        items-center
+                        justify-between
+                        gap-3
                     "
-                    title={
-                        product.name
-                    }
                 >
-                    {product.name}
-                </h3>
+
+                    <h3
+                        className="
+                            min-w-0
+                            truncate
+                            text-[15px]
+                            font-semibold
+                            leading-5
+                            text-white
+                        "
+                        title={
+                            product.name
+                        }
+                    >
+                        {product.name}
+                    </h3>
+
+                </div>
 
 
 
@@ -1836,7 +1830,6 @@ function ProductCard({
                     className="
                         mt-1.5
                         line-clamp-2
-                        min-h-[36px]
                         text-xs
                         leading-[18px]
                         text-slate-500
@@ -1848,6 +1841,24 @@ function ProductCard({
                     {product.description ||
                         "Описание отсутствует"}
                 </p>
+
+
+
+                {downloadError && (
+
+                    <p
+                        className="
+                            mt-2
+                            line-clamp-2
+                            text-[11px]
+                            leading-4
+                            text-red-400
+                        "
+                    >
+                        {downloadError}
+                    </p>
+
+                )}
 
 
 
@@ -1864,38 +1875,54 @@ function ProductCard({
                     "
                 >
 
-                    {hasPrice ? (
+                    <div
+                        className="
+                            min-w-0
+                        "
+                    >
 
-                        <span
-                            className="
-                                text-xs
-                                font-medium
-                                text-slate-500
-                            "
-                        >
-                            Платный мод
-                        </span>
+                        {hasPrice ? (
 
-                    ) : (
+                            <span
+                                className="
+                                    text-xs
+                                    font-medium
+                                    text-slate-500
+                                "
+                            >
+                                Платный мод
+                            </span>
 
-                        <span
-                            className="
-                                text-xs
-                                font-medium
-                                text-emerald-400/80
-                            "
-                        >
-                            Бесплатно
-                        </span>
+                        ) : (
 
-                    )}
+                            <span
+                                className="
+                                    text-xs
+                                    font-medium
+                                    text-emerald-400/80
+                                "
+                            >
+                                Бесплатно
+                            </span>
+
+                        )}
+
+                    </div>
 
 
 
-                    <Link
-                        href={`/catalog/${product.id}`}
+                    <button
+                        type="button"
+                        onClick={
+                            downloadProduct
+                        }
+                        disabled={
+                            downloading ||
+                            !hasFiles
+                        }
                         className="
                             inline-flex
+                            shrink-0
                             items-center
                             gap-1.5
                             rounded-lg
@@ -1907,55 +1934,99 @@ function ProductCard({
                             text-white
                             transition
                             hover:bg-blue-500
+                            disabled:cursor-not-allowed
+                            disabled:opacity-50
                         "
                     >
 
-                        <svg
-                            width="13"
-                            height="13"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        >
+                        {downloading ? (
 
-                            <path
-                                d="
-                                    M21 15
-                                    v4
-                                    a2 2
-                                    0 0 1-2 2
-                                    H5
-                                    a2 2
-                                    0 0 1-2-2
-                                    v-4
-                                "
-                            />
+                            <>
+                                <svg
+                                    className="
+                                        animate-spin
+                                    "
+                                    width="13"
+                                    height="13"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                >
+                                    <circle
+                                        cx="12"
+                                        cy="12"
+                                        r="9"
+                                        stroke="currentColor"
+                                        strokeWidth="3"
+                                        className="opacity-30"
+                                    />
 
-                            <polyline
-                                points="
-                                    7 10
-                                    12 15
-                                    17 10
-                                "
-                            />
+                                    <path
+                                        d="
+                                            M21 12
+                                            a9 9 0 0 0-9-9
+                                        "
+                                        stroke="currentColor"
+                                        strokeWidth="3"
+                                        strokeLinecap="round"
+                                    />
+                                </svg>
 
-                            <line
-                                x1="12"
-                                y1="15"
-                                x2="12"
-                                y2="3"
-                            />
+                                Сборка...
 
-                        </svg>
+                            </>
+
+                        ) : (
+
+                            <>
+
+                                <svg
+                                    width="13"
+                                    height="13"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                >
+
+                                    <path
+                                        d="
+                                            M21 15
+                                            v4
+                                            a2 2 0 0 1-2 2
+                                            H5
+                                            a2 2 0 0 1-2-2
+                                            v-4
+                                        "
+                                    />
+
+                                    <polyline
+                                        points="
+                                            7 10
+                                            12 15
+                                            17 10
+                                        "
+                                    />
+
+                                    <line
+                                        x1="12"
+                                        y1="15"
+                                        x2="12"
+                                        y2="3"
+                                    />
+
+                                </svg>
 
 
 
-                        Скачать
+                                Скачать
 
-                    </Link>
+                            </>
+
+                        )}
+
+                    </button>
 
                 </div>
 
@@ -1969,14 +2040,10 @@ function ProductCard({
 
 
 
-
-
 type ProductImageProps = {
     src?: string;
     alt: string;
 };
-
-
 
 
 
@@ -2033,6 +2100,35 @@ function ProductImage({
 
 
 
+function sanitizeZipName(
+    name: string
+) {
+
+    const cleaned =
+        name
+            .trim()
+            .replace(
+                /[<>:"/\\|?*\x00-\x1F]/g,
+                "_"
+            )
+            .replace(
+                /\s+/g,
+                " "
+            )
+            .replace(
+                /\.+$/g,
+                ""
+            );
+
+
+
+    return (
+        cleaned ||
+        "mod"
+    );
+
+}
+
 
 
 function getProductWord(
@@ -2041,8 +2137,6 @@ function getProductWord(
 
     const lastTwo =
         count % 100;
-
-
 
     const last =
         count % 10;
