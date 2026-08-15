@@ -1,252 +1,70 @@
-import { NextRequest, NextResponse } from "next/server";
-
-import {
-    S3Client,
-    PutObjectCommand,
-} from "@aws-sdk/client-s3";
-
-import {
-    getSignedUrl,
-} from "@aws-sdk/s3-request-presigner";
+import { NextResponse } from "next/server";
+import { db } from "@/lib/mysql";
 
 
-const endpoint =
-    process.env.S3_ENDPOINT;
-
-const bucket =
-    process.env.S3_BUCKET;
-
-const region =
-    process.env.S3_REGION || "ru-1";
-
-const accessKeyId =
-    process.env.S3_ACCESS_KEY;
-
-const secretAccessKey =
-    process.env.S3_SECRET_KEY;
-
-
-const s3 = new S3Client({
-
-    endpoint,
-
-    region,
-
-    forcePathStyle: true,
-
-    credentials: {
-
-        accessKeyId:
-            accessKeyId || "",
-
-        secretAccessKey:
-            secretAccessKey || "",
-
-    },
-
-});
-
-
-
-function cleanFileName(
-    fileName: string
-) {
-
-    return fileName
-        .replace(
-            /[^a-zA-Z0-9._-]/g,
-            "_"
-        )
-        .replace(
-            /\.{2,}/g,
-            "."
-        );
-
-}
-
-
-
-export async function POST(
-    request: NextRequest
-) {
+export async function GET() {
 
     try {
 
-        if (
-            !endpoint ||
-            !bucket ||
-            !accessKeyId ||
-            !secretAccessKey
-        ) {
+        const [rows] = await db.execute(
+            `
+            SELECT
+                id,
+                name,
+                category,
+                price,
+                description,
+                pinned,
+                images,
+                dff_file,
+                txd_file,
+                author_id,
+                status,
+                created_at
 
-            return NextResponse.json(
+            FROM products
 
-                {
-                    success: false,
-                    message:
-                        "S3 не настроен. Проверь S3_ENDPOINT, S3_BUCKET, S3_ACCESS_KEY и S3_SECRET_KEY.",
-                },
+            WHERE status = ?
 
-                {
-                    status: 500,
-                }
-
-            );
-
-        }
-
-
-
-        const body =
-            await request.json();
-
-
-
-        const fileName =
-            String(
-                body.fileName || ""
-            );
-
-
-
-        const contentType =
-            String(
-                body.contentType ||
-                "application/octet-stream"
-            );
-
-
-
-        const folder =
-            String(
-                body.folder || ""
-            );
-
-
-
-        if (!fileName) {
-
-            return NextResponse.json(
-
-                {
-                    success: false,
-                    message:
-                        "Не указано имя файла",
-                },
-
-                {
-                    status: 400,
-                }
-
-            );
-
-        }
-
-
-
-        if (!folder) {
-
-            return NextResponse.json(
-
-                {
-                    success: false,
-                    message:
-                        "Не указана папка",
-                },
-
-                {
-                    status: 400,
-                }
-
-            );
-
-        }
-
-
-
-        const safeFileName =
-            cleanFileName(
-                fileName
-            );
-
-
-
-        const key =
-            `${folder}/${Date.now()}-${safeFileName}`;
-
-
-
-        const command =
-            new PutObjectCommand({
-
-                Bucket:
-                    bucket,
-
-                Key:
-                    key,
-
-                ContentType:
-                    contentType,
-
-            });
-
-
-
-        const uploadUrl =
-            await getSignedUrl(
-                s3,
-                command,
-                {
-                    expiresIn: 60 * 15,
-                }
-            );
-
-
-
-        const fileUrl =
-            `${endpoint}/${bucket}/${key}`;
-
+            ORDER BY pinned DESC, created_at DESC
+            `,
+            [
+                "ACTIVE"
+            ]
+        );
 
 
         return NextResponse.json({
 
-            success: true,
+            success:true,
 
-            uploadUrl,
-
-            fileUrl,
-
-            key,
+            products: rows
 
         });
 
 
+    } catch(error) {
 
-    } catch (error) {
 
         console.error(
-            "UPLOAD URL ERROR:",
+            "GET PRODUCTS ERROR:",
             error
         );
-
 
 
         return NextResponse.json(
 
             {
-                success: false,
-
-                message:
-                    error instanceof Error
-                        ? error.message
-                        : "Ошибка создания ссылки S3",
+                success:false,
+                message:"Ошибка загрузки товаров"
             },
 
             {
-                status: 500,
+                status:500
             }
 
         );
+
 
     }
 
