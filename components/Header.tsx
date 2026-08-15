@@ -14,6 +14,10 @@ const navigation = [
         href: "/catalog",
     },
     {
+        name: "Торговая площадка",
+        href: "/market",
+    },
+    {
         name: "Поддержка",
         href: "/support",
     },
