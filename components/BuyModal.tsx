@@ -1,19 +1,19 @@
 "use client";
 
 import {
-    useState,
+    useState
 } from "react";
 
 
 type Props = {
 
-    productId: number;
+    productId:number;
 
-    productName: string;
+    productName:string;
 
-    sellerName: string;
+    sellerName:string;
 
-    price: number;
+    price:number;
 
 };
 
@@ -22,136 +22,69 @@ type Props = {
 export default function BuyModal({
 
     productId,
-
     productName,
-
     sellerName,
+    price
 
-    price,
-
-}: Props) {
+}:Props){
 
 
     const [
         open,
-        setOpen,
-    ] =
-        useState(false);
+        setOpen
+    ] = useState(false);
+
+
+
+    const [
+        promo,
+        setPromo
+    ] = useState("");
+
 
 
     const [
         loading,
-        setLoading,
-    ] =
-        useState(false);
+        setLoading
+    ] = useState(false);
 
 
 
-    async function createOrder() {
 
-
-        const saved =
-            localStorage.getItem(
-                "user"
-            );
-
-
-        if (!saved) {
-
-            alert(
-                "Войдите в аккаунт"
-            );
-
-            return;
-
-        }
-
-
-        const user =
-            JSON.parse(
-                saved
-            );
+    function buy(){
 
 
         setLoading(true);
 
 
 
-        try {
+        // позже подключим API заказа
 
 
-            const response =
-                await fetch(
-                    "/api/orders/create",
-                    {
-
-                        method:
-                            "POST",
-
-                        headers:
-                        {
-                            "Content-Type":
-                                "application/json",
-                        },
-
-
-                        body:
-                            JSON.stringify({
-
-                                product_id:
-                                    productId,
-
-
-                                buyer_id:
-                                    user.id,
-
-                            }),
-
-                    }
-                );
-
-
-
-            const data =
-                await response.json();
-
-
-
-            if (!data.success) {
-
-                throw new Error(
-                    data.message
-                );
-
-            }
-
-
-
-            window.location.href =
-                `/orders/${data.orderId}`;
-
-
-
-        } catch(error) {
-
-
-            alert(
-                error instanceof Error
-                    ? error.message
-                    : "Ошибка создания заказа"
-            );
-
-
-        } finally {
+        setTimeout(()=>{
 
 
             setLoading(false);
 
 
-        }
+            alert(
+                "Заказ создан"
+            );
+
+
+        },800);
+
 
 
     }
+
+
+
+
+    const donationPrice =
+        Math.round(
+            price / 0.85
+        );
 
 
 
@@ -161,346 +94,242 @@ export default function BuyModal({
         <>
 
 
-            <button
+        <button
 
-                onClick={() =>
-                    setOpen(true)
-                }
+            onClick={()=>setOpen(true)}
+
+            className="
+                mt-5
+                flex
+                w-full
+                justify-center
+                rounded-xl
+                bg-blue-600
+                py-3
+                font-semibold
+                hover:bg-blue-500
+            "
+
+        >
+
+            Купить
+
+
+        </button>
+
+
+
+
+
+        {
+            open && (
+
+
+            <div
 
                 className="
-                    mt-5
-                    w-full
-                    rounded-xl
-                    bg-blue-600
-                    py-3
-                    font-semibold
-                    transition
-                    hover:bg-blue-500
+                    fixed
+                    inset-0
+                    z-50
+                    flex
+                    items-center
+                    justify-center
+                    bg-black/70
+                    px-4
                 "
 
             >
 
-                Купить
 
-            </button>
+                <div
+
+                    className="
+                        w-full
+                        max-w-lg
+                        rounded-3xl
+                        border
+                        border-white/10
+                        bg-[#0D1117]
+                        p-6
+                    "
+
+                >
+
+
+
+                    <div
+                        className="
+                            flex
+                            justify-between
+                        "
+                    >
+
+                        <h2
+                            className="
+                                text-xl
+                                font-bold
+                            "
+                        >
+
+                            Оформление заказа
+
+
+                        </h2>
+
+
+
+                        <button
+
+                            onClick={()=>
+                                setOpen(false)
+                            }
+
+                            className="
+                                text-slate-500
+                                hover:text-white
+                            "
+
+                        >
+
+                            ✕
+
+
+                        </button>
+
+
+                    </div>
 
 
 
 
 
-            {
-                open && (
+                    <div className="mt-6">
+
+
+                        <h3
+                            className="
+                                text-lg
+                                font-semibold
+                            "
+                        >
+
+                            {productName}
+
+
+                        </h3>
+
+
+                        <p
+                            className="
+                                mt-1
+                                text-sm
+                                text-slate-500
+                            "
+                        >
+
+                            Продавец:
+                            {" "}
+                            {sellerName}
+
+                        </p>
+
+
+                    </div>
+
+
+
+
 
                     <div
 
                         className="
-                            fixed
-                            inset-0
-                            z-50
-                            flex
-                            items-center
-                            justify-center
-                            bg-black/70
-                            px-4
+                            mt-5
+                            rounded-xl
+                            bg-black/30
+                            p-4
                         "
 
                     >
+
+                        <p
+                            className="
+                                text-sm
+                                text-slate-400
+                            "
+                        >
+
+                            Цена
+
+                        </p>
+
+
+                        <p
+                            className="
+                                text-2xl
+                                font-bold
+                            "
+                        >
+
+                            {price} ₽
+
+                        </p>
+
+
+                    </div>
+
+
+
+
+
+
+
+                    <div className="mt-5">
+
+
+                        <p
+                            className="
+                                text-sm
+                                text-slate-400
+                            "
+                        >
+
+                            Переведите оплату:
+
+
+                        </p>
+
 
 
                         <div
 
                             className="
-                                w-full
-                                max-w-lg
-                                rounded-3xl
-                                border
-                                border-white/10
-                                bg-[#0D1117]
-                                p-6
-                                text-white
+                                mt-3
+                                rounded-xl
+                                bg-black/30
+                                p-4
+                                text-sm
+                                leading-7
                             "
 
                         >
 
+                            <b>СберБанк:</b>
+                            <br/>
+                            2202 2088 8291 8056
 
-                            <div
+                            <br/><br/>
 
-                                className="
-                                    flex
-                                    items-center
-                                    justify-between
-                                "
+                            <b>Т-Банк:</b>
+                            <br/>
+                            5536 9177 2933 9314
 
-                            >
 
+                            <br/><br/>
 
-                                <h2
+                            <b>Donation Alerts:</b>
+                            <br/>
 
-                                    className="
-                                        text-xl
-                                        font-bold
-                                    "
-
-                                >
-
-                                    Оформление заказа
-
-                                </h2>
-
-
-
-                                <button
-
-                                    onClick={() =>
-                                        setOpen(false)
-                                    }
-
-                                    className="
-                                        text-slate-500
-                                        hover:text-white
-                                    "
-
-                                >
-
-                                    ✕
-
-
-                                </button>
-
-
-                            </div>
-
-
-
-
-
-                            <div
-
-                                className="
-                                    mt-6
-                                    rounded-2xl
-                                    bg-black/20
-                                    p-4
-                                "
-
-                            >
-
-
-                                <div
-
-                                    className="
-                                        font-semibold
-                                    "
-
-                                >
-
-                                    {productName}
-
-                                </div>
-
-
-                                <div
-
-                                    className="
-                                        mt-2
-                                        text-sm
-                                        text-slate-400
-                                    "
-
-                                >
-
-                                    Продавец:
-                                    {" "}
-                                    {sellerName}
-
-                                </div>
-
-
-
-                                <div
-
-                                    className="
-                                        mt-3
-                                        text-2xl
-                                        font-bold
-                                    "
-
-                                >
-
-                                    {price},00 ₽
-
-
-                                </div>
-
-
-
-                            </div>
-
-
-
-
-
-
-                            <div
-
-                                className="
-                                    mt-5
-                                    rounded-2xl
-                                    border
-                                    border-white/5
-                                    bg-[#11161D]
-                                    p-4
-                                    text-sm
-                                "
-
-                            >
-
-
-                                <div
-                                    className="
-                                        text-slate-400
-                                    "
-                                >
-
-                                    Переведите оплату на реквизиты сайта:
-
-                                </div>
-
-
-
-                                <div
-                                    className="
-                                        mt-3
-                                        space-y-1
-                                        font-medium
-                                    "
-                                >
-
-                                    <div>
-                                        СберБанк:
-                                        <br />
-                                        2202 2088 8291 8056
-                                    </div>
-
-
-                                    <div className="mt-3">
-
-                                        Т-Банк:
-                                        <br />
-                                        5536 9177 2933 9314
-
-                                    </div>
-
-
-
-                                </div>
-
-
-
-                            </div>
-
-
-
-
-
-
-                            <div
-
-                                className="
-                                    mt-4
-                                    rounded-xl
-                                    border
-                                    border-yellow-500/20
-                                    bg-yellow-500/10
-                                    p-3
-                                    text-xs
-                                    text-yellow-300
-                                "
-
-                            >
-
-                                ⚠️ После оплаты нажмите
-                                «Я оплатил».
-                                Заказ уйдёт на проверку
-                                администрации.
-
-
-                            </div>
-
-
-
-
-
-                            <div
-
-                                className="
-                                    mt-5
-                                    flex
-                                    justify-between
-                                    text-lg
-                                "
-
-                            >
-
-                                <span>
-
-                                    Итого:
-
-                                </span>
-
-
-                                <b>
-
-                                    {price},00 ₽
-
-                                </b>
-
-
-                            </div>
-
-
-
-
-
-
-                            <button
-
-                                onClick={
-                                    createOrder
-                                }
-
-
-                                disabled={
-                                    loading
-                                }
-
-
-                                className="
-                                    mt-6
-                                    w-full
-                                    rounded-xl
-                                    bg-blue-600
-                                    py-3
-                                    font-semibold
-                                    transition
-                                    hover:bg-blue-500
-                                    disabled:opacity-50
-                                "
-
-                            >
-
-                                {
-                                    loading
-
-                                    ? "Создание заказа..."
-
-                                    : "Я оплатил"
-
-                                }
-
-
-                            </button>
-
+                            donationalerts.com/r/galbraith1629
 
 
                         </div>
@@ -508,13 +337,173 @@ export default function BuyModal({
 
                     </div>
 
-                )
 
-            }
 
+
+
+
+
+                    <div className="mt-5">
+
+
+                        <label
+                            className="
+                                text-sm
+                                text-slate-400
+                            "
+                        >
+
+                            🏷 Промокод
+
+
+                        </label>
+
+
+
+                        <input
+
+                            value={promo}
+
+                            onChange={(e)=>
+                                setPromo(
+                                    e.target.value
+                                )
+                            }
+
+
+                            className="
+                                mt-2
+                                h-11
+                                w-full
+                                rounded-xl
+                                border
+                                border-white/10
+                                bg-black/30
+                                px-4
+                                outline-none
+                            "
+
+                            placeholder="Введите промокод"
+
+                        />
+
+
+                    </div>
+
+
+
+
+
+
+
+                    <div
+                        className="
+                            mt-5
+                            border-t
+                            border-white/10
+                            pt-4
+                        "
+                    >
+
+                        <div
+                            className="
+                                flex
+                                justify-between
+                            "
+                        >
+
+                            <span
+                                className="
+                                    text-slate-400
+                                "
+                            >
+
+                                Итого
+
+
+                            </span>
+
+
+                            <b>
+
+                                {price} ₽
+
+
+                            </b>
+
+
+                        </div>
+
+
+
+                        <div
+                            className="
+                                mt-2
+                                text-sm
+                                text-slate-500
+                            "
+                        >
+
+                            Через Donation Alerts:
+                            {" "}
+                            {donationPrice} ₽
+
+
+                        </div>
+
+
+                    </div>
+
+
+
+
+
+
+
+                    <button
+
+                        onClick={buy}
+
+                        disabled={loading}
+
+                        className="
+                            mt-6
+                            w-full
+                            rounded-xl
+                            bg-green-600
+                            py-3
+                            font-semibold
+                            hover:bg-green-500
+                            disabled:opacity-50
+                        "
+
+                    >
+
+                        {
+                            loading
+                            ?
+                            "Создание заказа..."
+                            :
+                            "Я оплатил"
+                        }
+
+
+                    </button>
+
+
+
+                </div>
+
+
+            </div>
+
+
+            )
+        }
 
 
         </>
+
 
     );
 
