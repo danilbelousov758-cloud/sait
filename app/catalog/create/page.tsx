@@ -6,6 +6,7 @@ import {
     ChangeEvent,
     FormEvent,
     useEffect,
+    useMemo,
     useState,
 } from "react";
 
@@ -35,101 +36,237 @@ const expandableCategories: CatalogItem[] = [
         name: "Скины",
 
         children: [
-            { name: "Государственные" },
-            { name: "Мафии" },
-            { name: "Банды" },
-            { name: "Гражданские" },
+
+            {
+                name: "Государственные",
+            },
+
+            {
+                name: "Мафии",
+            },
+
+            {
+                name: "Банды",
+            },
+
+            {
+                name: "Гражданские",
+            },
+
         ],
     },
+
+
 
     {
         name: "Оружие",
 
         children: [
-            { name: "Ганпак" },
-            { name: "Дигл" },
-            { name: "ЮСП" },
-            { name: "Револьвер" },
-            { name: "АПС" },
-            { name: "СВД ПСО" },
-            { name: "СВД" },
-            { name: "M4A4" },
-            { name: "Абакан" },
-            { name: "АС ВАЛ" },
-            { name: "Гроза" },
-            { name: "Дробовик" },
+
+            {
+                name: "Ганпак",
+            },
+
+            {
+                name: "Дигл",
+            },
+
+            {
+                name: "ЮСП",
+            },
+
+            {
+                name: "Револьвер",
+            },
+
+            {
+                name: "АПС",
+            },
+
+            {
+                name: "СВД ПСО",
+            },
+
+            {
+                name: "СВД",
+            },
+
+            {
+                name: "M4A4",
+            },
+
+            {
+                name: "Абакан",
+            },
+
+            {
+                name: "АС ВАЛ",
+            },
+
+            {
+                name: "Гроза",
+            },
+
+            {
+                name: "Дробовик",
+            },
+
         ],
     },
+
+
 
     {
         name: "Интерьеры",
 
         children: [
-            { name: "24/7" },
-            { name: "ДПС / ППС / ФСБ" },
-            { name: "Оружейка" },
-            { name: "Ашан" },
-            { name: "Аптека" },
-            { name: "ПК клуб" },
-            { name: "Особа" },
-            { name: "Банк" },
+
+            {
+                name: "24/7",
+            },
+
+            {
+                name: "ДПС / ППС / ФСБ",
+            },
+
+            {
+                name: "Оружейка",
+            },
+
+            {
+                name: "Ашан",
+            },
+
+            {
+                name: "Аптека",
+            },
+
+            {
+                name: "ПК клуб",
+            },
+
+            {
+                name: "Особа",
+            },
+
+            {
+                name: "Банк",
+            },
+
         ],
     },
+
+
 
     {
         name: "Заменные территории",
 
         children: [
-            { name: "24/7" },
-            { name: "ЦР" },
-            { name: "ФСИН" },
-            { name: "Арзамас" },
-            { name: "Батырево" },
-            { name: "Южный" },
-            { name: "Бизвар локации" },
-            { name: "Вокзалы" },
+
+            {
+                name: "24/7",
+            },
+
+            {
+                name: "ЦР",
+            },
+
+            {
+                name: "ФСИН",
+            },
+
+            {
+                name: "Арзамас",
+            },
+
+            {
+                name: "Батырево",
+            },
+
+            {
+                name: "Южный",
+            },
+
+            {
+                name: "Бизвар локации",
+            },
+
+            {
+                name: "Вокзалы",
+            },
+
         ],
     },
+
+
 
     {
         name: "Эффекты",
 
         children: [
-            { name: "Кровь" },
-            { name: "Эффект при попадании" },
+
+            {
+                name: "Кровь",
+            },
+
+            {
+                name: "Эффект при попадании",
+            },
 
             {
                 name: "Эффект при убийстве и ноке",
 
                 children: [
+
                     {
                         name: "ld_bum",
                     },
+
                 ],
             },
+
         ],
     },
+
+
 
     {
         name: "Звуки",
 
         children: [
+
             {
                 name: "Попадание",
 
                 children: [
+
                     {
                         name: "Пистолеты",
 
                         children: [
-                            { name: "M4A4" },
-                            { name: "Абакан" },
-                            { name: "Гроза" },
-                            { name: "СВД" },
+
+                            {
+                                name: "M4A4",
+                            },
+
+                            {
+                                name: "Абакан",
+                            },
+
+                            {
+                                name: "Гроза",
+                            },
+
+                            {
+                                name: "СВД",
+                            },
+
                         ],
                     },
+
                 ],
             },
+
         ],
     },
 
@@ -140,23 +277,41 @@ const expandableCategories: CatalogItem[] = [
 const simpleCategories = [
 
     "Дороги",
+
     "Карты",
+
     "Арзамас",
+
     "Казино",
+
     "Порт",
+
     "Инвентарь",
+
     "Скайбоксы",
+
     "Нефтевышки",
+
     "Прицелы",
+
     "Курсор мыши",
+
     "Фисты",
+
     "Таймциклы",
+
     "Пикапы",
+
     "АХК",
+
     "ASI плагины",
+
     "Деревья",
+
     "Графика",
+
     "Загрузочный экран",
+
     "Подсказки для гос. сотрудников",
 
 ];
@@ -164,63 +319,123 @@ const simpleCategories = [
 
 
 const allowedRoles = [
+
     "SELLER",
+
     "ADMIN",
+
     "FOUNDER",
+
 ];
 
 
 
 export default function CreateCatalogProductPage() {
 
-    const [user, setUser] =
-        useState<User | null>(null);
+    const [
+        user,
+        setUser,
+    ] = useState<User | null>(null);
 
-    const [loaded, setLoaded] =
-        useState(false);
 
-    const [openCategories, setOpenCategories] =
-        useState<string[]>([
-            "Скины",
-        ]);
 
-    const [categoryPath, setCategoryPath] =
-        useState<string[]>([
-            "Скины",
-        ]);
+    const [
+        loaded,
+        setLoaded,
+    ] = useState(false);
 
-    const [name, setName] =
-        useState("");
 
-    const [price, setPrice] =
-        useState("");
 
-    const [description, setDescription] =
-        useState("");
+    const [
+        openCategories,
+        setOpenCategories,
+    ] = useState<string[]>([
+        "Скины",
+    ]);
 
-    const [dffFile, setDffFile] =
-        useState<File | null>(null);
 
-    const [txdFile, setTxdFile] =
-        useState<File | null>(null);
 
-    const [images, setImages] =
-        useState<File[]>([]);
+    const [
+        categoryPath,
+        setCategoryPath,
+    ] = useState<string[]>([]);
 
-    const [previewImages, setPreviewImages] =
-        useState<string[]>([]);
 
-    const [pinned, setPinned] =
-        useState(false);
 
-    const [error, setError] =
-        useState("");
+    const [
+        name,
+        setName,
+    ] = useState("");
 
-    const [saving, setSaving] =
-        useState(false);
 
-    const [uploadProgress, setUploadProgress] =
-        useState("");
+
+    const [
+        price,
+        setPrice,
+    ] = useState("");
+
+
+
+    const [
+        description,
+        setDescription,
+    ] = useState("");
+
+
+
+    const [
+        dffFile,
+        setDffFile,
+    ] = useState<File | null>(null);
+
+
+
+    const [
+        txdFile,
+        setTxdFile,
+    ] = useState<File | null>(null);
+
+
+
+    const [
+        images,
+        setImages,
+    ] = useState<File[]>([]);
+
+
+
+    const [
+        previewImages,
+        setPreviewImages,
+    ] = useState<string[]>([]);
+
+
+
+    const [
+        pinned,
+        setPinned,
+    ] = useState(false);
+
+
+
+    const [
+        error,
+        setError,
+    ] = useState("");
+
+
+
+    const [
+        saving,
+        setSaving,
+    ] = useState(false);
+
+
+
+    const [
+        uploadProgress,
+        setUploadProgress,
+    ] = useState(0);
 
 
 
@@ -235,11 +450,19 @@ export default function CreateCatalogProductPage() {
                         "user"
                     );
 
+
+
                 if (saved) {
 
                     setUser(
-                        JSON.parse(saved)
+                        JSON.parse(
+                            saved
+                        )
                     );
+
+                } else {
+
+                    setUser(null);
 
                 }
 
@@ -300,24 +523,46 @@ export default function CreateCatalogProductPage() {
 
 
     const categoryText =
-        categoryPath.join(" / ");
+        categoryPath.length > 0
+            ? categoryPath.join(" / ")
+            : "Категория не выбрана";
+
+
+
+    const canCreate =
+        Boolean(
+            categoryPath.length > 0 &&
+            name.trim() &&
+            dffFile &&
+            txdFile
+        );
+
+
+
+    const selectedCategoryIsLeaf =
+        categoryPath.length > 0;
 
 
 
     function toggleCategory(
-        name: string
+        categoryName: string
     ) {
 
         setOpenCategories(
             current =>
-                current.includes(name)
+
+                current.includes(
+                    categoryName
+                )
+
                     ? current.filter(
                         item =>
-                            item !== name
+                            item !== categoryName
                     )
+
                     : [
                         ...current,
-                        name,
+                        categoryName,
                     ]
         );
 
@@ -331,9 +576,21 @@ export default function CreateCatalogProductPage() {
         hasChildren: boolean
     ) {
 
+        /*
+         * ВАЖНО:
+         *
+         * Родительскую категорию
+         * выбрать нельзя.
+         *
+         * Если есть children —
+         * только открываем её.
+         */
+
         if (hasChildren) {
 
-            toggleCategory(name);
+            toggleCategory(
+                name
+            );
 
             return;
 
@@ -383,19 +640,32 @@ export default function CreateCatalogProductPage() {
 
 
 
+        const limited =
+            onlyImages.slice(
+                0,
+                10
+            );
+
+
+
         setImages(
-            onlyImages
+            limited
         );
 
 
 
-        setPreviewImages(
-            onlyImages.map(
+        const urls =
+            limited.map(
                 file =>
                     URL.createObjectURL(
                         file
                     )
-            )
+            );
+
+
+
+        setPreviewImages(
+            urls
         );
 
     }
@@ -411,25 +681,30 @@ export default function CreateCatalogProductPage() {
             await fetch(
                 "/api/products/upload-url",
                 {
-                    method: "POST",
+
+                    method:
+                        "POST",
 
                     headers: {
+
                         "Content-Type":
                             "application/json",
+
                     },
 
-                    body: JSON.stringify({
+                    body:
+                        JSON.stringify({
 
-                        fileName:
-                            file.name,
+                            fileName:
+                                file.name,
 
-                        contentType:
-                            file.type ||
-                            "application/octet-stream",
+                            contentType:
+                                file.type ||
+                                "application/octet-stream",
 
-                        folder,
+                            folder,
 
-                    }),
+                        }),
 
                 }
             );
@@ -443,23 +718,36 @@ export default function CreateCatalogProductPage() {
 
         let data: {
             success?: boolean;
-            message?: string;
             uploadUrl?: string;
-            fileUrl?: string;
-        };
+            url?: string;
+            key?: string;
+            message?: string;
+        } = {};
 
 
 
         try {
 
             data =
-                JSON.parse(text);
+                text
+                    ? JSON.parse(text)
+                    : {};
 
         } catch {
 
             throw new Error(
-                text ||
-                "Сервер вернул некорректный ответ"
+                `Ошибка сервера (${response.status})`
+            );
+
+        }
+
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.message ||
+                "Не удалось получить URL загрузки"
             );
 
         }
@@ -467,22 +755,30 @@ export default function CreateCatalogProductPage() {
 
 
         if (
-            !response.ok ||
-            !data.success ||
             !data.uploadUrl ||
-            !data.fileUrl
+            !data.url
         ) {
 
             throw new Error(
-                data.message ||
-                "Не удалось получить ссылку S3"
+                "S3 не вернул URL загрузки"
             );
 
         }
 
 
 
-        return data;
+        return {
+
+            uploadUrl:
+                data.uploadUrl,
+
+            url:
+                data.url,
+
+            key:
+                data.key || "",
+
+        };
 
     }
 
@@ -490,17 +786,13 @@ export default function CreateCatalogProductPage() {
 
     async function uploadFileToS3(
         file: File,
-        folder: string,
-        label: string
+        folder: string
     ) {
 
-        setUploadProgress(
-            `Загрузка: ${label}`
-        );
-
-
-
-        const data =
+        const {
+            uploadUrl,
+            url,
+        } =
             await getUploadUrl(
                 file,
                 folder
@@ -510,10 +802,11 @@ export default function CreateCatalogProductPage() {
 
         const response =
             await fetch(
-                data.uploadUrl!,
+                uploadUrl,
                 {
 
-                    method: "PUT",
+                    method:
+                        "PUT",
 
                     headers: {
 
@@ -523,7 +816,8 @@ export default function CreateCatalogProductPage() {
 
                     },
 
-                    body: file,
+                    body:
+                        file,
 
                 }
             );
@@ -532,27 +826,15 @@ export default function CreateCatalogProductPage() {
 
         if (!response.ok) {
 
-            const text =
-                await response.text()
-                    .catch(() => "");
-
-            console.error(
-                "S3 UPLOAD ERROR:",
-                response.status,
-                text
-            );
-
-
-
             throw new Error(
-                `Не удалось загрузить ${label} в S3 (${response.status})`
+                `Ошибка загрузки файла ${file.name}: ${response.status}`
             );
 
         }
 
 
 
-        return data.fileUrl!;
+        return url;
 
     }
 
@@ -566,9 +848,17 @@ export default function CreateCatalogProductPage() {
 
 
 
+        if (saving) {
+
+            return;
+
+        }
+
+
+
         setError("");
 
-        setUploadProgress("");
+        setUploadProgress(0);
 
 
 
@@ -584,10 +874,10 @@ export default function CreateCatalogProductPage() {
 
 
 
-        if (!name.trim()) {
+        if (!categoryPath.length) {
 
             setError(
-                "Введите название товара"
+                "Выберите конечную категорию"
             );
 
             return;
@@ -596,17 +886,10 @@ export default function CreateCatalogProductPage() {
 
 
 
-        if (
-            categoryPath.length < 2 &&
-            expandableCategories.some(
-                item =>
-                    item.name ===
-                    categoryPath[0]
-            )
-        ) {
+        if (!name.trim()) {
 
             setError(
-                "Выберите конечную категорию"
+                "Введите название товара"
             );
 
             return;
@@ -654,7 +937,8 @@ export default function CreateCatalogProductPage() {
         if (
             Number.isNaN(
                 numberPrice
-            )
+            ) ||
+            numberPrice < 0
         ) {
 
             setError(
@@ -678,68 +962,123 @@ export default function CreateCatalogProductPage() {
 
 
 
+            /*
+             * Всего будет:
+             *
+             * DFF
+             * TXD
+             * картинки
+             */
+
+            const totalFiles =
+                2 +
+                images.length;
+
+
+
+            let completedFiles =
+                0;
+
+
+
+            const updateProgress = () => {
+
+                completedFiles += 1;
+
+
+
+                setUploadProgress(
+                    Math.round(
+                        (
+                            completedFiles /
+                            totalFiles
+                        ) * 100
+                    )
+                );
+
+            };
+
+
+
+            /*
+             * Загружаем DFF
+             */
+
             const dffUrl =
                 await uploadFileToS3(
                     dffFile,
-                    folder,
-                    "DFF"
+                    folder
                 );
 
 
+
+            updateProgress();
+
+
+
+            /*
+             * Загружаем TXD
+             */
 
             const txdUrl =
                 await uploadFileToS3(
                     txdFile,
-                    folder,
-                    "TXD"
+                    folder
                 );
 
 
 
-            const imageUrls: string[] = [];
+            updateProgress();
+
+
+
+            /*
+             * Загружаем изображения
+             */
+
+            const imageUrls:
+                string[] = [];
 
 
 
             for (
-                let i = 0;
-                i < images.length;
-                i++
+                const image of images
             ) {
 
-                const image =
-                    images[i];
-
-
-
-                const url =
+                const imageUrl =
                     await uploadFileToS3(
                         image,
-                        `${folder}/images`,
-                        `изображение ${i + 1}`
+                        `${folder}/images`
                     );
 
 
 
                 imageUrls.push(
-                    url
+                    imageUrl
                 );
+
+
+
+                updateProgress();
 
             }
 
 
 
-            setUploadProgress(
-                "Создание товара..."
-            );
-
-
+            /*
+             * Теперь на Vercel
+             * отправляем только JSON.
+             *
+             * Никаких файлов здесь нет.
+             */
 
             const response =
                 await fetch(
                     "/api/products/create",
                     {
 
-                        method: "POST",
+                        method:
+                            "POST",
 
                         headers: {
 
@@ -760,9 +1099,11 @@ export default function CreateCatalogProductPage() {
                                 price:
                                     numberPrice,
 
-                                description,
+                                description:
+                                    description.trim(),
 
-                                pinned,
+                                pinned:
+                                    pinned,
 
                                 author_id:
                                     user.id,
@@ -791,20 +1132,21 @@ export default function CreateCatalogProductPage() {
             let data: {
                 success?: boolean;
                 message?: string;
-            };
+            } = {};
 
 
 
             try {
 
                 data =
-                    JSON.parse(text);
+                    text
+                        ? JSON.parse(text)
+                        : {};
 
             } catch {
 
                 throw new Error(
-                    text ||
-                    "Сервер вернул некорректный ответ"
+                    `Сервер вернул некорректный ответ (${response.status})`
                 );
 
             }
@@ -822,6 +1164,21 @@ export default function CreateCatalogProductPage() {
 
 
 
+            if (!data.success) {
+
+                throw new Error(
+                    data.message ||
+                    "Товар не был создан"
+                );
+
+            }
+
+
+
+            setUploadProgress(100);
+
+
+
             alert(
                 "Товар успешно создан"
             );
@@ -836,7 +1193,7 @@ export default function CreateCatalogProductPage() {
         } catch (error) {
 
             console.error(
-                "CREATE PRODUCT:",
+                "CREATE PRODUCT FRONTEND ERROR:",
                 error
             );
 
@@ -861,8 +1218,6 @@ export default function CreateCatalogProductPage() {
         } finally {
 
             setSaving(false);
-
-            setUploadProgress("");
 
         }
 
@@ -889,26 +1244,32 @@ export default function CreateCatalogProductPage() {
 
                 <Header />
 
-                <main className="
-                    min-h-screen
-                    flex
-                    items-center
-                    justify-center
-                    bg-[#080B10]
-                    text-white
-                ">
 
-                    <div className="
-                        text-center
-                    ">
 
-                        <h1 className="
-                            text-2xl
-                            font-bold
-                        ">
+                <main
+                    className="
+                        flex
+                        min-h-screen
+                        items-center
+                        justify-center
+                        bg-[#080B10]
+                        text-white
+                    "
+                >
 
+                    <div
+                        className="
+                            text-center
+                        "
+                    >
+
+                        <h1
+                            className="
+                                text-2xl
+                                font-bold
+                            "
+                        >
                             Доступ запрещён
-
                         </h1>
 
 
@@ -922,11 +1283,11 @@ export default function CreateCatalogProductPage() {
                                 bg-blue-600
                                 px-5
                                 py-3
+                                transition
+                                hover:bg-blue-500
                             "
                         >
-
                             Вернуться
-
                         </Link>
 
                     </div>
@@ -949,62 +1310,69 @@ export default function CreateCatalogProductPage() {
 
 
 
-            <main className="
-                min-h-screen
-                bg-[#080B10]
-                px-4
-                pb-20
-                pt-[120px]
-                text-white
-            ">
+            <main
+                className="
+                    min-h-screen
+                    bg-[#080B10]
+                    px-4
+                    pb-20
+                    pt-[120px]
+                    text-white
+                "
+            >
 
-                <div className="
-                    mx-auto
-                    max-w-7xl
-                ">
+                <div
+                    className="
+                        mx-auto
+                        max-w-7xl
+                    "
+                >
 
-                    <div className="
-                        mb-8
-                        flex
-                        items-center
-                        justify-between
-                    ">
+                    <div
+                        className="
+                            mb-8
+                            flex
+                            items-center
+                            justify-between
+                            gap-4
+                        "
+                    >
 
                         <div>
 
-                            <p className="
-                                text-xs
-                                uppercase
-                                tracking-widest
-                                text-blue-500
-                            ">
-
+                            <p
+                                className="
+                                    text-xs
+                                    uppercase
+                                    tracking-widest
+                                    text-blue-500
+                                "
+                            >
                                 MAZEPOV CONNEXTION
-
                             </p>
 
 
 
-                            <h1 className="
-                                mt-2
-                                text-3xl
-                                font-bold
-                            ">
-
+                            <h1
+                                className="
+                                    mt-2
+                                    text-3xl
+                                    font-bold
+                                "
+                            >
                                 Создание товара
-
                             </h1>
 
 
 
-                            <p className="
-                                mt-2
-                                text-sm
-                                text-slate-500
-                            ">
-
-                                Загрузка мода в каталог
-
+                            <p
+                                className="
+                                    mt-2
+                                    text-sm
+                                    text-slate-500
+                                "
+                            >
+                                Загрузите мод в каталог
                             </p>
 
                         </div>
@@ -1024,131 +1392,145 @@ export default function CreateCatalogProductPage() {
                                 hover:bg-white/5
                             "
                         >
-
                             Назад
-
                         </Link>
 
                     </div>
 
 
 
-                    <div className="
-                        grid
-                        gap-5
-                        lg:grid-cols-[280px_1fr]
-                    ">
+                    <div
+                        className="
+                            grid
+                            gap-5
+                            lg:grid-cols-[280px_1fr]
+                        "
+                    >
 
-                        <aside className="
-                            h-fit
-                            rounded-2xl
-                            border
-                            border-white/[0.07]
-                            bg-[#0D1117]
-                            p-3
-                        ">
+                        <aside
+                            className="
+                                h-fit
+                                rounded-2xl
+                                border
+                                border-white/[0.07]
+                                bg-[#0D1117]
+                                p-3
+                            "
+                        >
 
-                            <div className="
-                                mb-3
-                                px-3
-                                text-[10px]
-                                uppercase
-                                tracking-widest
-                                text-slate-600
-                            ">
-
-                                Категория товара
-
+                            <div
+                                className="
+                                    mb-3
+                                    px-3
+                                    text-[10px]
+                                    font-medium
+                                    uppercase
+                                    tracking-widest
+                                    text-slate-600
+                                "
+                            >
+                                Категория
                             </div>
 
 
 
-                            {expandableCategories.map(
-                                item => (
+                            {
+                                expandableCategories.map(
+                                    item => (
 
-                                    <CategoryTree
-                                        key={
-                                            item.name
-                                        }
+                                        <CategoryTree
 
-                                        item={
-                                            item
-                                        }
-
-                                        parents={
-                                            []
-                                        }
-
-                                        path={
-                                            categoryPath
-                                        }
-
-                                        open={
-                                            openCategories
-                                        }
-
-                                        select={
-                                            selectCategory
-                                        }
-
-                                    />
-
-                                )
-                            )}
-
-
-
-                            <div className="
-                                my-4
-                                h-px
-                                bg-white/5
-                            " />
-
-
-
-                            {simpleCategories.map(
-                                item => (
-
-                                    <button
-                                        key={
-                                            item
-                                        }
-
-                                        type="button"
-
-                                        onClick={() =>
-                                            selectSimpleCategory(
-                                                item
-                                            )
-                                        }
-
-                                        className={`
-                                            mb-1
-                                            w-full
-                                            rounded-xl
-                                            px-3
-                                            py-2.5
-                                            text-left
-                                            text-sm
-                                            transition
-
-                                            ${
-                                                categoryPath.length === 1 &&
-                                                categoryPath[0] === item
-
-                                                    ? "bg-blue-600 text-white"
-
-                                                    : "text-slate-400 hover:bg-white/5 hover:text-white"
+                                            key={
+                                                item.name
                                             }
-                                        `}
-                                    >
 
-                                        {item}
+                                            item={
+                                                item
+                                            }
 
-                                    </button>
+                                            parents={
+                                                []
+                                            }
 
+                                            path={
+                                                categoryPath
+                                            }
+
+                                            open={
+                                                openCategories
+                                            }
+
+                                            select={
+                                                selectCategory
+                                            }
+
+                                            toggle={
+                                                toggleCategory
+                                            }
+
+                                        />
+
+                                    )
                                 )
-                            )}
+                            }
+
+
+
+                            <div
+                                className="
+                                    my-4
+                                    h-px
+                                    bg-white/5
+                                "
+                            />
+
+
+
+                            {
+                                simpleCategories.map(
+                                    item => (
+
+                                        <button
+                                            key={
+                                                item
+                                            }
+
+                                            type="button"
+
+                                            onClick={() =>
+                                                selectSimpleCategory(
+                                                    item
+                                                )
+                                            }
+
+                                            className={`
+                                                mb-1
+                                                w-full
+                                                rounded-xl
+                                                px-3
+                                                py-2.5
+                                                text-left
+                                                text-sm
+                                                transition
+
+                                                ${
+                                                    categoryPath.length === 1 &&
+                                                    categoryPath[0] === item
+
+                                                        ? "bg-blue-600 text-white"
+
+                                                        : "text-slate-400 hover:bg-white/5 hover:text-white"
+                                                }
+                                            `}
+                                        >
+
+                                            {item}
+
+                                        </button>
+
+                                    )
+                                )
+                            }
 
                         </aside>
 
@@ -1164,43 +1546,78 @@ export default function CreateCatalogProductPage() {
                             "
                         >
 
-                            <section className="
-                                rounded-2xl
-                                border
-                                border-white/[0.07]
-                                bg-[#0D1117]
-                                p-6
-                            ">
-
-                                <div className="
-                                    rounded-xl
+                            <section
+                                className="
+                                    rounded-2xl
                                     border
-                                    border-blue-500/20
-                                    bg-blue-500/10
-                                    p-4
-                                ">
+                                    border-white/[0.07]
+                                    bg-[#0D1117]
+                                    p-6
+                                "
+                            >
 
-                                    <div className="
-                                        text-[10px]
-                                        uppercase
-                                        tracking-widest
-                                        text-blue-400
-                                    ">
+                                <div
+                                    className={`
+                                        rounded-xl
+                                        border
+                                        p-4
+                                        transition
 
-                                        Категория
+                                        ${
+                                            selectedCategoryIsLeaf
 
+                                                ? "border-blue-500/20 bg-blue-500/10"
+
+                                                : "border-yellow-500/20 bg-yellow-500/10"
+                                        }
+                                    `}
+                                >
+
+                                    <div
+                                        className="
+                                            text-[10px]
+                                            uppercase
+                                            tracking-widest
+                                            text-slate-500
+                                        "
+                                    >
+                                        Выбранная категория
                                     </div>
 
 
 
-                                    <div className="
-                                        mt-1
-                                        font-semibold
-                                    ">
+                                    <div
+                                        className={`
+                                            mt-1
+                                            font-semibold
 
+                                            ${
+                                                selectedCategoryIsLeaf
+                                                    ? "text-white"
+                                                    : "text-yellow-400"
+                                            }
+                                        `}
+                                    >
                                         {categoryText}
-
                                     </div>
+
+
+
+                                    {
+                                        !selectedCategoryIsLeaf && (
+
+                                            <div
+                                                className="
+                                                    mt-2
+                                                    text-xs
+                                                    text-yellow-400/70
+                                                "
+                                            >
+                                                Выберите конечный раздел
+                                            </div>
+
+                                        )
+                                    }
 
                                 </div>
 
@@ -1227,12 +1644,16 @@ export default function CreateCatalogProductPage() {
                                         h-12
                                         w-full
                                         rounded-xl
+                                        border
+                                        border-white/5
                                         bg-[#11161D]
                                         px-4
                                         outline-none
                                         transition
+                                        placeholder:text-slate-600
+                                        focus:border-blue-500/30
                                         focus:ring-2
-                                        focus:ring-blue-500/30
+                                        focus:ring-blue-500/10
                                     "
                                 />
 
@@ -1257,17 +1678,21 @@ export default function CreateCatalogProductPage() {
                                         Цена ₽
                                     "
 
+                                    inputMode="decimal"
+
                                     className="
                                         mt-4
                                         h-12
                                         w-full
                                         rounded-xl
+                                        border
+                                        border-white/5
                                         bg-[#11161D]
                                         px-4
                                         outline-none
                                         transition
-                                        focus:ring-2
-                                        focus:ring-blue-500/30
+                                        placeholder:text-slate-600
+                                        focus:border-blue-500/30
                                     "
                                 />
 
@@ -1289,21 +1714,21 @@ export default function CreateCatalogProductPage() {
                                         Описание товара
                                     "
 
-                                    rows={
-                                        5
-                                    }
+                                    rows={5}
 
                                     className="
                                         mt-4
                                         w-full
                                         resize-none
                                         rounded-xl
+                                        border
+                                        border-white/5
                                         bg-[#11161D]
                                         p-4
                                         outline-none
                                         transition
-                                        focus:ring-2
-                                        focus:ring-blue-500/30
+                                        placeholder:text-slate-600
+                                        focus:border-blue-500/30
                                     "
                                 />
 
@@ -1311,38 +1736,44 @@ export default function CreateCatalogProductPage() {
 
 
 
-                            <section className="
-                                rounded-2xl
-                                border
-                                border-white/10
-                                bg-[#0D1117]
-                                p-6
-                            ">
+                            <section
+                                className="
+                                    rounded-2xl
+                                    border
+                                    border-white/10
+                                    bg-[#0D1117]
+                                    p-6
+                                "
+                            >
 
-                                <div className="
-                                    flex
-                                    items-center
-                                    justify-between
-                                ">
+                                <div
+                                    className="
+                                        flex
+                                        items-center
+                                        justify-between
+                                    "
+                                >
 
                                     <div>
 
-                                        <h2 className="
-                                            font-semibold
-                                        ">
-
+                                        <h2
+                                            className="
+                                                font-semibold
+                                            "
+                                        >
                                             Закрепить товар
-
                                         </h2>
 
-                                        <p className="
-                                            mt-1
-                                            text-xs
-                                            text-slate-500
-                                        ">
 
+
+                                        <p
+                                            className="
+                                                mt-1
+                                                text-xs
+                                                text-slate-500
+                                            "
+                                        >
                                             Товар будет выше остальных
-
                                         </p>
 
                                     </div>
@@ -1354,11 +1785,13 @@ export default function CreateCatalogProductPage() {
 
                                         onClick={() =>
                                             setPinned(
-                                                !pinned
+                                                current =>
+                                                    !current
                                             )
                                         }
 
                                         className={`
+                                            relative
                                             h-7
                                             w-12
                                             rounded-full
@@ -1372,19 +1805,24 @@ export default function CreateCatalogProductPage() {
                                         `}
                                     >
 
-                                        <div className={`
-                                            h-5
-                                            w-5
-                                            rounded-full
-                                            bg-white
-                                            transition
+                                        <div
+                                            className={`
+                                                absolute
+                                                top-1
+                                                h-5
+                                                w-5
+                                                rounded-full
+                                                bg-white
+                                                shadow
+                                                transition
 
-                                            ${
-                                                pinned
-                                                    ? "translate-x-6"
-                                                    : "translate-x-1"
-                                            }
-                                        `} />
+                                                ${
+                                                    pinned
+                                                        ? "left-6"
+                                                        : "left-1"
+                                                }
+                                            `}
+                                        />
 
                                     </button>
 
@@ -1394,63 +1832,87 @@ export default function CreateCatalogProductPage() {
 
 
 
-                            <section className="
-                                rounded-2xl
-                                border
-                                border-white/10
-                                bg-[#0D1117]
-                                p-6
-                            ">
+                            <section
+                                className="
+                                    rounded-2xl
+                                    border
+                                    border-white/10
+                                    bg-[#0D1117]
+                                    p-6
+                                "
+                            >
 
-                                <h2 className="
-                                    font-semibold
-                                ">
+                                <div>
 
-                                    Файлы мода
-
-                                </h2>
-
-
-
-                                <p className="
-                                    mt-1
-                                    text-xs
-                                    text-slate-500
-                                ">
-
-                                    Файлы загружаются напрямую в S3
-
-                                </p>
+                                    <h2
+                                        className="
+                                            font-semibold
+                                        "
+                                    >
+                                        Файлы мода
+                                    </h2>
 
 
 
-                                <div className="
-                                    mt-5
-                                    grid
-                                    gap-4
-                                    sm:grid-cols-2
-                                ">
+                                    <p
+                                        className="
+                                            mt-1
+                                            text-xs
+                                            text-slate-500
+                                        "
+                                    >
+                                        Файлы загружаются напрямую в S3
+                                    </p>
+
+                                </div>
+
+
+
+                                <div
+                                    className="
+                                        mt-5
+                                        grid
+                                        gap-4
+                                        sm:grid-cols-2
+                                    "
+                                >
 
                                     <UploadBox
-                                        title="DFF файл"
+
+                                        title="DFF"
+
+                                        description=".dff"
+
                                         accept=".dff"
+
                                         file={
                                             dffFile
                                         }
+
                                         setFile={
                                             setDffFile
                                         }
+
                                     />
 
+
+
                                     <UploadBox
-                                        title="TXD файл"
+
+                                        title="TXD"
+
+                                        description=".txd"
+
                                         accept=".txd"
+
                                         file={
                                             txdFile
                                         }
+
                                         setFile={
                                             setTxdFile
                                         }
+
                                     />
 
                                 </div>
@@ -1459,143 +1921,252 @@ export default function CreateCatalogProductPage() {
 
 
 
-                            <section className="
-                                rounded-2xl
-                                border
-                                border-white/10
-                                bg-[#0D1117]
-                                p-6
-                            ">
-
-                                <h2 className="
-                                    font-semibold
-                                ">
-
-                                    Изображения
-
-                                </h2>
-
-
-
-                                <label className="
-                                    mt-5
-                                    block
-                                    cursor-pointer
-                                    rounded-xl
+                            <section
+                                className="
+                                    rounded-2xl
                                     border
-                                    border-dashed
                                     border-white/10
-                                    bg-[#11161D]
-                                    p-10
-                                    text-center
-                                    text-sm
-                                    text-slate-400
-                                    transition
-                                    hover:border-blue-500/40
-                                    hover:text-white
-                                ">
+                                    bg-[#0D1117]
+                                    p-6
+                                "
+                            >
+
+                                <div>
+
+                                    <h2
+                                        className="
+                                            font-semibold
+                                        "
+                                    >
+                                        Изображения
+                                    </h2>
+
+
+
+                                    <p
+                                        className="
+                                            mt-1
+                                            text-xs
+                                            text-slate-500
+                                        "
+                                    >
+                                        До 10 изображений
+                                    </p>
+
+                                </div>
+
+
+
+                                <label
+                                    className="
+                                        mt-5
+                                        block
+                                        cursor-pointer
+                                        rounded-xl
+                                        border
+                                        border-dashed
+                                        border-white/10
+                                        bg-[#11161D]
+                                        p-10
+                                        text-center
+                                        text-sm
+                                        text-slate-400
+                                        transition
+                                        hover:border-blue-500/30
+                                        hover:text-white
+                                    "
+                                >
 
                                     <input
                                         type="file"
+
                                         hidden
+
                                         multiple
-                                        accept="image/*"
+
+                                        accept="image/png,image/jpeg,image/webp"
+
                                         onChange={
                                             changeImages
                                         }
                                     />
 
-                                    Нажмите, чтобы выбрать изображения
 
-                                    <div className="
-                                        mt-2
-                                        text-xs
-                                        text-slate-600
-                                    ">
 
-                                        PNG, JPG, WEBP
+                                    <div
+                                        className="
+                                            text-sm
+                                            font-medium
+                                            text-slate-300
+                                        "
+                                    >
+                                        Выбрать изображения
+                                    </div>
 
+
+
+                                    <div
+                                        className="
+                                            mt-1
+                                            text-xs
+                                            text-slate-600
+                                        "
+                                    >
+                                        PNG, JPG или WEBP
                                     </div>
 
                                 </label>
 
 
 
-                                {previewImages.length > 0 && (
+                                {
+                                    previewImages.length > 0 && (
 
-                                    <div className="
-                                        mt-5
-                                        grid
-                                        grid-cols-2
-                                        gap-3
-                                        md:grid-cols-3
-                                    ">
+                                        <div
+                                            className="
+                                                mt-5
+                                                grid
+                                                grid-cols-2
+                                                gap-3
+                                                md:grid-cols-3
+                                            "
+                                        >
 
-                                        {previewImages.map(
-                                            image => (
+                                            {
+                                                previewImages.map(
+                                                    image => (
 
-                                                <img
-                                                    key={
-                                                        image
-                                                    }
-                                                    src={
-                                                        image
-                                                    }
-                                                    alt="preview"
-                                                    className="
-                                                        aspect-video
-                                                        rounded-xl
-                                                        object-cover
-                                                    "
-                                                />
+                                                        <img
+                                                            key={
+                                                                image
+                                                            }
 
-                                            )
-                                        )}
+                                                            src={
+                                                                image
+                                                            }
 
-                                    </div>
+                                                            alt="Предпросмотр"
 
-                                )}
+                                                            className="
+                                                                aspect-video
+                                                                w-full
+                                                                rounded-xl
+                                                                border
+                                                                border-white/5
+                                                                object-cover
+                                                            "
+                                                        />
+
+                                                    )
+                                                )
+                                            }
+
+                                        </div>
+
+                                    )
+                                }
 
                             </section>
 
 
 
-                            {uploadProgress && (
+                            {
+                                error && (
 
-                                <div className="
-                                    rounded-xl
-                                    border
-                                    border-blue-500/20
-                                    bg-blue-500/10
-                                    p-4
-                                    text-sm
-                                    text-blue-300
-                                ">
+                                    <div
+                                        className="
+                                            rounded-xl
+                                            border
+                                            border-red-500/20
+                                            bg-red-500/10
+                                            p-4
+                                            text-sm
+                                            text-red-400
+                                        "
+                                    >
+                                        {error}
+                                    </div>
 
-                                    {uploadProgress}
-
-                                </div>
-
-                            )}
+                                )
+                            }
 
 
 
-                            {error && (
+                            {
+                                saving && (
 
-                                <div className="
-                                    rounded-xl
-                                    border
-                                    border-red-500/20
-                                    bg-red-500/10
-                                    p-4
-                                    text-red-400
-                                ">
+                                    <div
+                                        className="
+                                            rounded-xl
+                                            border
+                                            border-blue-500/20
+                                            bg-blue-500/10
+                                            p-4
+                                        "
+                                    >
 
-                                    {error}
+                                        <div
+                                            className="
+                                                flex
+                                                items-center
+                                                justify-between
+                                                text-sm
+                                            "
+                                        >
 
-                                </div>
+                                            <span
+                                                className="
+                                                    text-slate-300
+                                                "
+                                            >
+                                                Загрузка файлов в S3...
+                                            </span>
 
-                            )}
+
+
+                                            <span
+                                                className="
+                                                    font-semibold
+                                                    text-blue-400
+                                                "
+                                            >
+                                                {uploadProgress}%
+                                            </span>
+
+                                        </div>
+
+
+
+                                        <div
+                                            className="
+                                                mt-3
+                                                h-2
+                                                overflow-hidden
+                                                rounded-full
+                                                bg-white/5
+                                            "
+                                        >
+
+                                            <div
+                                                className="
+                                                    h-full
+                                                    rounded-full
+                                                    bg-blue-600
+                                                    transition-all
+                                                "
+
+                                                style={{
+                                                    width:
+                                                        `${uploadProgress}%`,
+                                                }}
+                                            />
+
+                                        </div>
+
+                                    </div>
+
+                                )
+                            }
 
 
 
@@ -1603,28 +2174,54 @@ export default function CreateCatalogProductPage() {
                                 type="submit"
 
                                 disabled={
-                                    saving
+                                    saving ||
+                                    !canCreate
                                 }
 
                                 className="
-                                    h-12
+                                    h-13
                                     w-full
                                     rounded-xl
                                     bg-blue-600
+                                    px-5
                                     font-semibold
                                     transition
                                     hover:bg-blue-500
                                     disabled:cursor-not-allowed
-                                    disabled:opacity-50
+                                    disabled:opacity-40
                                 "
                             >
 
-                                {saving
-                                    ? "Загрузка..."
-                                    : "Создать товар"
+                                {
+                                    saving
+
+                                        ? `Загрузка... ${uploadProgress}%`
+
+                                        : "Создать товар"
                                 }
 
                             </button>
+
+
+
+                            {
+                                !canCreate &&
+                                !saving && (
+
+                                    <p
+                                        className="
+                                            text-center
+                                            text-xs
+                                            text-slate-600
+                                        "
+                                    >
+                                        Выберите конечную категорию,
+                                        укажите название и добавьте
+                                        DFF + TXD
+                                    </p>
+
+                                )
+                            }
 
                         </form>
 
@@ -1658,6 +2255,10 @@ type CategoryTreeProps = {
         hasChildren: boolean
     ) => void;
 
+    toggle: (
+        name: string
+    ) => void;
+
 };
 
 
@@ -1673,6 +2274,8 @@ function CategoryTree({
     open,
 
     select,
+
+    toggle,
 
 }: CategoryTreeProps) {
 
@@ -1691,7 +2294,6 @@ function CategoryTree({
 
 
     const selected =
-        !hasChildren &&
         path[path.length - 1] ===
         item.name;
 
@@ -1704,13 +2306,15 @@ function CategoryTree({
             <button
                 type="button"
 
-                onClick={() =>
+                onClick={() => {
+
                     select(
                         item.name,
                         parents,
                         hasChildren
-                    )
-                }
+                    );
+
+                }}
 
                 className={`
                     mb-1
@@ -1726,106 +2330,133 @@ function CategoryTree({
                     transition
 
                     ${
-                        selected
+                        selected && !hasChildren
+
                             ? "bg-blue-600 text-white"
+
                             : "text-slate-400 hover:bg-white/5 hover:text-white"
                     }
                 `}
             >
 
-                <span className="
-                    flex
-                    items-center
-                    gap-2
-                ">
+                <span
+                    className="
+                        flex
+                        min-w-0
+                        items-center
+                        gap-2
+                    "
+                >
 
-                    {hasChildren && (
+                    {
+                        hasChildren && (
 
-                        <span className="
-                            text-xs
-                            text-slate-600
-                        ">
+                            <span
+                                className={`
+                                    text-xs
+                                    text-slate-600
+                                    transition
 
-                            {isOpen
-                                ? "▼"
-                                : "▶"
-                            }
+                                    ${
+                                        isOpen
+                                            ? "rotate-90"
+                                            : ""
+                                    }
+                                `}
+                            >
+                                ›
+                            </span>
 
-                        </span>
+                        )
+                    }
 
-                    )}
 
-                    {item.name}
+
+                    <span>
+                        {item.name}
+                    </span>
 
                 </span>
 
 
 
-                {hasChildren && (
+                {
+                    hasChildren && (
 
-                    <span className="
-                        text-[10px]
-                        uppercase
-                        tracking-wider
-                        text-slate-600
-                    ">
+                        <span
+                            className="
+                                text-[10px]
+                                text-slate-600
+                            "
+                        >
+                            раздел
+                        </span>
 
-                        раздел
-
-                    </span>
-
-                )}
+                    )
+                }
 
             </button>
 
 
 
-            {hasChildren && isOpen && (
+            {
+                hasChildren &&
+                isOpen && (
 
-                <div className="
-                    ml-3
-                    border-l
-                    border-white/5
-                    pl-2
-                ">
+                    <div
+                        className="
+                            ml-3
+                            border-l
+                            border-white/5
+                            pl-2
+                        "
+                    >
 
-                    {item.children!.map(
-                        child => (
+                        {
+                            item.children!.map(
+                                child => (
 
-                            <CategoryTree
-                                key={
-                                    child.name
-                                }
+                                    <CategoryTree
 
-                                item={
-                                    child
-                                }
+                                        key={
+                                            child.name
+                                        }
 
-                                parents={[
-                                    ...parents,
-                                    item.name,
-                                ]}
+                                        item={
+                                            child
+                                        }
 
-                                path={
-                                    path
-                                }
+                                        parents={[
+                                            ...parents,
+                                            item.name,
+                                        ]}
 
-                                open={
-                                    open
-                                }
+                                        path={
+                                            path
+                                        }
 
-                                select={
-                                    select
-                                }
+                                        open={
+                                            open
+                                        }
 
-                            />
+                                        select={
+                                            select
+                                        }
 
-                        )
-                    )}
+                                        toggle={
+                                            toggle
+                                        }
 
-                </div>
+                                    />
 
-            )}
+                                )
+                            )
+                        }
+
+                    </div>
+
+                )
+            }
 
         </div>
 
@@ -1838,6 +2469,8 @@ function CategoryTree({
 type UploadBoxProps = {
 
     title: string;
+
+    description: string;
 
     accept: string;
 
@@ -1855,6 +2488,8 @@ function UploadBox({
 
     title,
 
+    description,
+
     accept,
 
     file,
@@ -1865,60 +2500,98 @@ function UploadBox({
 
     return (
 
-        <label className="
-            cursor-pointer
-            rounded-xl
-            border
-            border-dashed
-            border-white/10
-            bg-[#11161D]
-            p-8
-            text-center
-            transition
-            hover:border-blue-500/40
-            hover:bg-[#131922]
-        ">
+        <label
+            className="
+                cursor-pointer
+                rounded-xl
+                border
+                border-dashed
+                border-white/10
+                bg-[#11161D]
+                p-7
+                text-center
+                transition
+                hover:border-blue-500/40
+                hover:bg-[#131922]
+            "
+        >
 
             <input
                 type="file"
+
                 hidden
-                accept={accept}
+
+                accept={
+                    accept
+                }
 
                 onChange={
                     e =>
                         setFile(
-                            e.target.files?.[0]
-                            || null
+                            e.target.files?.[0] ||
+                            null
                         )
                 }
             />
 
 
 
-            <div className="
-                text-blue-400
-                font-semibold
-            ">
-
+            <div
+                className="
+                    text-lg
+                    font-semibold
+                    text-blue-400
+                "
+            >
                 {title}
-
             </div>
 
 
 
-            <p className="
-                mt-3
-                truncate
-                text-sm
-                text-slate-400
-            ">
+            <div
+                className="
+                    mt-1
+                    text-xs
+                    text-slate-600
+                "
+            >
+                {description}
+            </div>
 
-                {file
-                    ? file.name
-                    : "Выбрать файл"
+
+
+            <p
+                className="
+                    mt-4
+                    truncate
+                    text-sm
+                    text-slate-400
+                "
+            >
+                {
+                    file
+                        ? file.name
+                        : "Нажмите, чтобы выбрать"
                 }
-
             </p>
+
+
+
+            {
+                file && (
+
+                    <p
+                        className="
+                            mt-2
+                            text-[11px]
+                            text-green-400
+                        "
+                    >
+                        Файл выбран
+                    </p>
+
+                )
+            }
 
         </label>
 

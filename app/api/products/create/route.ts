@@ -1,115 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import {
-    S3Client,
-    PutObjectCommand,
-} from "@aws-sdk/client-s3";
-
 import { db } from "@/lib/mysql";
-
-
-
-const s3 = new S3Client({
-
-    endpoint:
-        process.env.S3_ENDPOINT,
-
-    region:
-        process.env.S3_REGION || "ru-1",
-
-    forcePathStyle:
-        true,
-
-    credentials: {
-
-        accessKeyId:
-            process.env.S3_ACCESS_KEY || "",
-
-        secretAccessKey:
-            process.env.S3_SECRET_KEY || "",
-
-    },
-
-});
-
-
-
-
-
-async function uploadToS3(
-    file: File,
-    folder: string
-) {
-
-    const bucket =
-        process.env.S3_BUCKET;
-
-
-
-    if (!bucket) {
-
-        throw new Error(
-            "S3_BUCKET не найден"
-        );
-
-    }
-
-
-
-    const buffer =
-        Buffer.from(
-            await file.arrayBuffer()
-        );
-
-
-
-    const fileName =
-        file.name
-            .replace(
-                /[^a-zA-Z0-9._-]/g,
-                "_"
-            );
-
-
-
-    const key =
-        `${folder}/${Date.now()}-${fileName}`;
-
-
-
-
-    await s3.send(
-
-        new PutObjectCommand({
-
-            Bucket:
-                bucket,
-
-            Key:
-                key,
-
-            Body:
-                buffer,
-
-            ContentType:
-                file.type ||
-                "application/octet-stream",
-
-        })
-
-    );
-
-
-
-    return (
-        `${process.env.S3_ENDPOINT}/${bucket}/${key}`
-    );
-
-}
-
-
-
-
 
 
 
@@ -117,115 +8,84 @@ export async function POST(
     request: NextRequest
 ) {
 
-
     try {
 
-
-        console.log(
-            "S3 CHECK:",
-            {
-                endpoint:
-                    process.env.S3_ENDPOINT,
-
-                bucket:
-                    process.env.S3_BUCKET,
-
-                region:
-                    process.env.S3_REGION,
-            }
-        );
-
-
-
-
-
-        const form =
-            await request.formData();
-
-
+        const body =
+            await request.json();
 
 
 
         const name =
             String(
-                form.get("name") || ""
-            );
+                body.name || ""
+            ).trim();
 
 
 
         const category =
             String(
-                form.get("path") ||
-                form.get("category") ||
-                ""
-            );
+                body.category || ""
+            ).trim();
 
 
 
         const price =
             Number(
-                form.get("price") || 0
+                body.price || 0
             );
 
 
 
         const description =
             String(
-                form.get("description") || ""
+                body.description || ""
             );
 
 
 
         const pinned =
-            form.get("pinned") === "true";
+            Boolean(
+                body.pinned
+            );
 
 
 
         const authorId =
             Number(
-                form.get("author_id")
+                body.author_id
             );
 
 
 
-
-
-        const dffData =
-            form.get("dff");
-
-
-        const txdData =
-            form.get("txd");
+        const dffFile =
+            String(
+                body.dff_file || ""
+            ).trim();
 
 
 
-        const dff =
-            dffData instanceof File
-                ? dffData
-                : null;
-
-
-
-        const txd =
-            txdData instanceof File
-                ? txdData
-                : null;
-
-
+        const txdFile =
+            String(
+                body.txd_file || ""
+            ).trim();
 
 
 
         const images =
-            form
-                .getAll("images")
-                .filter(
-                    (
-                        file
-                    ): file is File =>
-                        file instanceof File
-                );
+            Array.isArray(
+                body.images
+            )
 
+                ? body.images
+                    .filter(
+                        (
+                            image: unknown
+                        ): image is string =>
+                            typeof image === "string" &&
+                            image.trim().length > 0
+                    )
 
+                : [];
 
 
 
@@ -236,12 +96,14 @@ export async function POST(
             return NextResponse.json(
 
                 {
+                    success: false,
+
                     message:
-                        "Введите название товара"
+                        "Введите название товара",
                 },
 
                 {
-                    status:400
+                    status: 400,
                 }
 
             );
@@ -252,17 +114,103 @@ export async function POST(
 
 
 
-        if (!dff || !txd) {
+        if (!category) {
 
             return NextResponse.json(
 
                 {
+                    success: false,
+
                     message:
-                        "DFF и TXD обязательны"
+                        "Выберите категорию товара",
                 },
 
                 {
-                    status:400
+                    status: 400,
+                }
+
+            );
+
+        }
+
+
+
+
+
+        /*
+         * Категория должна быть конечной.
+         *
+         * Например:
+         *
+         * Скины/Банды       ✅
+         * Скины/Мафии       ✅
+         * Оружие/Дигл      ✅
+         *
+         * Скины             ❌
+         * Оружие            ❌
+         */
+
+        const forbiddenCategories = [
+
+            "Скины",
+
+            "Оружие",
+
+            "Интерьеры",
+
+            "Заменные территории",
+
+            "Эффекты",
+
+            "Звуки",
+
+        ];
+
+
+
+        if (
+            forbiddenCategories.includes(
+                category
+            )
+        ) {
+
+            return NextResponse.json(
+
+                {
+                    success: false,
+
+                    message:
+                        "Нельзя выбрать основную категорию. Выберите подраздел.",
+                },
+
+                {
+                    status: 400,
+                }
+
+            );
+
+        }
+
+
+
+
+
+        if (
+            Number.isNaN(price) ||
+            price < 0
+        ) {
+
+            return NextResponse.json(
+
+                {
+                    success: false,
+
+                    message:
+                        "Некорректная цена",
+                },
+
+                {
+                    status: 400,
                 }
 
             );
@@ -278,12 +226,14 @@ export async function POST(
             return NextResponse.json(
 
                 {
+                    success: false,
+
                     message:
-                        "Не найден автор товара"
+                        "Не найден автор товара",
                 },
 
                 {
-                    status:400
+                    status: 400,
                 }
 
             );
@@ -294,63 +244,47 @@ export async function POST(
 
 
 
+        if (!dffFile) {
 
+            return NextResponse.json(
 
-        const folder =
+                {
+                    success: false,
 
-            `products/${authorId}/${Date.now()}`;
+                    message:
+                        "DFF файл не загружен",
+                },
 
+                {
+                    status: 400,
+                }
 
-
-
-
-
-        const dffUrl =
-            await uploadToS3(
-                dff,
-                folder
-            );
-
-
-
-        const txdUrl =
-            await uploadToS3(
-                txd,
-                folder
-            );
-
-
-
-
-
-        const imageUrls:string[] = [];
-
-
-
-        for (
-            const image of images
-        ) {
-
-
-            const url =
-                await uploadToS3(
-
-                    image,
-
-                    `${folder}/images`
-
-                );
-
-
-
-            imageUrls.push(
-                url
             );
 
         }
 
 
 
+
+
+        if (!txdFile) {
+
+            return NextResponse.json(
+
+                {
+                    success: false,
+
+                    message:
+                        "TXD файл не загружен",
+                },
+
+                {
+                    status: 400,
+                }
+
+            );
+
+        }
 
 
 
@@ -390,7 +324,6 @@ export async function POST(
             )
             `,
 
-
             [
 
                 name,
@@ -405,17 +338,17 @@ export async function POST(
                     ? 1
                     : 0,
 
-                dffUrl,
+                dffFile,
 
-                txdUrl,
+                txdFile,
 
                 JSON.stringify(
-                    imageUrls
+                    images
                 ),
 
                 authorId,
 
-                "ACTIVE"
+                "ACTIVE",
 
             ]
 
@@ -425,14 +358,12 @@ export async function POST(
 
 
 
-
-
         return NextResponse.json({
 
-            success:true,
+            success: true,
 
             message:
-                "Товар успешно создан"
+                "Товар успешно создан",
 
         });
 
@@ -440,9 +371,7 @@ export async function POST(
 
 
 
-    }
-    catch(error) {
-
+    } catch (error) {
 
         console.error(
             "CREATE PRODUCT ERROR:",
@@ -455,18 +384,18 @@ export async function POST(
 
             {
 
-                success:false,
+                success: false,
 
                 message:
                     error instanceof Error
                         ? error.message
-                        : "Ошибка сервера"
+                        : "Ошибка создания товара",
 
             },
 
             {
 
-                status:500
+                status: 500,
 
             }
 

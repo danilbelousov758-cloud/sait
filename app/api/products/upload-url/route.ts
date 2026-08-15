@@ -10,59 +10,28 @@ import {
 } from "@aws-sdk/s3-request-presigner";
 
 
-const endpoint =
-    process.env.S3_ENDPOINT;
-
-const bucket =
-    process.env.S3_BUCKET;
-
-const region =
-    process.env.S3_REGION || "ru-1";
-
-const accessKeyId =
-    process.env.S3_ACCESS_KEY;
-
-const secretAccessKey =
-    process.env.S3_SECRET_KEY;
-
-
 const s3 = new S3Client({
 
-    endpoint,
+    endpoint:
+        process.env.S3_ENDPOINT,
 
-    region,
+    region:
+        process.env.S3_REGION || "ru-1",
 
-    forcePathStyle: true,
+    forcePathStyle:
+        true,
 
     credentials: {
 
         accessKeyId:
-            accessKeyId || "",
+            process.env.S3_ACCESS_KEY || "",
 
         secretAccessKey:
-            secretAccessKey || "",
+            process.env.S3_SECRET_KEY || "",
 
     },
 
 });
-
-
-
-function cleanFileName(
-    fileName: string
-) {
-
-    return fileName
-        .replace(
-            /[^a-zA-Z0-9._-]/g,
-            "_"
-        )
-        .replace(
-            /\.{2,}/g,
-            "."
-        );
-
-}
 
 
 
@@ -72,11 +41,73 @@ export async function POST(
 
     try {
 
+        const body =
+            await request.json();
+
+
+        const fileName =
+            String(
+                body.fileName || ""
+            ).trim();
+
+
+        const contentType =
+            String(
+                body.contentType ||
+                "application/octet-stream"
+            );
+
+
+        const folder =
+            String(
+                body.folder || ""
+            ).trim();
+
+
+        if (!fileName) {
+
+            return NextResponse.json(
+
+                {
+                    success: false,
+                    message: "Не указано имя файла",
+                },
+
+                {
+                    status: 400,
+                }
+
+            );
+
+        }
+
+
+        const bucket =
+            process.env.S3_BUCKET;
+
+
+        if (!bucket) {
+
+            return NextResponse.json(
+
+                {
+                    success: false,
+                    message: "S3_BUCKET не найден",
+                },
+
+                {
+                    status: 500,
+                }
+
+            );
+
+        }
+
+
         if (
-            !endpoint ||
-            !bucket ||
-            !accessKeyId ||
-            !secretAccessKey
+            !process.env.S3_ACCESS_KEY ||
+            !process.env.S3_SECRET_KEY ||
+            !process.env.S3_ENDPOINT
         ) {
 
             return NextResponse.json(
@@ -84,7 +115,7 @@ export async function POST(
                 {
                     success: false,
                     message:
-                        "S3 не настроен. Проверь S3_ENDPOINT, S3_BUCKET, S3_ACCESS_KEY и S3_SECRET_KEY.",
+                        "S3 ключи или endpoint не настроены",
                 },
 
                 {
@@ -97,82 +128,21 @@ export async function POST(
 
 
 
-        const body =
-            await request.json();
-
-
-
-        const fileName =
-            String(
-                body.fileName || ""
-            );
-
-
-
-        const contentType =
-            String(
-                body.contentType ||
-                "application/octet-stream"
-            );
-
-
-
-        const folder =
-            String(
-                body.folder || ""
-            );
-
-
-
-        if (!fileName) {
-
-            return NextResponse.json(
-
-                {
-                    success: false,
-                    message:
-                        "Не указано имя файла",
-                },
-
-                {
-                    status: 400,
-                }
-
-            );
-
-        }
-
-
-
-        if (!folder) {
-
-            return NextResponse.json(
-
-                {
-                    success: false,
-                    message:
-                        "Не указана папка",
-                },
-
-                {
-                    status: 400,
-                }
-
-            );
-
-        }
-
-
-
         const safeFileName =
-            cleanFileName(
-                fileName
+            fileName.replace(
+                /[^a-zA-Z0-9._-]/g,
+                "_"
             );
 
 
 
         const key =
-            `${folder}/${Date.now()}-${safeFileName}`;
+
+            folder
+
+                ? `${folder}/${Date.now()}-${safeFileName}`
+
+                : `uploads/${Date.now()}-${safeFileName}`;
 
 
 
@@ -197,14 +167,15 @@ export async function POST(
                 s3,
                 command,
                 {
-                    expiresIn: 60 * 15,
+                    expiresIn: 900,
                 }
             );
 
 
 
-        const fileUrl =
-            `${endpoint}/${bucket}/${key}`;
+        const publicUrl =
+
+            `${process.env.S3_ENDPOINT}/${bucket}/${key}`;
 
 
 
@@ -214,15 +185,16 @@ export async function POST(
 
             uploadUrl,
 
-            fileUrl,
+            url:
+                publicUrl,
 
             key,
 
         });
 
 
-
     } catch (error) {
+
 
         console.error(
             "UPLOAD URL ERROR:",
@@ -230,20 +202,23 @@ export async function POST(
         );
 
 
-
         return NextResponse.json(
 
             {
+
                 success: false,
 
                 message:
                     error instanceof Error
                         ? error.message
-                        : "Ошибка создания ссылки S3",
+                        : "Ошибка создания URL",
+
             },
 
             {
+
                 status: 500,
+
             }
 
         );
