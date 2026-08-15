@@ -120,6 +120,8 @@ export default function BuyModal({
 
     return (
         <>
+            {/* КНОПКА КУПИТЬ */}
+
             <button
                 type="button"
                 onClick={() => {
@@ -140,10 +142,13 @@ export default function BuyModal({
                     text-white
                     transition
                     hover:bg-blue-500
+                    active:scale-[0.99]
                 "
             >
                 Купить
             </button>
+
+            {/* МОДАЛЬНОЕ ОКНО */}
 
             {open && (
                 <div
@@ -154,11 +159,10 @@ export default function BuyModal({
                         flex
                         items-center
                         justify-center
-                        overflow-hidden
-                        bg-black/75
+                        bg-black/80
                         px-3
                         py-3
-                        backdrop-blur-sm
+                        backdrop-blur-md
                         sm:px-4
                         sm:py-4
                     "
@@ -171,20 +175,20 @@ export default function BuyModal({
                     <div
                         className="
                             flex
-                            max-h-[calc(100vh-24px)]
                             w-full
-                            max-w-[430px]
+                            max-w-[440px]
                             flex-col
                             overflow-hidden
                             rounded-2xl
                             border
-                            border-white/10
-                            bg-[#0D1117]
-                            shadow-2xl
-                            sm:max-h-[calc(100vh-32px)]
+                            border-white/[0.08]
+                            bg-[#0C1016]
+                            shadow-[0_25px_80px_rgba(0,0,0,0.65)]
+                            max-h-[calc(100dvh-24px)]
+                            sm:max-h-[calc(100dvh-40px)]
                         "
                     >
-                        {/* HEADER — НЕ ЛИСТАЕТСЯ */}
+                        {/* HEADER */}
 
                         <div
                             className="
@@ -192,21 +196,38 @@ export default function BuyModal({
                                 shrink-0
                                 items-center
                                 justify-between
-                                gap-3
                                 border-b
                                 border-white/[0.06]
+                                bg-[#0D1117]
                                 px-4
                                 py-3
-                                sm:px-5
                             "
                         >
-                            <div>
-                                <h2 className="text-base font-bold text-white">
-                                    Оформление заказа
-                                </h2>
+                            <div className="min-w-0">
+                                <div className="flex items-center gap-2">
+                                    <div
+                                        className="
+                                            flex
+                                            h-7
+                                            w-7
+                                            shrink-0
+                                            items-center
+                                            justify-center
+                                            rounded-lg
+                                            bg-blue-500/10
+                                            text-blue-400
+                                        "
+                                    >
+                                        ₽
+                                    </div>
 
-                                <p className="mt-0.5 text-[10px] text-slate-600">
-                                    Проверьте данные перед оплатой
+                                    <h2 className="truncate text-sm font-bold text-white">
+                                        Оформление заказа
+                                    </h2>
+                                </div>
+
+                                <p className="mt-1 text-[10px] text-slate-600">
+                                    Оплата цифрового товара
                                 </p>
                             </div>
 
@@ -215,6 +236,7 @@ export default function BuyModal({
                                 onClick={closeModal}
                                 disabled={loading}
                                 className="
+                                    ml-3
                                     flex
                                     h-8
                                     w-8
@@ -222,16 +244,18 @@ export default function BuyModal({
                                     items-center
                                     justify-center
                                     rounded-lg
-                                    bg-white/[0.04]
+                                    border
+                                    border-white/[0.05]
+                                    bg-white/[0.025]
                                     text-sm
                                     text-slate-500
                                     transition
-                                    hover:bg-white/[0.08]
+                                    hover:bg-white/[0.07]
                                     hover:text-white
-                                    disabled:opacity-50
+                                    disabled:opacity-40
                                 "
                             >
-                                ✕
+                                ×
                             </button>
                         </div>
 
@@ -245,32 +269,51 @@ export default function BuyModal({
                                 overscroll-contain
                                 px-4
                                 py-3
-                                sm:px-5
-                                sm:py-4
+                                scrollbar-thin
+                                scrollbar-track-[#0A0E13]
+                                scrollbar-thumb-[#26303D]
+                                hover:scrollbar-thumb-[#344153]
                             "
                             style={{
                                 scrollbarWidth: "thin",
+                                scrollbarColor: "#26303D #0A0E13",
                             }}
                         >
-                            {/* PRODUCT */}
+                            {/* ТОВАР */}
 
                             <div
                                 className="
                                     rounded-xl
                                     border
                                     border-white/[0.06]
-                                    bg-black/20
+                                    bg-[#090D12]
                                     p-3
                                 "
                             >
-                                <div className="flex items-center justify-between gap-3">
-                                    <div className="min-w-0">
+                                <div className="flex items-center gap-3">
+                                    <div
+                                        className="
+                                            flex
+                                            h-9
+                                            w-9
+                                            shrink-0
+                                            items-center
+                                            justify-center
+                                            rounded-lg
+                                            bg-blue-500/10
+                                            text-blue-400
+                                        "
+                                    >
+                                        MOD
+                                    </div>
+
+                                    <div className="min-w-0 flex-1">
                                         <div className="truncate text-sm font-semibold text-white">
                                             {productName}
                                         </div>
 
-                                        <div className="mt-1 truncate text-[11px] text-slate-600">
-                                            Продавец: {sellerName}
+                                        <div className="mt-0.5 truncate text-[10px] text-slate-600">
+                                            Автор: {sellerName}
                                         </div>
                                     </div>
 
@@ -279,178 +322,284 @@ export default function BuyModal({
                                             {price} ₽
                                         </div>
 
-                                        <div className="text-[9px] uppercase tracking-wider text-slate-600">
-                                            товар
+                                        <div className="mt-0.5 text-[9px] uppercase tracking-wider text-slate-700">
+                                            стоимость
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* PAYMENT */}
+                            {/* ОПЛАТА */}
 
-                            <div className="mt-4">
-                                <div className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-slate-600">
-                                    Способы оплаты
+                            <div className="mt-3">
+                                <div
+                                    className="
+                                        mb-2
+                                        flex
+                                        items-center
+                                        gap-2
+                                        text-[10px]
+                                        font-semibold
+                                        uppercase
+                                        tracking-widest
+                                        text-slate-600
+                                    "
+                                >
+                                    <span>Способы оплаты</span>
+
+                                    <span className="h-px flex-1 bg-white/[0.05]" />
                                 </div>
 
                                 <div
                                     className="
+                                        overflow-hidden
                                         rounded-xl
                                         border
                                         border-white/[0.06]
-                                        bg-black/20
-                                        p-3
-                                        text-[12px]
-                                        leading-5
-                                        text-slate-400
+                                        bg-[#090D12]
                                     "
                                 >
-                                    <div>
-                                        <span className="font-semibold text-slate-300">
-                                            СберБанк
-                                        </span>
+                                    {/* СБЕР */}
 
-                                        <span className="ml-2 text-slate-500">
+                                    <div className="flex items-center justify-between gap-3 px-3 py-2.5">
+                                        <div>
+                                            <div className="text-xs font-semibold text-white">
+                                                СберБанк
+                                            </div>
+
+                                            <div className="mt-0.5 text-[10px] text-slate-600">
+                                                Номер карты
+                                            </div>
+                                        </div>
+
+                                        <div
+                                            className="
+                                                rounded-lg
+                                                bg-white/[0.035]
+                                                px-2.5
+                                                py-1.5
+                                                font-mono
+                                                text-[10px]
+                                                text-slate-400
+                                            "
+                                        >
                                             2202 2088 8291 8056
-                                        </span>
+                                        </div>
                                     </div>
 
-                                    <div className="my-2 h-px bg-white/[0.05]" />
+                                    <div className="h-px bg-white/[0.05]" />
 
-                                    <div>
-                                        <span className="font-semibold text-slate-300">
-                                            Т-Банк
-                                        </span>
+                                    {/* Т-БАНК */}
 
-                                        <span className="ml-2 text-slate-500">
+                                    <div className="flex items-center justify-between gap-3 px-3 py-2.5">
+                                        <div>
+                                            <div className="text-xs font-semibold text-white">
+                                                Т-Банк
+                                            </div>
+
+                                            <div className="mt-0.5 text-[10px] text-slate-600">
+                                                Номер карты
+                                            </div>
+                                        </div>
+
+                                        <div
+                                            className="
+                                                rounded-lg
+                                                bg-white/[0.035]
+                                                px-2.5
+                                                py-1.5
+                                                font-mono
+                                                text-[10px]
+                                                text-slate-400
+                                            "
+                                        >
                                             5536 9177 2933 9314
-                                        </span>
+                                        </div>
                                     </div>
 
-                                    <div className="my-2 h-px bg-white/[0.05]" />
+                                    <div className="h-px bg-white/[0.05]" />
 
-                                    <div>
-                                        <span className="font-semibold text-slate-300">
-                                            Donation Alerts
-                                        </span>
+                                    {/* DONATION ALERTS */}
 
-                                        <div className="mt-0.5 break-all text-[10px] text-slate-600">
+                                    <div className="px-3 py-2.5">
+                                        <div className="flex items-center justify-between gap-3">
+                                            <div>
+                                                <div className="text-xs font-semibold text-white">
+                                                    Donation Alerts
+                                                </div>
+
+                                                <div className="mt-0.5 text-[10px] text-slate-600">
+                                                    С учётом комиссии
+                                                </div>
+                                            </div>
+
+                                            <div className="text-xs font-semibold text-blue-400">
+                                                {donationPrice} ₽
+                                            </div>
+                                        </div>
+
+                                        <div
+                                            className="
+                                                mt-2
+                                                rounded-lg
+                                                bg-black/20
+                                                px-2.5
+                                                py-2
+                                                text-[10px]
+                                                text-slate-600
+                                            "
+                                        >
                                             donationalerts.com/r/galbraith1629
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* WARNING */}
+                            {/* ВАЖНАЯ ИНФОРМАЦИЯ */}
 
                             <div
                                 className="
                                     mt-3
-                                    rounded-lg
+                                    rounded-xl
                                     border
                                     border-amber-500/15
-                                    bg-amber-500/[0.05]
-                                    px-3
-                                    py-2
+                                    bg-amber-500/[0.045]
+                                    p-3
                                 "
                             >
-                                <p className="text-[11px] leading-4 text-slate-400">
-                                    ⚠️{" "}
-                                    <b className="text-amber-300">
-                                        Donation Alerts:
-                                    </b>{" "}
-                                    комиссия{" "}
-                                    <b className="text-slate-300">
-                                        15%
-                                    </b>
-                                    . При недостаточной сумме доната потребуется{" "}
-                                    <b className="text-amber-300">
-                                        доплата разницы
-                                    </b>
-                                    .
-                                </p>
+                                <div className="flex gap-2.5">
+                                    <div
+                                        className="
+                                            flex
+                                            h-6
+                                            w-6
+                                            shrink-0
+                                            items-center
+                                            justify-center
+                                            rounded-lg
+                                            bg-amber-400/10
+                                            text-xs
+                                        "
+                                    >
+                                        ⚠️
+                                    </div>
+
+                                    <div className="min-w-0">
+                                        <div className="text-[11px] font-semibold text-amber-300">
+                                            Важно при оплате через Donation Alerts
+                                        </div>
+
+                                        <p className="mt-1 text-[10px] leading-4 text-slate-500">
+                                            Платформа удерживает комиссию{" "}
+                                            <b className="text-slate-300">
+                                                15%
+                                            </b>
+                                            . Поэтому необходимо отправить{" "}
+                                            <b className="text-slate-300">
+                                                {donationPrice} ₽
+                                            </b>
+                                            . Если поступившая сумма окажется
+                                            меньше стоимости товара с учётом
+                                            комиссии, потребуется{" "}
+                                            <b className="text-amber-300">
+                                                доплатить разницу
+                                            </b>
+                                            .
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
 
-                            {/* PROMO */}
+                            {/* ПРОМОКОД */}
 
-                            <div className="mt-4">
-                                <label className="text-[10px] font-semibold uppercase tracking-widest text-slate-600">
+                            <div className="mt-3">
+                                <label
+                                    className="
+                                        text-[10px]
+                                        font-semibold
+                                        uppercase
+                                        tracking-widest
+                                        text-slate-600
+                                    "
+                                >
                                     Промокод
                                 </label>
 
-                                <input
-                                    value={promo}
-                                    onChange={(e) =>
-                                        setPromo(e.target.value)
-                                    }
-                                    disabled={loading}
-                                    className="
-                                        mt-2
-                                        h-10
-                                        w-full
-                                        rounded-lg
-                                        border
-                                        border-white/10
-                                        bg-black/30
-                                        px-3
-                                        text-sm
-                                        text-white
-                                        outline-none
-                                        transition
-                                        placeholder:text-slate-700
-                                        focus:border-blue-500/50
-                                        disabled:opacity-50
-                                    "
-                                    placeholder="Введите промокод"
-                                />
+                                <div className="relative mt-1.5">
+                                    <input
+                                        value={promo}
+                                        onChange={(e) =>
+                                            setPromo(e.target.value)
+                                        }
+                                        disabled={loading}
+                                        className="
+                                            h-10
+                                            w-full
+                                            rounded-xl
+                                            border
+                                            border-white/[0.07]
+                                            bg-[#090D12]
+                                            px-3
+                                            text-xs
+                                            text-white
+                                            outline-none
+                                            transition
+                                            placeholder:text-slate-700
+                                            focus:border-blue-500/40
+                                            focus:bg-[#0A0F15]
+                                            disabled:opacity-50
+                                        "
+                                        placeholder="Введите промокод, если он есть"
+                                    />
+                                </div>
                             </div>
 
-                            {/* TOTAL */}
+                            {/* ИТОГО */}
 
                             <div
                                 className="
-                                    mt-4
+                                    mt-3
                                     rounded-xl
                                     border
-                                    border-white/[0.06]
-                                    bg-black/20
+                                    border-blue-500/10
+                                    bg-blue-500/[0.035]
                                     p-3
                                 "
                             >
                                 <div className="flex items-center justify-between">
                                     <span className="text-xs text-slate-500">
-                                        Итого
+                                        К оплате
                                     </span>
 
-                                    <span className="text-lg font-bold text-white">
+                                    <span className="text-xl font-bold text-white">
                                         {price} ₽
                                     </span>
                                 </div>
 
-                                <div className="mt-1.5 flex items-center justify-between">
+                                <div className="mt-1 flex items-center justify-between">
                                     <span className="text-[10px] text-slate-700">
-                                        Через Donation Alerts
+                                        Donation Alerts
                                     </span>
 
-                                    <span className="text-[11px] font-medium text-slate-500">
+                                    <span className="text-[10px] font-medium text-blue-400">
                                         {donationPrice} ₽
                                     </span>
                                 </div>
                             </div>
 
-                            {/* ERROR */}
+                            {/* ОШИБКА */}
 
                             {error && (
                                 <div
                                     className="
                                         mt-3
-                                        rounded-lg
+                                        rounded-xl
                                         border
                                         border-red-500/20
-                                        bg-red-500/[0.08]
+                                        bg-red-500/[0.07]
                                         px-3
                                         py-2.5
-                                        text-[11px]
+                                        text-[10px]
                                         leading-4
                                         text-red-300
                                     "
@@ -459,12 +608,10 @@ export default function BuyModal({
                                 </div>
                             )}
 
-                            {/* EXTRA SPACE */}
-
-                            <div className="h-2" />
+                            <div className="h-1" />
                         </div>
 
-                        {/* FOOTER — НЕ ЛИСТАЕТСЯ */}
+                        {/* FOOTER */}
 
                         <div
                             className="
@@ -474,7 +621,6 @@ export default function BuyModal({
                                 bg-[#0D1117]
                                 px-4
                                 py-3
-                                sm:px-5
                             "
                         >
                             <button
@@ -489,11 +635,12 @@ export default function BuyModal({
                                     rounded-xl
                                     bg-emerald-600
                                     py-2.5
-                                    text-sm
+                                    text-xs
                                     font-semibold
                                     text-white
                                     transition
                                     hover:bg-emerald-500
+                                    active:scale-[0.99]
                                     disabled:cursor-not-allowed
                                     disabled:opacity-50
                                 "
@@ -503,10 +650,27 @@ export default function BuyModal({
                                     : "Я оплатил"}
                             </button>
 
-                            <p className="mt-1.5 text-center text-[9px] leading-4 text-slate-700">
-                                После подтверждения оплаты заказ будет
-                                обработан администратором.
-                            </p>
+                            <div
+                                className="
+                                    mt-2
+                                    flex
+                                    items-center
+                                    justify-center
+                                    gap-1.5
+                                    text-[9px]
+                                    text-slate-700
+                                "
+                            >
+                                <span>После оплаты</span>
+
+                                <span className="text-slate-600">
+                                    •
+                                </span>
+
+                                <span>
+                                    заказ проверит администратор
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
