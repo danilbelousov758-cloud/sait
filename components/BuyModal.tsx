@@ -661,7 +661,7 @@ export default function BuyModal({
 
                                         <br />
 
-                                        2202 2088 8291 8056
+                                        2202 2083 5947 7511
 
 
                                     </div>
@@ -670,21 +670,6 @@ export default function BuyModal({
 
                                     <div className="my-2 h-px bg-white/5" />
 
-
-
-                                    <div>
-
-
-                                        <b className="text-slate-300">
-                                            Т-Банк:
-                                        </b>
-
-                                        <br />
-
-                                        5536 9177 2933 9314
-
-
-                                    </div>
 
 
 
@@ -704,7 +689,7 @@ export default function BuyModal({
 
                                         <span className="text-[10px] text-slate-600">
 
-                                            donationalerts.com/r/galbraith1629
+                                            donationalerts.com/r/mazepov_connextion
 
                                         </span>
 
