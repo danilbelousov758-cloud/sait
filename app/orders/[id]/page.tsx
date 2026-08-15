@@ -29,15 +29,9 @@ type OrderData = {
 
 
 
+async function getOrder(id:number){
 
-
-async function getOrder(
-    id:number
-){
-
-    const [
-        rows
-    ] = await db.execute(
+    const [rows] = await db.execute(
 
         `
         SELECT
@@ -47,12 +41,9 @@ async function getOrder(
             o.status,
             o.created_at,
 
-
             p.name AS product_name,
 
-
             seller.username AS seller_name,
-
 
             buyer.username AS buyer_name
 
@@ -62,53 +53,99 @@ async function getOrder(
 
         JOIN products p
 
-            ON p.id = o.product_id
+        ON p.id = o.product_id
 
 
         JOIN users seller
 
-            ON seller.id = o.seller_id
+        ON seller.id = o.seller_id
 
 
         JOIN users buyer
 
-            ON buyer.id = o.buyer_id
+        ON buyer.id = o.buyer_id
 
 
         WHERE o.id = ?
 
-
         LIMIT 1
-
         `,
 
-        [
-            id
-        ]
+        [id]
 
     );
 
 
-
-    const result =
-        rows as any[];
+    const order = rows as any[];
 
 
-
-    if(!result[0]){
+    if(!order[0]){
 
         return null;
 
     }
 
 
-
-    return result[0] as OrderData;
+    return order[0] as OrderData;
 
 }
 
 
 
+
+
+function getStatus(status:string){
+
+
+    switch(status){
+
+
+        case "WAIT_PAYMENT":
+
+            return {
+
+                text:"Ожидает оплаты",
+
+                color:"yellow"
+
+            };
+
+
+        case "PAID":
+
+            return {
+
+                text:"Оплата подтверждена",
+
+                color:"blue"
+
+            };
+
+
+        case "COMPLETED":
+
+            return {
+
+                text:"Заказ завершён",
+
+                color:"green"
+
+            };
+
+
+        default:
+
+            return {
+
+                text:"Проверка заказа",
+
+                color:"slate"
+
+            };
+
+    }
+
+}
 
 
 
@@ -121,26 +158,20 @@ export default async function OrderPage({
 }:{
 
     params:Promise<{
-        id:string;
+        id:string
     }>
 
 }){
 
 
-    const {
-        id
-    } = await params;
+    const {id} = await params;
+
+
+    const orderId = Number(id);
 
 
 
-    const orderId =
-        Number(id);
-
-
-
-    if(
-        !Number.isInteger(orderId)
-    ){
+    if(!Number.isInteger(orderId)){
 
         notFound();
 
@@ -148,8 +179,7 @@ export default async function OrderPage({
 
 
 
-    const order =
-        await getOrder(orderId);
+    const order = await getOrder(orderId);
 
 
 
@@ -161,41 +191,7 @@ export default async function OrderPage({
 
 
 
-
-
-    const statusText =
-
-        order.status === "WAIT_PAYMENT"
-
-        ?
-
-        "Ожидает подтверждения оплаты"
-
-
-        :
-
-
-        order.status === "PAID"
-
-        ?
-
-        "Оплата подтверждена"
-
-
-        :
-
-
-        order.status === "COMPLETED"
-
-        ?
-
-        "Заказ завершён"
-
-
-        :
-
-
-        "Проверка заказа";
+    const status = getStatus(order.status);
 
 
 
@@ -210,46 +206,38 @@ export default async function OrderPage({
 
 
 
-        <main
-
-        className="
+        <main className="
             min-h-screen
-            bg-[#080B10]
+            bg-[#070A0F]
             px-4
+            pt-28
             pb-20
-            pt-[120px]
             text-white
-        "
-
-        >
+        ">
 
 
 
-        <div
-
-        className="
+        <div className="
             mx-auto
             max-w-5xl
-        "
-
-        >
+        ">
 
 
 
         <Link
 
-        href="/catalog"
+            href="/catalog"
 
-        className="
-            text-sm
-            text-slate-500
-            transition
-            hover:text-white
-        "
+            className="
+                text-sm
+                text-slate-500
+                hover:text-white
+                transition
+            "
 
         >
 
-            ← Вернуться в каталог
+            ← Назад в каталог
 
 
         </Link>
@@ -258,76 +246,54 @@ export default async function OrderPage({
 
 
 
-
-        <div
-
-        className="
+        <section className="
             mt-6
+            overflow-hidden
             rounded-3xl
             border
             border-white/10
             bg-[#0D1117]
+        ">
+
+
+
+        <div className="
             p-6
-        "
-
-        >
+        ">
 
 
 
-        <div
-
-        className="
+        <div className="
             flex
             flex-col
-            gap-4
-            sm:flex-row
-            sm:items-start
-            sm:justify-between
-        "
-
-        >
+            gap-5
+            md:flex-row
+            md:items-center
+            md:justify-between
+        ">
 
 
 
         <div>
 
 
-        <h1
-
-        className="
+        <h1 className="
             text-3xl
             font-bold
-        "
-
-        >
+        ">
 
             {order.product_name}
-
 
         </h1>
 
 
-
-        <p
-
-        className="
+        <p className="
             mt-2
             text-sm
             text-slate-500
-        "
-
-        >
+        ">
 
             Заказ #{order.id}
-
-            {" · "}
-
-            Продавец:
-
-            {" "}
-
-            {order.seller_name}
-
 
         </p>
 
@@ -338,21 +304,33 @@ export default async function OrderPage({
 
 
 
-        <div
-
-        className="
-            rounded-xl
+        <div className="
+            rounded-2xl
             bg-blue-500/10
-            px-4
-            py-2
-            text-sm
-            font-semibold
-            text-blue-400
-        "
+            px-6
+            py-4
+            text-right
+        ">
 
-        >
+            <div className="
+                text-xs
+                text-slate-400
+            ">
 
-            {order.price} ₽
+                Сумма заказа
+
+            </div>
+
+
+            <div className="
+                text-3xl
+                font-bold
+                text-blue-400
+            ">
+
+                {order.price} ₽
+
+            </div>
 
 
         </div>
@@ -367,142 +345,227 @@ export default async function OrderPage({
 
 
 
-
-
-        <div
-
-        className="
+        <div className={`
             mt-6
             rounded-2xl
             border
-            border-yellow-500/20
-            bg-yellow-500/[0.08]
             p-5
-        "
 
-        >
+            ${
+                status.color==="yellow"
+
+                ?
+
+                "border-yellow-500/30 bg-yellow-500/10"
+
+                :
+
+                status.color==="blue"
+
+                ?
+
+                "border-blue-500/30 bg-blue-500/10"
+
+                :
+
+                status.color==="green"
+
+                ?
+
+                "border-green-500/30 bg-green-500/10"
+
+                :
+
+                "border-white/10 bg-white/5"
+
+            }
+        `}>
 
 
-        <div
+            <p className="
+                text-xs
+                uppercase
+                tracking-widest
+                text-slate-400
+            ">
 
-        className="
-            text-[10px]
-            font-semibold
-            uppercase
-            tracking-widest
-            text-yellow-400
-        "
+                Статус
 
-        >
+            </p>
 
-            Статус заказа
+
+            <h2 className="
+                mt-2
+                text-xl
+                font-semibold
+            ">
+
+                {status.text}
+
+            </h2>
 
 
         </div>
 
 
 
-        <div
-
-        className="
-            mt-2
-            text-lg
-            font-semibold
-        "
-
-        >
-
-            {statusText}
-
-
-        </div>
-
-
-        </div>
 
 
 
 
-
-
-
-
-
-        <div
-
-        className="
+        <div className="
             mt-6
             grid
             gap-4
-            sm:grid-cols-2
-        "
-
-        >
+            md:grid-cols-2
+        ">
 
 
 
-        <div
+            <div className="
+                rounded-2xl
+                border
+                border-white/10
+                bg-black/20
+                p-5
+            ">
 
-        className="
-            rounded-2xl
-            border
-            border-white/10
-            bg-black/20
-            p-4
-        "
 
-        >
+                <p className="
+                    text-xs
+                    text-slate-500
+                ">
 
-        <div className="text-xs text-slate-600">
+                    Участники сделки
 
-            Покупатель
+                </p>
+
+
+
+                <div className="
+                    mt-4
+                    space-y-3
+                ">
+
+
+                    <div>
+
+                        <span className="
+                            text-slate-500
+                            text-sm
+                        ">
+
+                            Продавец
+
+                        </span>
+
+
+                        <p className="font-semibold">
+
+                            {order.seller_name}
+
+                        </p>
+
+                    </div>
+
+
+
+                    <div>
+
+                        <span className="
+                            text-slate-500
+                            text-sm
+                        ">
+
+                            Покупатель
+
+                        </span>
+
+
+                        <p className="font-semibold">
+
+                            {order.buyer_name}
+
+                        </p>
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+
+
+
+
+            <div className="
+                rounded-2xl
+                border
+                border-white/10
+                bg-black/20
+                p-5
+            ">
+
+
+                <p className="
+                    text-xs
+                    text-slate-500
+                ">
+
+                    Информация
+
+                </p>
+
+
+                <div className="
+                    mt-4
+                ">
+
+
+                    <span className="
+                        text-slate-500
+                        text-sm
+                    ">
+
+                        Создан
+
+                    </span>
+
+
+                    <p className="font-semibold">
+
+                        {new Date(order.created_at)
+                        .toLocaleString("ru-RU")}
+
+                    </p>
+
+
+                </div>
+
+
+            </div>
+
+
 
         </div>
 
 
-        <div className="mt-2 font-semibold">
-
-            {order.buyer_name}
-
-        </div>
-
-
-        </div>
 
 
 
 
+        <div className="
+            mt-8
+        ">
 
-        <div
+            <OrderChat
 
-        className="
-            rounded-2xl
-            border
-            border-white/10
-            bg-black/20
-            p-4
-        "
+                orderId={order.id}
 
-        >
-
-        <div className="text-xs text-slate-600">
-
-            Создан
-
-        </div>
-
-
-        <div className="mt-2 font-semibold">
-
-            {new Date(order.created_at)
-                .toLocaleDateString("ru-RU")}
-
-        </div>
-
-
-        </div>
-
-
+            />
 
         </div>
 
@@ -512,56 +575,34 @@ export default async function OrderPage({
 
 
 
-
-        <OrderChat
-
-            orderId={order.id}
-
-        />
-
-
-
-
-
-
-
-
-        <div
-
-        className="
-            mt-6
+        <div className="
+            mt-8
             flex
             items-center
             justify-between
             border-t
             border-white/10
-            pt-5
-        "
-
-        >
+            pt-6
+        ">
 
 
-        <span className="text-slate-500">
+            <span className="
+                text-slate-400
+            ">
 
-            К оплате
+                К оплате
 
-        </span>
-
-
-
-        <b
-
-        className="
-            text-2xl
-            font-bold
-        "
-
-        >
-
-            {order.price} ₽
+            </span>
 
 
-        </b>
+
+            <strong className="
+                text-3xl
+            ">
+
+                {order.price} ₽
+
+            </strong>
 
 
         </div>
@@ -569,17 +610,13 @@ export default async function OrderPage({
 
 
 
-
-
-
         </div>
 
 
-
+        </section>
 
 
         </div>
-
 
 
         </main>
