@@ -31,7 +31,7 @@ export async function POST(
 
         const price =
             Number(
-                body.price || 0
+                body.price ?? 0
             );
 
 
@@ -39,7 +39,7 @@ export async function POST(
         const description =
             String(
                 body.description || ""
-            );
+            ).trim();
 
 
 
@@ -56,6 +56,16 @@ export async function POST(
             );
 
 
+
+        /*
+         * ВАЖНО:
+         *
+         * Здесь сохраняются именно
+         * пути / URL файлов S3.
+         *
+         * Сам файл через этот API
+         * не проходит.
+         */
 
         const dffFile =
             String(
@@ -75,21 +85,20 @@ export async function POST(
             Array.isArray(
                 body.images
             )
-
-                ? body.images
-                    .filter(
-                        (
-                            image: unknown
-                        ): image is string =>
-                            typeof image === "string" &&
-                            image.trim().length > 0
-                    )
-
+                ? body.images.filter(
+                    (
+                        image: unknown
+                    ): image is string =>
+                        typeof image === "string" &&
+                        image.trim().length > 0
+                )
                 : [];
 
 
 
-
+        /*
+         * Проверка названия.
+         */
 
         if (!name) {
 
@@ -97,7 +106,6 @@ export async function POST(
 
                 {
                     success: false,
-
                     message:
                         "Введите название товара",
                 },
@@ -112,7 +120,9 @@ export async function POST(
 
 
 
-
+        /*
+         * Проверка категории.
+         */
 
         if (!category) {
 
@@ -120,7 +130,6 @@ export async function POST(
 
                 {
                     success: false,
-
                     message:
                         "Выберите категорию товара",
                 },
@@ -135,33 +144,18 @@ export async function POST(
 
 
 
-
-
         /*
-         * Категория должна быть конечной.
-         *
-         * Например:
-         *
-         * Скины/Банды       ✅
-         * Скины/Мафии       ✅
-         * Оружие/Дигл      ✅
-         *
-         * Скины             ❌
-         * Оружие            ❌
+         * Запрещаем выбирать
+         * родительскую категорию.
          */
 
         const forbiddenCategories = [
 
             "Скины",
-
             "Оружие",
-
             "Интерьеры",
-
             "Заменные территории",
-
             "Эффекты",
-
             "Звуки",
 
         ];
@@ -193,10 +187,12 @@ export async function POST(
 
 
 
-
+        /*
+         * Проверка цены.
+         */
 
         if (
-            Number.isNaN(price) ||
+            !Number.isFinite(price) ||
             price < 0
         ) {
 
@@ -204,7 +200,6 @@ export async function POST(
 
                 {
                     success: false,
-
                     message:
                         "Некорректная цена",
                 },
@@ -219,15 +214,19 @@ export async function POST(
 
 
 
+        /*
+         * Проверка автора.
+         */
 
-
-        if (!authorId) {
+        if (
+            !Number.isInteger(authorId) ||
+            authorId <= 0
+        ) {
 
             return NextResponse.json(
 
                 {
                     success: false,
-
                     message:
                         "Не найден автор товара",
                 },
@@ -242,7 +241,9 @@ export async function POST(
 
 
 
-
+        /*
+         * Обязательные файлы мода.
+         */
 
         if (!dffFile) {
 
@@ -250,7 +251,6 @@ export async function POST(
 
                 {
                     success: false,
-
                     message:
                         "DFF файл не загружен",
                 },
@@ -265,15 +265,12 @@ export async function POST(
 
 
 
-
-
         if (!txdFile) {
 
             return NextResponse.json(
 
                 {
                     success: false,
-
                     message:
                         "TXD файл не загружен",
                 },
@@ -288,86 +285,110 @@ export async function POST(
 
 
 
+        /*
+         * Сохраняем товар.
+         *
+         * Никаких файлов через MySQL
+         * не передаём.
+         *
+         * В БД лежат только ссылки
+         * на S3.
+         */
+
+        const [result] =
+            await db.execute(
+
+                `
+                INSERT INTO products
+                (
+                    name,
+                    category,
+                    price,
+                    description,
+                    pinned,
+                    dff_file,
+                    txd_file,
+                    images,
+                    author_id,
+                    status,
+                    created_at
+                )
+
+                VALUES
+                (
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    NOW()
+                )
+                `,
+
+                [
+
+                    name,
+
+                    category,
+
+                    price,
+
+                    description,
+
+                    pinned
+                        ? 1
+                        : 0,
+
+                    dffFile,
+
+                    txdFile,
+
+                    JSON.stringify(
+                        images
+                    ),
+
+                    authorId,
+
+                    "ACTIVE",
+
+                ]
+
+            );
 
 
-        await db.execute(
 
-            `
-            INSERT INTO products
-            (
+        console.log(
+            "PRODUCT CREATED:",
+            {
                 name,
                 category,
                 price,
-                description,
-                pinned,
-                dff_file,
-                txd_file,
-                images,
-                author_id,
-                status,
-                created_at
-            )
-
-            VALUES
-            (
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                ?,
-                NOW()
-            )
-            `,
-
-            [
-
-                name,
-
-                category,
-
-                price,
-
-                description,
-
-                pinned
-                    ? 1
-                    : 0,
-
-                dffFile,
-
-                txdFile,
-
-                JSON.stringify(
-                    images
-                ),
-
                 authorId,
-
-                "ACTIVE",
-
-            ]
-
+            }
         );
 
 
 
+        return NextResponse.json(
 
+            {
+                success: true,
 
-        return NextResponse.json({
+                message:
+                    "Товар успешно создан",
 
-            success: true,
+            },
 
-            message:
-                "Товар успешно создан",
+            {
+                status: 201,
+            }
 
-        });
-
-
+        );
 
 
 
@@ -383,20 +404,16 @@ export async function POST(
         return NextResponse.json(
 
             {
-
                 success: false,
 
                 message:
                     error instanceof Error
                         ? error.message
                         : "Ошибка создания товара",
-
             },
 
             {
-
                 status: 500,
-
             }
 
         );

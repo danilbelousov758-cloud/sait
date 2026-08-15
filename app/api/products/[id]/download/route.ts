@@ -5,7 +5,9 @@ import {
     GetObjectCommand,
 } from "@aws-sdk/client-s3";
 
-import JSZip from "jszip";
+import {
+    getSignedUrl,
+} from "@aws-sdk/s3-request-presigner";
 
 
 const endpoint =
@@ -45,10 +47,6 @@ const s3 = new S3Client({
 });
 
 
-/*
- * Безопасное название ZIP.
- */
-
 function cleanZipName(
     name: string
 ) {
@@ -77,97 +75,6 @@ function cleanZipName(
 }
 
 
-/*
- * Получаем имя файла из URL или S3 key.
- */
-
-function getFileName(
-    urlOrKey: string | null
-) {
-
-    if (!urlOrKey) {
-        return null;
-    }
-
-
-    let fileName = "";
-
-
-    try {
-
-        const url =
-            new URL(urlOrKey);
-
-        const pathname =
-            decodeURIComponent(
-                url.pathname
-            );
-
-        const parts =
-            pathname
-                .split("/")
-                .filter(Boolean);
-
-        fileName =
-            parts[
-                parts.length - 1
-            ] || "";
-
-    } catch {
-
-        const parts =
-            urlOrKey
-                .split("/")
-                .filter(Boolean);
-
-        fileName =
-            parts[
-                parts.length - 1
-            ] || "";
-
-    }
-
-
-    if (!fileName) {
-        return null;
-    }
-
-
-    /*
-     * Убираем timestamp,
-     * который добавляется при загрузке
-     * файла в S3.
-     *
-     * Было:
-     *
-     * 1755261234567-skin.dff
-     *
-     * Станет:
-     *
-     * skin.dff
-     *
-     *
-     * Также поддерживается:
-     *
-     * 1755261234567_skin.dff
-     */
-
-    fileName =
-        fileName.replace(
-            /^\d{10,}[-_]/,
-            ""
-        );
-
-
-    return fileName || null;
-
-}
-
-
-/*
- * Получаем настоящий S3 key.
- */
-
 function getS3Key(
     value: string
 ) {
@@ -194,11 +101,6 @@ function getS3Key(
                 ""
             );
 
-
-        /*
-         * Убираем имя bucket
-         * из начала пути.
-         */
 
         if (
             bucket &&
@@ -229,76 +131,6 @@ function getS3Key(
 }
 
 
-/*
- * Загружаем файл из S3.
- */
-
-async function downloadS3File(
-    value: string
-) {
-
-    const key =
-        getS3Key(value);
-
-
-    if (!key) {
-        return null;
-    }
-
-
-    console.log(
-        "DOWNLOAD S3 KEY:",
-        key
-    );
-
-
-    const command =
-        new GetObjectCommand({
-
-            Bucket:
-                bucket,
-
-            Key:
-                key,
-
-        });
-
-
-    const result =
-        await s3.send(
-            command
-        );
-
-
-    if (!result.Body) {
-
-        throw new Error(
-            `Файл не найден в S3: ${key}`
-        );
-
-    }
-
-
-    const bytes =
-        await result.Body
-            .transformToByteArray();
-
-
-    return {
-
-        key,
-
-        bytes,
-
-    };
-
-}
-
-
-/*
- * GET /api/products/[id]/download
- */
-
 export async function GET(
     request: NextRequest,
     context: {
@@ -310,10 +142,6 @@ export async function GET(
 
     try {
 
-        /*
-         * Проверяем S3.
-         */
-
         if (
             !endpoint ||
             !bucket ||
@@ -324,12 +152,10 @@ export async function GET(
             return NextResponse.json(
 
                 {
-
                     success: false,
 
                     message:
-                        "S3 не настроен. Проверь S3_ENDPOINT, S3_BUCKET, S3_ACCESS_KEY и S3_SECRET_KEY.",
-
+                        "S3 не настроен",
                 },
 
                 {
@@ -340,10 +166,6 @@ export async function GET(
 
         }
 
-
-        /*
-         * Получаем ID товара.
-         */
 
         const {
             id,
@@ -365,12 +187,10 @@ export async function GET(
             return NextResponse.json(
 
                 {
-
                     success: false,
 
                     message:
                         "Некорректный ID товара",
-
                 },
 
                 {
@@ -382,19 +202,11 @@ export async function GET(
         }
 
 
-        /*
-         * Подключаем MySQL.
-         */
-
         const mysql =
             await import(
                 "@/lib/mysql"
             );
 
-
-        /*
-         * Получаем товар.
-         */
 
         const [
             rows,
@@ -405,8 +217,7 @@ export async function GET(
                 SELECT
                     id,
                     name,
-                    dff_file,
-                    txd_file,
+                    zip_file,
                     status
 
                 FROM products
@@ -430,10 +241,7 @@ export async function GET(
 
                 name: string;
 
-                dff_file:
-                    string | null;
-
-                txd_file:
+                zip_file:
                     string | null;
 
                 status:
@@ -446,21 +254,15 @@ export async function GET(
             products[0];
 
 
-        /*
-         * Товар не найден.
-         */
-
         if (!product) {
 
             return NextResponse.json(
 
                 {
-
                     success: false,
 
                     message:
                         "Мод не найден",
-
                 },
 
                 {
@@ -472,10 +274,6 @@ export async function GET(
         }
 
 
-        /*
-         * Проверяем статус.
-         */
-
         if (
             product.status &&
             product.status !== "ACTIVE"
@@ -484,12 +282,10 @@ export async function GET(
             return NextResponse.json(
 
                 {
-
                     success: false,
 
                     message:
                         "Этот мод недоступен для скачивания",
-
                 },
 
                 {
@@ -502,23 +298,20 @@ export async function GET(
 
 
         /*
-         * Проверяем наличие файлов.
+         * ZIP должен существовать.
          */
 
         if (
-            !product.dff_file &&
-            !product.txd_file
+            !product.zip_file
         ) {
 
             return NextResponse.json(
 
                 {
-
                     success: false,
 
                     message:
-                        "У этого мода нет файлов для скачивания",
-
+                        "ZIP для этого мода ещё не создан",
                 },
 
                 {
@@ -530,200 +323,21 @@ export async function GET(
         }
 
 
-        console.log(
-            "BUILD ZIP:",
-            {
-
-                id:
-                    product.id,
-
-                name:
-                    product.name,
-
-                dff:
-                    product.dff_file,
-
-                txd:
-                    product.txd_file,
-
-            }
-        );
+        const key =
+            getS3Key(
+                product.zip_file
+            );
 
 
-        /*
-         * Создаём ZIP.
-         */
-
-        const zip =
-            new JSZip();
-
-
-        let addedFiles =
-            0;
-
-
-        /*
-         * --------------------------------
-         * DFF
-         * --------------------------------
-         */
-
-        if (
-            product.dff_file
-        ) {
-
-            try {
-
-                const file =
-                    await downloadS3File(
-                        product.dff_file
-                    );
-
-
-                if (file) {
-
-                    /*
-                     * Получаем оригинальное
-                     * имя файла.
-                     *
-                     * Timestamp автоматически
-                     * убирается.
-                     */
-
-                    const fileName =
-                        getFileName(
-                            product.dff_file
-                        );
-
-
-                    if (
-                        fileName &&
-                        fileName
-                            .toLowerCase()
-                            .endsWith(".dff")
-                    ) {
-
-                        console.log(
-                            "ZIP DFF:",
-                            fileName
-                        );
-
-
-                        zip.file(
-
-                            fileName,
-
-                            file.bytes
-
-                        );
-
-
-                        addedFiles++;
-
-                    }
-
-                }
-
-            } catch (error) {
-
-                console.error(
-                    "DFF DOWNLOAD ERROR:",
-                    error
-                );
-
-            }
-
-        }
-
-
-        /*
-         * --------------------------------
-         * TXD
-         * --------------------------------
-         */
-
-        if (
-            product.txd_file
-        ) {
-
-            try {
-
-                const file =
-                    await downloadS3File(
-                        product.txd_file
-                    );
-
-
-                if (file) {
-
-                    /*
-                     * Получаем оригинальное
-                     * имя файла.
-                     */
-
-                    const fileName =
-                        getFileName(
-                            product.txd_file
-                        );
-
-
-                    if (
-                        fileName &&
-                        fileName
-                            .toLowerCase()
-                            .endsWith(".txd")
-                    ) {
-
-                        console.log(
-                            "ZIP TXD:",
-                            fileName
-                        );
-
-
-                        zip.file(
-
-                            fileName,
-
-                            file.bytes
-
-                        );
-
-
-                        addedFiles++;
-
-                    }
-
-                }
-
-            } catch (error) {
-
-                console.error(
-                    "TXD DOWNLOAD ERROR:",
-                    error
-                );
-
-            }
-
-        }
-
-
-        /*
-         * Ни одного файла не получили.
-         */
-
-        if (
-            addedFiles === 0
-        ) {
+        if (!key) {
 
             return NextResponse.json(
 
                 {
-
                     success: false,
 
                     message:
-                        "Не удалось получить файлы мода из S3",
-
+                        "Некорректный путь ZIP",
                 },
 
                 {
@@ -735,88 +349,66 @@ export async function GET(
         }
 
 
-        /*
-         * Генерируем ZIP.
-         */
-
-        const zipBytes =
-            await zip.generateAsync({
-
-                type:
-                    "uint8array",
-
-                compression:
-                    "DEFLATE",
-
-                compressionOptions: {
-
-                    level: 6,
-
-                },
-
-            });
-
-
-        /*
-         * Название ZIP =
-         * название мода.
-         */
-
         const zipName =
             `${cleanZipName(
                 product.name
             )}.zip`;
 
 
-        console.log(
-            "ZIP CREATED:",
-            zipName
-        );
-
-
         /*
-         * Отправляем ZIP
-         * непосредственно браузеру.
+         * Создаём только временную
+         * подписанную ссылку.
+         *
+         * Сам ZIP через сервер
+         * НЕ проходит.
          */
 
-        return new NextResponse(
+        const downloadUrl =
+            await getSignedUrl(
 
-            zipBytes as BodyInit,
+                s3,
 
-            {
+                new GetObjectCommand({
 
-                status: 200,
+                    Bucket:
+                        bucket,
 
-                headers: {
+                    Key:
+                        key,
 
-                    "Content-Type":
+                    ResponseContentType:
                         "application/zip",
 
-                    "Content-Disposition":
+                    ResponseContentDisposition:
                         `attachment; filename="${encodeURIComponent(
                             zipName
                         )}"; filename*=UTF-8''${encodeURIComponent(
                             zipName
                         )}`,
 
-                    "Content-Length":
-                        String(
-                            zipBytes.length
-                        ),
+                }),
 
-                    "Cache-Control":
-                        "no-store",
+                {
+                    expiresIn:
+                        60 * 15,
+                }
 
-                },
+            );
 
-            }
 
+        /*
+         * Редиректим пользователя
+         * непосредственно на S3.
+         */
+
+        return NextResponse.redirect(
+            downloadUrl
         );
 
     } catch (error) {
 
         console.error(
-            "BUILD ZIP ERROR:",
+            "DOWNLOAD ZIP ERROR:",
             error
         );
 
@@ -824,14 +416,12 @@ export async function GET(
         return NextResponse.json(
 
             {
-
                 success: false,
 
                 message:
                     error instanceof Error
                         ? error.message
-                        : "Ошибка создания ZIP",
-
+                        : "Ошибка скачивания ZIP",
             },
 
             {
